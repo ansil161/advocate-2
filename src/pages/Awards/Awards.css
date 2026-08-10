@@ -1,0 +1,75 @@
+.aw-hero { position: relative; padding: clamp(9rem, 16vw, 13rem) 0 clamp(4rem, 8vw, 6rem); background: var(--black); overflow: hidden; min-height: 88vh; display: flex; flex-direction: column; justify-content: center; }
+.aw-hero__bg { position: absolute; inset: -6% -6%; opacity: 0.28; will-change: transform; }
+.aw-hero__bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); }
+.aw-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,0.5), rgba(10,10,10,0.94)); }
+.aw-hero__content { position: relative; z-index: 2; }
+.aw-hero__sub { max-width: 60ch; color: rgba(247,244,236,0.7); font-size: 1.05rem; line-height: 1.65; margin-top: 1.5rem; }
+
+/* ============================================================
+   CREDENTIAL STATS — counting values, mask-reveal, drawn underline
+   ============================================================ */
+.aw-wall { background: var(--cream); padding: clamp(4rem, 8vw, 6rem) 0; position: relative; z-index: 2; }
+.rec-wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line-light); border: 1px solid var(--line-light); }
+.rec-stat { position: relative; background: var(--cream-soft); padding: 2.5rem 1.75rem 2.1rem; overflow: hidden; }
+.rec-stat__index { display: block; font-family: var(--font-serif); font-size: 0.75rem; color: var(--gold); margin-bottom: 1.6rem; }
+.rec-stat__value { font-family: var(--font-serif); font-size: clamp(1.9rem, 3.2vw, 2.6rem); line-height: 1; display: flex; align-items: baseline; gap: 2px; }
+.rec-stat__value .suffix { color: var(--gold); font-size: 0.6em; }
+.rec-stat__label { font-size: 0.82rem; color: var(--muted-light); margin-top: 0.7rem; line-height: 1.4; }
+.rec-stat__bar { position: absolute; left: 0; bottom: 0; width: 100%; height: 2px; background: var(--gold); transform-origin: left; display: block; }
+
+.aw-quote { background: var(--cream-deep); padding: clamp(6rem, 12vw, 9rem) 0; text-align: center; position: relative; z-index: 2; }
+.aw-quote__text { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.7rem, 3.4vw, 2.6rem); max-width: 22ch; margin: 0 auto; line-height: 1.32; }
+.aw-quote__attr { margin-top: 2rem; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--gold-dim); text-transform: uppercase; }
+
+/* ============================================================
+   BAR COUNCIL — indexed rows with a scroll-drawn left rail
+   ============================================================ */
+.aw-bar { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
+.aw-bar__list { position: relative; border-top: 1px solid var(--line-light); max-width: 900px; padding-left: 2rem; }
+.aw-bar__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--gold); transform-origin: top; transform: scaleY(0); }
+.aw-bar__row { display: grid; grid-template-columns: 40px 1.4fr 1.2fr 1fr 0.6fr; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line-light); font-size: 0.92rem; align-items: baseline; }
+.aw-bar__row--head { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-light); }
+.aw-bar__index { font-family: var(--font-serif); color: var(--gold-dim); font-size: 0.8rem; }
+.aw-bar__row span:nth-child(2) { font-family: var(--font-serif); font-size: 1.05rem; }
+
+/* ============================================================
+   REGULAR APPEARANCES — scroll-scrubbed horizontal track
+   ============================================================ */
+.aw-courts { background: var(--black); padding: clamp(5rem, 10vw, 7rem) 0 0; position: relative; z-index: 2; }
+.aw-courts__head { position: relative; padding-bottom: 3rem; }
+.aw-courts__head .h2 { margin-bottom: 0; }
+.aw-courts__cue { position: absolute; right: var(--gutter, 0); bottom: 3rem; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-soft); writing-mode: vertical-rl; }
+.aw-courts__wrap { height: 200vh; position: relative; }
+.aw-courts__sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; overflow: hidden; }
+.aw-courts__track { display: flex; gap: 1px; background: var(--line-darker); padding-left: var(--gutter, 2rem); }
+.aw-courts__item { flex: 0 0 clamp(240px, 24vw, 340px); background: var(--black-soft); padding: 2.75rem 2rem; display: flex; flex-direction: column; gap: 2rem; min-height: 240px; justify-content: flex-end; }
+.aw-courts__num { font-family: var(--font-serif); font-size: 0.85rem; color: var(--gold); }
+.aw-courts__name { font-family: var(--font-serif); font-size: clamp(1.25rem, 2.1vw, 1.7rem); color: var(--cream); line-height: 1.15; }
+
+/* ============================================================
+   MILESTONES — indexed timeline with a scroll-drawn rail
+   ============================================================ */
+.aw-milestones { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
+.ms-timeline { position: relative; border-top: 1px solid var(--line-light); padding-left: 2.25rem; }
+.ms-timeline__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--gold); transform-origin: top; transform: scaleY(0); }
+.ms-timeline__item { position: relative; display: grid; grid-template-columns: 40px 90px 1fr; gap: 1.5rem; padding: 1.9rem 0; border-bottom: 1px solid var(--line-light); align-items: baseline; }
+.ms-timeline__index { font-family: var(--font-serif); font-size: 0.8rem; color: var(--gold-dim); }
+.ms-timeline__year { font-family: var(--font-serif); color: var(--gold); font-size: 1.1rem; }
+.ms-timeline__body h4 { font-family: var(--font-serif); font-weight: 400; font-size: 1.2rem; margin-bottom: 0.4rem; }
+.ms-timeline__body p { font-size: 0.9rem; color: var(--muted-light); line-height: 1.55; max-width: 60ch; }
+
+@media (max-width: 1080px) {
+  .rec-wall { grid-template-columns: 1fr 1fr; }
+  .aw-bar__row { grid-template-columns: 40px 1.4fr 1fr 1fr; }
+  .aw-bar__row span:nth-child(5) { display: none; }
+}
+@media (max-width: 720px) {
+  .rec-wall { grid-template-columns: 1fr; }
+  .aw-bar__row { grid-template-columns: 32px 1fr 1fr; gap: 0.6rem; }
+  .aw-bar__row span:nth-child(4) { display: none; }
+  .aw-courts__wrap { height: auto; }
+  .aw-courts__sticky { position: static; height: auto; overflow: visible; }
+  .aw-courts__track { flex-wrap: wrap; transform: none !important; padding-left: 0; }
+  .aw-courts__cue { display: none; }
+  .ms-timeline__item { grid-template-columns: 1fr; gap: 0.4rem; }
+}

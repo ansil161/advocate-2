@@ -1,0 +1,48 @@
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export default function Preloader({ onDone }) {
+  const [phase, setPhase] = useState('letters'); // letters -> bar -> exit -> gone
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase('bar'), 500);
+    const t2 = setTimeout(() => setPhase('exit'), 1500);
+    const t3 = setTimeout(() => { setVisible(false); onDone?.(); }, 2450);
+    // Safety net so a throttled/backgrounded tab never blocks the site.
+    const safety = setTimeout(() => { setVisible(false); onDone?.(); }, 3800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(safety); };
+  }, [onDone]);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="preloader"
+          exit={{ y: '-100%' }}
+          transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+        >
+          <div className="preloader__mark">
+            {['S', 'L', 'A'].map((l, i) => (
+              <motion.span
+                key={l}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {l}
+              </motion.span>
+            ))}
+          </div>
+          <div className="preloader__bar">
+            <motion.span
+              initial={{ width: '0%' }}
+              animate={{ width: phase === 'letters' ? '0%' : '100%' }}
+              transition={{ duration: 0.7, ease: 'easeInOut' }}
+            />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

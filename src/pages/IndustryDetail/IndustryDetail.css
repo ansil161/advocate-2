@@ -1,0 +1,3 @@
+.ind-stub { background: var(--cream); min-height: 70vh; display: flex; align-items: center; padding: clamp(9rem, 16vw, 12rem) 0 4rem; }
+.ind-stub__inner { max-width: 640px; }
+.ind-stub__inner p { color: var(--muted-light); font-size: 1.05rem; line-height: 1.6; margin: 1.5rem 0 2rem; }
