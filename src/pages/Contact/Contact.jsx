@@ -47,9 +47,8 @@ export default function Contact() {
               <a href={consult.instagramHref} target="_blank" rel="noopener">{consult.instagram}</a>
             </Reveal>
             <Reveal as="p" className="c-reach__note" delay={0.1}>
-              Tentative consultation slots — {consult.price} for a focused {consult.duration}.
-              Four online slots daily (two morning, two evening) and three in-person
-              slots at our office.
+              Four online consultation slots daily (two morning, two evening) and
+              three in-person slots at our office.
             </Reveal>
           </div>
 

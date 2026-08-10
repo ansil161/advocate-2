@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import Layout from '../../components/shell/Layout.jsx';
 import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
-import Consult from '../../components/shell/Consult.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import Counter from '../../components/ui/Counter.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import AboutHero from './sections/AboutHero.jsx';
+import AboutCTA from './sections/AboutCTA.jsx';
 import { stats, firmStory, philosophy, principles, office, communityService } from '../../data/firm.js';
 import { milestones } from '../../data/awards.js';
 import { landmarkCases } from '../../data/landmarkCases.js';
@@ -196,7 +196,7 @@ export default function About() {
         </div>
       </section>
 
-      <Consult variant="contact" />
+      <AboutCTA />
     </Layout>
   );
 }

@@ -1,6 +1,4 @@
 export const consult = {
-  price: '₹3,000',
-  duration: '15-minute slot',
   onlineSlots: 4,
   offlineSlots: 3,
   phone: '+91 99124 16770',

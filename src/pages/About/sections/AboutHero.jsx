@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import SplitText from '../../../components/ui/SplitText.jsx';
-import Hero3D from '../../../components/ui/Hero3D.jsx';
+import JudicialGeometry from '../../../components/ui/JudicialGeometry.jsx';
 import justiceImg from '../../../assets/img/justice-statue.webp';
 import portraitImg from '../../../assets/img/about-colonnade.webp';
 
@@ -9,11 +9,14 @@ const EASE = [0.16, 1, 0.3, 1];
 
 export default function AboutHero() {
   const sectionRef = useRef(null);
+  const geometryScrollRef = useRef(0);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
 
   const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.18]);
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
   const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  useMotionValueEvent(scrollYProgress, 'change', (v) => { geometryScrollRef.current = v; });
 
   return (
     <section className="a-hero" id="a-hero" ref={sectionRef}>
@@ -36,7 +39,7 @@ export default function AboutHero() {
         />
       </motion.div>
       <div className="a-hero__scrim" />
-      <Hero3D className="a-hero__canvas" />
+      <JudicialGeometry className="a-hero__canvas" scrollRef={geometryScrollRef} />
       <div className="a-hero__grain" />
 
       <motion.div className="container a-hero__content" style={{ opacity: fade }}>

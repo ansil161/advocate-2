@@ -1,10 +1,9 @@
-import { Link } from 'react-router-dom';
 import SplitText from '../ui/SplitText.jsx';
 import Reveal from '../ui/Reveal.jsx';
 import { consult } from '../../data/consult.js';
 import bgImg from '../../assets/img/columns-abstract.webp';
 
-export default function Consult({ id = 'consult', variant = 'booking' }) {
+export default function Consult({ id = 'consult' }) {
   return (
     <section className="consult" id={id}>
       <div className="consult__bg" aria-hidden="true"><img src={bgImg} alt="" /></div>
@@ -28,30 +27,21 @@ export default function Consult({ id = 'consult', variant = 'booking' }) {
             </Reveal>
           </div>
 
-          {variant === 'contact' ? (
-            <Reveal className="consult__card consult__card--simple" delay={0.15} y={20}>
-              <p className="consult__card-note">Ready to talk? Tell us about your matter and we’ll get back to you.</p>
-              <div className="consult__card-actions">
-                <Link to="/contact" className="btn btn--solid magnetic"><span>Go to Contact Form</span></Link>
-              </div>
-            </Reveal>
-          ) : (
-            <Reveal className="consult__card" delay={0.15} y={20}>
-              <div className="consult__card-price">
-                <span className="consult__card-amount">{consult.price}</span>
-                <span className="consult__card-duration">{consult.duration}</span>
-              </div>
-              <div className="consult__card-actions">
-                <a href={`tel:${consult.phoneHref}`} className="btn btn--solid magnetic"><span>Call {consult.phone}</span></a>
-                <a href={`mailto:${consult.email}`} className="btn btn--line-invert magnetic"><span>Email the Firm</span></a>
-              </div>
-              <div className="consult__card-meta">
-                <div><span>Online</span>2 Morning · 2 Evening</div>
-                <div><span>In-Person</span>{consult.offlineSlots} Slots · Hyderabad Office</div>
-                <div><span>Instagram</span>{consult.instagram}</div>
-              </div>
-            </Reveal>
-          )}
+          <Reveal className="consult__card" delay={0.15} y={20}>
+            <div className="consult__card-heading">
+              <span>Get in Touch</span>
+              <p>Speak directly with the firm about your matter.</p>
+            </div>
+            <div className="consult__card-actions">
+              <a href={`tel:${consult.phoneHref}`} className="btn btn--solid magnetic"><span>Call {consult.phone}</span></a>
+              <a href={`mailto:${consult.email}`} className="btn btn--line-invert magnetic"><span>Email the Firm</span></a>
+            </div>
+            <div className="consult__card-meta">
+              <div><span>Online</span>2 Morning · 2 Evening</div>
+              <div><span>In-Person</span>{consult.offlineSlots} Slots · Hyderabad Office</div>
+              <div><span>Instagram</span>{consult.instagram}</div>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
