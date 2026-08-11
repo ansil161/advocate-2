@@ -5,8 +5,9 @@ import Reveal from '../../components/ui/Reveal.jsx';
 import Counter from '../../components/ui/Counter.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import AboutHero from './sections/AboutHero.jsx';
+import StorySection from './sections/StorySection.jsx';
 import AboutCTA from './sections/AboutCTA.jsx';
-import { stats, firmStory, philosophy, principles, office, communityService } from '../../data/firm.js';
+import { stats, philosophy, principles, office, communityService } from '../../data/firm.js';
 import { milestones } from '../../data/awards.js';
 import { landmarkCases } from '../../data/landmarkCases.js';
 import libraryImg from '../../assets/img/library-moody.webp';
@@ -33,18 +34,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* OurStory */}
-      <section className="a-story" id="a-story">
-        <div className="container a-story__grid">
-          <span className="chapter-label"><b>01</b> Our Story</span>
-          <div>
-            <h2 className="h2"><SplitText text={firmStory.title} /></h2>
-            {firmStory.paragraphs.map((p, i) => (
-              <Reveal as="p" key={i} className={i === 0 ? 'lede' : ''} delay={i * 0.06}>{p}</Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <StorySection />
 
       {/* OurPhilosophy */}
       <section className="a-philosophy" id="a-philosophy">

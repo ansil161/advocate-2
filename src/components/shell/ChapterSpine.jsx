@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { scrollToHash } from '../../lib/useLenis.js';
 
 // Fixed vertical rail of chapter numbers tracking scroll position through a long page.
-export default function ChapterSpine({ sectionIds = [], dark = false }) {
+// `dark` fixes the rail to the light-on-dark treatment; `darkIds` instead lets it
+// follow the page — it flips to light-on-dark only while a listed section is active,
+// which keeps the rail legible on pages that alternate cream and black backgrounds.
+export default function ChapterSpine({ sectionIds = [], dark = false, darkIds }) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -27,8 +30,10 @@ export default function ChapterSpine({ sectionIds = [], dark = false }) {
 
   if (!sectionIds.length) return null;
 
+  const isDark = darkIds ? darkIds.includes(sectionIds[active]) : dark;
+
   return (
-    <div className={`chapter-spine ${dark ? 'is-dark' : ''}`}>
+    <div className={`chapter-spine ${isDark ? 'is-dark' : ''}`}>
       {sectionIds.map((id, i) => (
         <div key={id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {i > 0 && <div className="chapter-spine__line" />}

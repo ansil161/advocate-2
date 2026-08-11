@@ -1,20 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
+import { resetScroll } from '../../lib/useLenis.js';
 
 // A shutter-style curtain that sweeps on every route change, masking the content swap.
 export default function PageReveal() {
   const { pathname } = useLocation();
   const [playing, setPlaying] = useState(false);
-  const [firstRender, setFirstRender] = useState(true);
+  // The route we last played for, rather than a "have I rendered yet" flag:
+  // StrictMode runs effects twice on mount, which flips such a flag and makes
+  // the curtain sweep on first load. Comparing paths is stable under that.
+  const playedFor = useRef(pathname);
+
+  // The reset has to land before the incoming page's own layout effects run.
+  // PageReveal sits above the routes in the tree, so its layout effect fires
+  // first — which is what keeps a scroll-driven page (the About hero) from
+  // building its ScrollTrigger around the *outgoing* page's scroll position and
+  // then visibly animating itself back to the start once the reset arrives.
+  useLayoutEffect(() => {
+    if (playedFor.current === pathname) return;
+    resetScroll();
+  }, [pathname]);
 
   useEffect(() => {
-    if (firstRender) { setFirstRender(false); return; }
+    if (playedFor.current === pathname) return;
+    playedFor.current = pathname;
     setPlaying(true);
-    window.scrollTo(0, 0);
     const t = setTimeout(() => setPlaying(false), 900);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return (

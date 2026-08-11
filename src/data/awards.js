@@ -2,6 +2,9 @@
 // No specific award names, press logos, or media citations were supplied, so this page
 // presents verifiable credentials rather than inventing accolades.
 
+import { stats } from './firm.js';
+import { practiceAreas } from './practiceAreas.js';
+
 export const credentials = [
   { value: 2000, suffix: '+', label: 'Cases Handled' },
   { value: 75, suffix: '%+', label: 'Success Rate' },
@@ -30,3 +33,39 @@ export const recognitionQuote = {
   quote: 'Our credibility is measured in outcomes, not accolades.',
   attribution: 'SLA Advocates',
 };
+
+// ── THE RECORD ────────────────────────────────────────────────────────────────
+// The four figures the Awards page is built around. Values are read out of
+// data/firm.js rather than restated here, so the Awards page can never drift from
+// the firm-wide numbers. Only the label wording is page-specific; no value is
+// transformed, rounded or invented.
+const fromStats = (statLabel, label) => {
+  const s = stats.find((x) => x.label === statLabel);
+  return s ? { value: s.value, suffix: s.suffix, label, note: s.sub } : null;
+};
+
+export const record = [
+  fromStats('Cases Handled', 'Cases Handled'),
+  fromStats('Success Rate', 'Success Rate'),
+  fromStats('Years at the Bar', 'Years at the Bar'),
+  fromStats('Combined Years', 'Combined Courtroom Experience'),
+].filter(Boolean);
+
+// ── REGULAR APPEARANCES ───────────────────────────────────────────────────────
+// The forums the firm appears before. Each is annotated with the practice areas
+// that already list that forum in data/practiceAreas.js — the annotation is derived,
+// never asserted, so nothing here can claim a presence the practice data doesn't.
+const FORUM_MATCHES = {
+  'High Court of Telangana': ['High Court of Telangana'],
+  'City Civil Courts, Hyderabad': ['City Civil Courts'],
+  'District Courts': ['District Courts'],
+  'Debt Recovery Tribunal (DRT)': ['Debt Recovery Tribunal (DRT)'],
+  'National Company Law Tribunal (NCLT)': ['NCLT'],
+  'Consumer Commissions': ['Consumer Commissions', 'District Consumer Commission', 'State Commission', 'NCDRC'],
+  'Labour Courts': ['Labour Courts'],
+};
+
+export const forums = Object.entries(FORUM_MATCHES).map(([name, matches]) => ({
+  name,
+  domains: practiceAreas.filter((p) => p.forums?.some((f) => matches.includes(f))).map((p) => p.title),
+}));

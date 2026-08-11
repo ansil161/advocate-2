@@ -1,30 +1,263 @@
 /* ============================================================
-   ABOUT HERO — cinematic full-bleed + 3D wireframe accent
+   ABOUT — OPENING SEQUENCE
+   A pinned stage driven by one master ScrollTrigger; see
+   sections/AboutHero.jsx for the choreography this CSS is the set for.
+   Every layer here is stacked and positioned only — all motion, opacity
+   and grading is authored on the timeline, never in CSS.
    ============================================================ */
-.a-hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; background: var(--black); overflow: hidden; }
-.a-hero__bg { position: absolute; inset: -6%; z-index: 1; }
-.a-hero__bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); }
-.a-hero__scrim {
-  position: absolute; inset: 0; z-index: 2;
-  background:
-    linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0.3) 35%, rgba(10,10,10,0.9) 100%),
-    linear-gradient(90deg, rgba(10,10,10,0.72) 0%, rgba(10,10,10,0.1) 55%, rgba(10,10,10,0.55) 100%);
+.ahero {
+  position: relative;
+  z-index: 1;
+  height: 100svh;
+  background: var(--cream);
 }
-.a-hero__canvas { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; opacity: 0; transition: opacity 1.4s ease; }
-.a-hero__canvas.is-ready { opacity: 1; }
-.a-hero__grain {
-  position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+.ahero__stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--cream);
+  isolation: isolate;
+}
+
+/* Ivory ground — the sheet everything is drawn on */
+.ahero__paper { position: absolute; inset: 0; z-index: 0; background: var(--cream); }
+
+/* The camera. Two of them move as one: the photographic stack sits under the
+   ivory sheet, the drawing sits over it, and both must share a viewpoint. */
+/* Overscanned by 3.5%: the closing beat pulls the camera back below scale 1, and
+   without bleed that would draw the ivory ground back in at the edges. Both
+   cameras carry the same inset, so the drawing stays registered on the stone. */
+.ahero__camera { position: absolute; inset: -3.5%; z-index: 1; will-change: transform; }
+.ahero__camera--draw { z-index: 3; }
+
+/* The painted square, not the wide camera box. `contain` inside a box that is
+   already the plate's own aspect fills it exactly, which puts the element edge
+   on the image edge — the one thing a percentage mask needs to be true. The
+   feather is wide enough to dissolve the seam and narrow enough to stay in the
+   sky and the trees: the building itself starts at 13% across the plate. */
+.ahero__frame {
+  position: absolute; top: 0; bottom: 0; left: 50%;
+  height: 100%; aspect-ratio: 1 / 1; transform: translateX(-50%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+}
+
+.ahero__focus { position: absolute; inset: 0; }
+
+/* The flanks either side of the contained plate — see AboutHero.jsx. Blurred
+   hard and pushed past the frame so there is no seam where the sharp plate ends
+   and no second, smaller horizon competing with the real one. It sits first in
+   the camera and takes no z-index of its own: DOM order alone keeps it under
+   the photograph, the clay veil and the drawing. */
+/* The blur lives on the wrapper, not the plate: the timeline grades the plate
+   through `filter`, and a blur written there would be wiped by the first tween.
+   No `overflow: hidden` here either — blurring a clipped box feathers its own
+   edges back to transparent, and the ivory would show through at the gutters.
+   The plate is oversized instead and `.ahero__stage` does the clipping, after
+   the blur, so the flanks stay solid all the way out. */
+.ahero__bleed { position: absolute; inset: 0; filter: blur(54px) brightness(0.9); will-change: opacity; }
+.ahero__bleed-plate {
+  position: absolute; inset: -12%; width: 124%; height: 124%;
+  object-fit: cover; object-position: 50% 54%;
+}
+.ahero__plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* The plate is square and the stage is wide: a cover-crop can't hold the
+     whole building (roofline to street) at once on a landscape viewport —
+     something always gets cut. Contain shows the complete elevation instead,
+     with the ivory sheet standing in as margin either side — which reads as
+     the plate resting on paper, not as empty space. */
+  object-fit: contain;
+  object-position: center;
+}
+/* The drawing is shipped opaque on ivory and multiplied back over the same
+   ivory — visually identical to an alpha plate at a fraction of the weight. */
+.ahero__plate--line { mix-blend-mode: multiply; }
+/* The veil the photograph eats its way out of. */
+.ahero__plate--clay {
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  will-change: opacity;
+}
+
+.ahero__wash { position: absolute; inset: 0; z-index: 2; background: var(--cream); }
+
+/* The light going out of the room */
+.ahero__ink {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  /* Weighted to the bottom, where the title sits. The top stays comparatively
+     open so the dusk sky behind the roofline survives the grade instead of
+     being crushed to flat black. */
+  background:
+    radial-gradient(125% 95% at 48% 42%, rgba(10,10,10,0) 0%, rgba(10,10,10,0.24) 54%, rgba(10,10,10,0.76) 100%),
+    linear-gradient(180deg, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.02) 24%, rgba(10,10,10,0.44) 66%, rgba(10,10,10,0.94) 100%);
+}
+
+/* ---- Sheet furniture ---------------------------------------------------- */
+.ahero__datum { position: absolute; z-index: 5; pointer-events: none; }
+.ahero__datum--h { left: 0; right: 0; top: 46%; height: 1px; transform-origin: 55% 50%; }
+.ahero__datum--v { top: 0; bottom: 0; left: 55%; width: 1px; transform-origin: 50% 46%; }
+.ahero__accent {
+  position: absolute; z-index: 5; pointer-events: none;
+  left: 22%; width: 20%; top: 57%; height: 1px;
+  background: var(--gold); opacity: 0.75; transform-origin: 0% 50%;
+}
+
+.ahero__notation { position: absolute; inset: 0; z-index: 6; pointer-events: none; color: #3d3629; }
+.ahero__note {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+.ahero__note i { display: block; height: 0.35rem; }
+/* All six sit above the title band — the composition's lower third belongs to
+   the type, and nothing is allowed to collide with it. */
+.ahero__note--tl { left: var(--gutter); top: 19vh; }
+.ahero__note--tr { right: var(--gutter); top: 25vh; }
+.ahero__note--ml { left: var(--gutter); top: 39%; }
+.ahero__note--mr { right: var(--gutter); top: 50%; }
+.ahero__note--bl { left: var(--gutter); top: 58%; }
+.ahero__note--br { right: var(--gutter); top: 61%; }
+
+.ahero__grain {
+  position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0.055; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.a-hero__content { position: relative; z-index: 5; padding-bottom: clamp(4rem, 10vw, 7rem); padding-top: clamp(8rem, 18vw, 12rem); width: 100%; }
-.a-hero__title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.6rem, 6.6vw, 5.4rem); line-height: 1.06; letter-spacing: -0.01em; color: var(--cream); margin-top: 1.5rem; max-width: 17ch; }
-.a-hero__title--em { font-style: italic; color: var(--gold-soft); }
 
-.a-hero__scroll { position: absolute; right: var(--gutter); bottom: 2.5rem; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
-.a-hero__scroll span { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(247,244,236,0.55); writing-mode: vertical-rl; }
-.a-hero__scroll-line { width: 1px; height: 56px; background: var(--line-dark); position: relative; overflow: hidden; }
-.a-hero__scroll-line i { position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: var(--gold); animation: aHeroScrollLine 2.2s ease-in-out infinite; }
-@keyframes aHeroScrollLine { 0% { top: -100%; } 50% { top: 0; } 100% { top: 100%; } }
+/* The mark on the empty sheet, before anything is drawn */
+.ahero__mark {
+  position: absolute; z-index: 8; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-serif); font-size: 0.95rem; letter-spacing: 0.62em; text-indent: 0.62em;
+  color: rgba(61,54,41,0.4);
+}
+
+/* ---- The title ---------------------------------------------------------- */
+.ahero__type { position: absolute; z-index: 9; left: 0; right: 0; bottom: clamp(2.2rem, 6vh, 4.5rem); pointer-events: none; }
+.ahero__meta-top {
+  display: flex; align-items: center; gap: 0.85rem;
+  padding-inline: var(--gutter);
+  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--gold-soft); margin-bottom: clamp(0.75rem, 2vh, 1.4rem);
+}
+.ahero__meta-top i { display: block; width: clamp(1.6rem, 4vw, 3.2rem); height: 1px; background: var(--gold); }
+.ahero__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 11.3vw;
+  line-height: 0.86;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--cream);
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+  /* Not a drop shadow — a held breath of dark behind the letterforms, so the
+     ivory detaches from the stone without ever looking pasted on. */
+  text-shadow: 0 0.06em 0.5em rgba(10,10,10,0.42), 0 0.01em 0.06em rgba(10,10,10,0.3);
+}
+.ahero__meta-row {
+  display: flex; justify-content: space-between; gap: 1.5rem;
+  margin-top: clamp(0.9rem, 2.4vh, 1.8rem);
+  margin-inline: var(--gutter);
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(247,244,236,0.55);
+  border-top: 1px solid rgba(247,244,236,0.16);
+  padding-top: clamp(0.7rem, 1.6vh, 1.1rem);
+}
+
+/* ---- Compact ------------------------------------------------------------ */
+/* Not the desktop composition scaled down: the portrait crop of the source
+   plate is used properly, the title breaks to two lines and sets left, and the
+   sheet furniture thins out to what still reads at this size. */
+@media (max-width: 860px) {
+  /* A portrait viewport covering a square plate crops width, not height — the
+     whole building is already on screen top-to-bottom, so this stays cover
+     rather than contain, just shifted across to centre the tower junction. */
+  .ahero__plate { object-fit: cover; object-position: 44% 46%; }
+  /* A portrait viewport already covers with the plate itself — there is no
+     margin to fill, so the flank layer is an invisible blur pass and the frame
+     has no edges left to feather. Both revert to the full camera box. */
+  .ahero__bleed { display: none; }
+  .ahero__frame {
+    left: 0; width: 100%; aspect-ratio: auto; transform: none;
+    -webkit-mask-image: none; mask-image: none;
+  }
+  .ahero__datum--h { transform-origin: 50% 50%; }
+  .ahero__datum--v { left: 50%; }
+  .ahero__accent { left: 12%; width: 30%; }
+  .ahero__note--tr, .ahero__note--mr, .ahero__note--br { display: none; }
+  .ahero__note--ml { top: 36%; }
+  .ahero__note--bl { top: 46%; }
+  .ahero__type { bottom: clamp(3.5rem, 9vh, 6rem); }
+  .ahero__title {
+    /* Sized so the longest word — ADVOCATES, nine caps — sets to the measure
+       between the gutters rather than running off the edge. */
+    font-size: 13.6vw;
+    text-align: left;
+    white-space: normal;
+    padding-inline: var(--gutter);
+    line-height: 0.94;
+  }
+  .ahero__meta-row { flex-direction: column; gap: 0.4rem; }
+}
+
+/* ---- Reduced motion ----------------------------------------------------- */
+/* The take never plays; the section is just the last frame, so it only ever
+   needs one viewport. (Redundant with the base rule below — kept explicit
+   here in case that default ever changes.) */
+@media (prefers-reduced-motion: reduce) {
+  .ahero { height: 100svh; }
+  .ahero__stage { height: 100svh; }
+}
+
+/* ---- Opening-sequence intro gating ---------------------------------------
+   The master timeline in AboutHero.jsx plays once, on its own clock, when the
+   About page opens. While it runs: the nav is off the sheet (it comes in on
+   its own cue near the end) and the page can't be scrolled out from under it.
+   Both classes are thrown by the timeline itself, and always cleared again —
+   on completion, on unmount, and (as a last resort) they carry no fallback
+   condition that could strand the page in this state. */
+body.ahero-intro .nav-bar { opacity: 0; visibility: hidden; pointer-events: none; }
+html.scroll-locked, html.scroll-locked body { overflow: hidden; height: 100%; }
+
+/* ---- Nav ---------------------------------------------------------------- */
+/* The page is deep into its scroll while the stage is still an ivory sheet, so
+   the nav's scrolled (dark) treatment would sit on cream. Hold it light until
+   the composition actually goes dark — the timeline owns the switch. */
+body.ahero-paper .nav-bar.is-scrolled { background: rgba(247,244,236,0.86); border-bottom-color: var(--line-lighter); }
+body.ahero-paper .nav-bar.is-scrolled .brand__mark { color: var(--ink); }
+body.ahero-paper .nav-bar.is-scrolled .brand__full { color: var(--muted-light); }
+body.ahero-paper .nav-bar.is-scrolled .nav-links a { color: rgba(22,21,15,0.78); }
+body.ahero-paper .nav-bar.is-scrolled .nav-phone { color: rgba(22,21,15,0.6); }
+body.ahero-paper .nav-bar.is-scrolled .nav-actions .btn--ghost-invert { border-color: var(--line-light); color: var(--ink); }
+body.ahero-paper .nav-bar.is-scrolled .menu-toggle span { background: var(--ink); }
+
+/* The mirror case, which only arises under reduced motion: the stage opens on
+   the finished dark composition, so the page's light nav theme has to give way
+   at scroll top instead of after it. */
+body.ahero-dark .nav-bar.is-light { background: transparent; border-bottom-color: transparent; }
+body.ahero-dark .nav-bar.is-light .brand__mark { color: var(--cream); }
+body.ahero-dark .nav-bar.is-light .brand__full { color: var(--muted-dark); }
+body.ahero-dark .nav-bar.is-light .nav-links a { color: rgba(247,244,236,0.82); }
+body.ahero-dark .nav-bar.is-light .nav-phone { color: rgba(247,244,236,0.7); }
+body.ahero-dark .nav-bar.is-light .nav-actions .btn--ghost-invert { border-color: var(--line-dark); color: var(--cream); }
+body.ahero-dark .nav-bar.is-light .menu-toggle span { background: var(--cream); }
+
+/* Same problem for the chapter rail, in the other direction: it defaults to the
+   light-background treatment, which disappears once the stage goes dark. */
+body.ahero-dark .chapter-spine__line { background: var(--line-dark); }
+body.ahero-dark .chapter-spine__num { color: var(--muted-dark); }
+body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 
 /* ============================================================
    MEASURE OF FIRM
@@ -37,9 +270,73 @@
 
 /* ============================================================
    OUR STORY
+   One sticky centered stage (position: sticky, not a pin) that beats
+   cross-fade through — a bare statement, then a run of fixed 4:3 photo
+   cards, then a closing statement. See sections/StorySection.jsx.
    ============================================================ */
-.a-story { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
-.a-story__grid { display: grid; grid-template-columns: 200px 1fr; gap: clamp(2rem, 4vw, 4rem); }
+.story { position: relative; z-index: 2; background: var(--cream); }
+.story__scroll { position: relative; height: 640vh; }
+.story__stage {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.story__grain {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.035; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* A thin gold thread stitched through the sequence, drawn in as you scroll. */
+.story__thread { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.story__thread-path { fill: none; stroke: var(--gold); }
+.story__thread-path--glow { stroke-width: 3.5; opacity: 0.18; filter: blur(3px); }
+.story__thread-path--core { stroke-width: 0.6; opacity: 0.5; }
+
+.story__rail {
+  position: absolute; right: clamp(2.5rem, 6vw, 5rem); top: 50%; transform: translateY(-50%); z-index: 4;
+  display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
+}
+.story__rail-cap { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); }
+.story__rail-track { position: relative; width: 1px; height: min(38vh, 300px); background: var(--line-light); }
+.story__rail-fill { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gold); transform-origin: top; transform: scaleY(0); }
+.story__rail-dot {
+  position: absolute; left: 50%; top: 0; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%; background: var(--gold-soft); box-shadow: 0 0 0 4px rgba(169, 131, 79, 0.15);
+}
+
+.story__beats { position: absolute; inset: 0; z-index: 2; }
+.story__beat { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 var(--gutter); }
+
+/* Bare statement beats — no image, the opening and closing of the sequence. */
+.story__statement { max-width: min(640px, 88vw); text-align: center; }
+.story__kicker { display: block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 1.1rem; }
+.story__statement-title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.4rem, 5.4vw, 4.4rem); line-height: 1.06; letter-spacing: -0.01em; color: var(--ink); }
+.story__title-line { display: block; }
+.story__title-line:last-child { font-style: italic; color: var(--gold); }
+.story__statement-body { font-size: 1.05rem; line-height: 1.65; color: var(--muted-light); max-width: 44ch; margin: 1.5rem auto 0; }
+
+/* Photo-card beats — the fixed 4:3 image "window" every era shares. */
+.story__card { width: clamp(17rem, 40vmin, 27rem); max-width: 88vw; display: flex; flex-direction: column; align-items: flex-start; }
+.story__card-media { width: 100%; aspect-ratio: 4 / 3; overflow: hidden; }
+.story__card-media img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.4) contrast(1.05); }
+.story__card-text { margin-top: 1.5rem; text-align: left; }
+.story__year { display: block; font-family: var(--font-serif); font-style: italic; font-size: clamp(1.6rem, 2.6vw, 2.1rem); color: var(--gold); line-height: 1; }
+.story__card-title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.2rem, 1.8vw, 1.5rem); margin-top: 0.6rem; color: var(--ink); }
+.story__card-body { font-size: 0.92rem; line-height: 1.6; color: var(--muted-light); margin-top: 0.6rem; max-width: 34ch; }
+.story__card-meta {
+  display: block; margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; color: var(--gold);
+}
+
+@media (max-width: 860px) {
+  .story__scroll { height: auto; }
+  .story__stage { position: static; height: auto; overflow: visible; padding: clamp(4rem, 10vw, 6rem) 0; display: block; }
+  .story__grain, .story__thread, .story__rail { display: none; }
+  .story__beats { position: static; }
+  .story__beat { position: static; padding: 0 var(--gutter); margin-bottom: clamp(3.5rem, 12vw, 5.5rem); opacity: 0; visibility: visible; }
+  .story__beat:last-child { margin-bottom: 0; }
+  .story__statement { max-width: 46ch; margin: 0 auto; }
+  .story__card { width: 100%; max-width: 22rem; align-items: flex-start; }
+}
 
 /* ============================================================
    OUR PHILOSOPHY (dark)
@@ -150,7 +447,7 @@
 
 @media (max-width: 1080px) {
   .a-measure__grid, .a-philosophy__points, .a-built__grid { grid-template-columns: 1fr 1fr; }
-  .a-story__grid, .a-decision__grid, .a-community__grid { grid-template-columns: 1fr; }
+  .a-decision__grid, .a-community__grid { grid-template-columns: 1fr; }
   .a-principles__list { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 720px) {

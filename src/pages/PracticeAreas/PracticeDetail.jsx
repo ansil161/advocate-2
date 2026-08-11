@@ -6,9 +6,10 @@ import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
 import Consult from '../../components/shell/Consult.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
+import PracticeArrival from './sections/PracticeArrival.jsx';
+import PracticeCinematic from './sections/PracticeCinematic.jsx';
 import { practiceAreas, getPracticeBySlug } from '../../data/practiceAreas.js';
 import { team } from '../../data/team.js';
-import heroImg from '../../assets/img/hero-courthouse.webp';
 import './PracticeAreas.css';
 
 function FAQItem({ q, a }) {
@@ -36,6 +37,16 @@ function FAQItem({ q, a }) {
   );
 }
 
+// Two fixed lists rather than one built per render: several practice areas carry
+// no FAQ, and a spine numbered for a section that isn't in the document leaves a
+// rail entry that can never light up and can never be scrolled to.
+const CHAPTERS = ['pd-arrival', 'pd-matter', 'pd-approach', 'pd-chamber', 'pd-counsel', 'pd-related', 'pd-faq'];
+const CHAPTERS_NO_FAQ = CHAPTERS.slice(0, -1);
+// The first four chapters play on black; the rail has to invert with them and
+// then go back to ink for the editorial half of the page. Both lists are module
+// scope so the spine's observer isn't torn down and rebuilt on every render.
+const DARK_CHAPTERS = ['pd-arrival', 'pd-matter', 'pd-approach', 'pd-chamber'];
+
 export default function PracticeDetail() {
   const { slug } = useParams();
   const p = getPracticeBySlug(slug);
@@ -43,65 +54,19 @@ export default function PracticeDetail() {
 
   const lead = team.find(t => t.featured) || team[0];
   const related = practiceAreas.filter(x => x.slug !== p.slug).slice(0, 3);
-  const CHAPTERS = ['pd-arrival', 'pd-matter', 'pd-approach', 'pd-chamber', 'pd-counsel', 'pd-related', 'pd-faq'];
 
   return (
     <Layout navTheme="dark">
-      <ChapterSpine sectionIds={CHAPTERS} dark />
+      <ChapterSpine sectionIds={p.faq.length > 0 ? CHAPTERS : CHAPTERS_NO_FAQ} darkIds={DARK_CHAPTERS} />
 
-      {/* PracticeArrival */}
-      <section className="pd-arrival" id="pd-arrival">
-        <div className="pd-arrival__bg" aria-hidden="true"><img src={heroImg} alt="" /></div>
-        <div className="container pd-arrival__content">
-          <span className="chapter-label chapter-label--light"><b>{p.n}</b> / 12 — Practice Areas</span>
-          <h1 className="h1 h2--light"><SplitText text={p.title} /></h1>
-          <Reveal as="p" className="pd-arrival__sub">{p.short}</Reveal>
-        </div>
-      </section>
+      {/* Keyed on the slug: moving between two practice areas re-mounts the
+          camera rather than re-pointing it, so no timeline outlives its data. */}
+      <PracticeArrival practice={p} key={`arrival-${p.slug}`} />
 
-      {/* TheMatter */}
-      <section className="pd-block" id="pd-matter">
-        <div className="container pd-block__grid">
-          <span className="chapter-label"><b>01</b> The Matter</span>
-          <div>
-            <h2 className="h2"><SplitText text="What this practice covers." /></h2>
-            <Reveal as="p" className="lede">{p.matter}</Reveal>
-          </div>
-        </div>
-      </section>
+      {/* 01 The Matter · 02 The Approach · 03 The Chamber — one continuous take */}
+      <PracticeCinematic practice={p} key={`cinematic-${p.slug}`} />
 
-      {/* TheApproach */}
-      <section className="pd-block pd-block--alt" id="pd-approach">
-        <div className="container pd-block__grid">
-          <span className="chapter-label"><b>02</b> The Approach</span>
-          <div>
-            <h2 className="h2"><SplitText text="How we build the case." /></h2>
-            <Reveal as="p" className="lede">{p.approach}</Reveal>
-            <div className="pd-tags">
-              {p.tags.map(t => <span key={t}>{t}</span>)}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TheChamber */}
-      <section className="pd-block" id="pd-chamber">
-        <div className="container pd-block__grid">
-          <span className="chapter-label"><b>03</b> The Chamber</span>
-          <div>
-            <h2 className="h2"><SplitText text="Where these matters are heard." /></h2>
-            <div className="pd-forums">
-              {p.forums.map((f, i) => (
-                <Reveal as="div" className="pd-forum" key={f} delay={i * 0.06}>
-                  <span>{String(i + 1).padStart(2, '0')}</span>{f}
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* LeadCounsel */}
+      {/* LeadCounsel — the sequence ends, and the page becomes a person */}
       <section className="pd-block pd-block--alt" id="pd-counsel">
         <div className="container pd-counsel">
           <span className="chapter-label"><b>04</b> Lead Counsel</span>

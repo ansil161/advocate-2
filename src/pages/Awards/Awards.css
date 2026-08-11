@@ -1,75 +1,506 @@
-.aw-hero { position: relative; padding: clamp(9rem, 16vw, 13rem) 0 clamp(4rem, 8vw, 6rem); background: var(--black); overflow: hidden; min-height: 88vh; display: flex; flex-direction: column; justify-content: center; }
-.aw-hero__bg { position: absolute; inset: -6% -6%; opacity: 0.28; will-change: transform; }
-.aw-hero__bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); }
-.aw-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,0.5), rgba(10,10,10,0.94)); }
-.aw-hero__content { position: relative; z-index: 2; }
-.aw-hero__sub { max-width: 60ch; color: rgba(247,244,236,0.7); font-size: 1.05rem; line-height: 1.65; margin-top: 1.5rem; }
-
 /* ============================================================
-   CREDENTIAL STATS — counting values, mask-reveal, drawn underline
+   AWARDS & RECOGNITION
+   A visual legal archive: black, ivory, hairlines and set type.
+   Gold appears three times on the whole page — the ampersand in the
+   masthead, the registration marks on the enrolment sheet, and the
+   active index in the list of forums. Nowhere else.
    ============================================================ */
-.aw-wall { background: var(--cream); padding: clamp(4rem, 8vw, 6rem) 0; position: relative; z-index: 2; }
-.rec-wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line-light); border: 1px solid var(--line-light); }
-.rec-stat { position: relative; background: var(--cream-soft); padding: 2.5rem 1.75rem 2.1rem; overflow: hidden; }
-.rec-stat__index { display: block; font-family: var(--font-serif); font-size: 0.75rem; color: var(--gold); margin-bottom: 1.6rem; }
-.rec-stat__value { font-family: var(--font-serif); font-size: clamp(1.9rem, 3.2vw, 2.6rem); line-height: 1; display: flex; align-items: baseline; gap: 2px; }
-.rec-stat__value .suffix { color: var(--gold); font-size: 0.6em; }
-.rec-stat__label { font-size: 0.82rem; color: var(--muted-light); margin-top: 0.7rem; line-height: 1.4; }
-.rec-stat__bar { position: absolute; left: 0; bottom: 0; width: 100%; height: 2px; background: var(--gold); transform-origin: left; display: block; }
 
-.aw-quote { background: var(--cream-deep); padding: clamp(6rem, 12vw, 9rem) 0; text-align: center; position: relative; z-index: 2; }
-.aw-quote__text { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.7rem, 3.4vw, 2.6rem); max-width: 22ch; margin: 0 auto; line-height: 1.32; }
-.aw-quote__attr { margin-top: 2rem; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--gold-dim); text-transform: uppercase; }
-
-/* ============================================================
-   BAR COUNCIL — indexed rows with a scroll-drawn left rail
-   ============================================================ */
-.aw-bar { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
-.aw-bar__list { position: relative; border-top: 1px solid var(--line-light); max-width: 900px; padding-left: 2rem; }
-.aw-bar__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--gold); transform-origin: top; transform: scaleY(0); }
-.aw-bar__row { display: grid; grid-template-columns: 40px 1.4fr 1.2fr 1fr 0.6fr; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line-light); font-size: 0.92rem; align-items: baseline; }
-.aw-bar__row--head { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-light); }
-.aw-bar__index { font-family: var(--font-serif); color: var(--gold-dim); font-size: 0.8rem; }
-.aw-bar__row span:nth-child(2) { font-family: var(--font-serif); font-size: 1.05rem; }
-
-/* ============================================================
-   REGULAR APPEARANCES — scroll-scrubbed horizontal track
-   ============================================================ */
-.aw-courts { background: var(--black); padding: clamp(5rem, 10vw, 7rem) 0 0; position: relative; z-index: 2; }
-.aw-courts__head { position: relative; padding-bottom: 3rem; }
-.aw-courts__head .h2 { margin-bottom: 0; }
-.aw-courts__cue { position: absolute; right: var(--gutter, 0); bottom: 3rem; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-soft); writing-mode: vertical-rl; }
-.aw-courts__wrap { height: 200vh; position: relative; }
-.aw-courts__sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; overflow: hidden; }
-.aw-courts__track { display: flex; gap: 1px; background: var(--line-darker); padding-left: var(--gutter, 2rem); }
-.aw-courts__item { flex: 0 0 clamp(240px, 24vw, 340px); background: var(--black-soft); padding: 2.75rem 2rem; display: flex; flex-direction: column; gap: 2rem; min-height: 240px; justify-content: flex-end; }
-.aw-courts__num { font-family: var(--font-serif); font-size: 0.85rem; color: var(--gold); }
-.aw-courts__name { font-family: var(--font-serif); font-size: clamp(1.25rem, 2.1vw, 1.7rem); color: var(--cream); line-height: 1.15; }
-
-/* ============================================================
-   MILESTONES — indexed timeline with a scroll-drawn rail
-   ============================================================ */
-.aw-milestones { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
-.ms-timeline { position: relative; border-top: 1px solid var(--line-light); padding-left: 2.25rem; }
-.ms-timeline__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--gold); transform-origin: top; transform: scaleY(0); }
-.ms-timeline__item { position: relative; display: grid; grid-template-columns: 40px 90px 1fr; gap: 1.5rem; padding: 1.9rem 0; border-bottom: 1px solid var(--line-light); align-items: baseline; }
-.ms-timeline__index { font-family: var(--font-serif); font-size: 0.8rem; color: var(--gold-dim); }
-.ms-timeline__year { font-family: var(--font-serif); color: var(--gold); font-size: 1.1rem; }
-.ms-timeline__body h4 { font-family: var(--font-serif); font-weight: 400; font-size: 1.2rem; margin-bottom: 0.4rem; }
-.ms-timeline__body p { font-size: 0.9rem; color: var(--muted-light); line-height: 1.55; max-width: 60ch; }
-
-@media (max-width: 1080px) {
-  .rec-wall { grid-template-columns: 1fr 1fr; }
-  .aw-bar__row { grid-template-columns: 40px 1.4fr 1fr 1fr; }
-  .aw-bar__row span:nth-child(5) { display: none; }
+/* ── shared page furniture ─────────────────────────────────── */
+.aw-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-light);
 }
+.aw-label--light { color: rgba(247, 244, 236, 0.55); }
+
+/* The archive lists are ordered lists for semantics; their numbering is set in
+   mono by hand, so the browser's own markers are suppressed. */
+.awb__list, .awc__list, .awm__list { list-style: none; }
+
+.aw-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   01 — HERO / THE RECORD
+   ============================================================ */
+.awh {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: var(--black);
+  overflow: hidden;
+  padding: clamp(6.5rem, 13vh, 11rem) 0 clamp(1.75rem, 3.5vw, 2.75rem);
+}
+.awh__media { position: absolute; inset: -7% -7% -12%; z-index: 1; will-change: transform; }
+.awh__img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.06) brightness(0.86); }
+.awh__scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.76) 0%, rgba(10,10,10,0.3) 38%, rgba(10,10,10,0.93) 100%),
+    linear-gradient(90deg, rgba(10,10,10,0.68) 0%, rgba(10,10,10,0.1) 62%, rgba(10,10,10,0.42) 100%);
+}
+.awh__dim { position: absolute; inset: 0; background: var(--black); opacity: 0; }
+
+.awh__grid {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background-image: linear-gradient(90deg, rgba(247, 244, 236, 0.045) 1px, transparent 1px);
+  background-size: calc(100% / 6) 100%;
+}
+.awh .aw-grain { z-index: 3; }
+
+.awh__inner { position: relative; z-index: 4; width: 100%; }
+.awh__label { margin-bottom: clamp(1.75rem, 4vw, 3rem); }
+
+/* The masthead is sized against the shorter of the two viewport axes, so a
+   laptop in a short window still gets the whole composition — title, statement
+   and the metadata rule — inside one screen. */
+.awh__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.9rem, min(11.5vw, 16vh), 9.5rem);
+  line-height: 0.92; letter-spacing: -0.028em;
+  color: var(--cream);
+}
+.awh__line { display: block; overflow: hidden; padding-bottom: 0.04em; }
+.awh__line-inner { display: block; }
+.awh__line--amp {
+  font-size: 0.3em; line-height: 1.5;
+  padding-left: 0.14em;
+}
+.awh__line--amp .awh__line-inner { font-style: italic; color: rgba(211, 177, 127, 0.72); }
+
+.awh__statement {
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  max-width: 38ch;
+  font-size: clamp(1rem, 1.3vw, 1.14rem);
+  line-height: 1.65;
+  color: rgba(247, 244, 236, 0.72);
+}
+
+.awh__foot {
+  position: relative; z-index: 4; width: 100%;
+  margin-top: clamp(3rem, 7vw, 5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-darker);
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.9rem 3.5rem;
+}
+.awh__foot span {
+  display: flex; align-items: baseline; gap: 0.7rem;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.05em;
+  color: rgba(247, 244, 236, 0.62);
+}
+.awh__foot i {
+  font-style: normal; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.34);
+}
+.awh__file { margin-left: auto; letter-spacing: 0.16em !important; }
+
+.awh__cue {
+  position: absolute; left: clamp(0.85rem, 2.2vw, 1.6rem); top: 50%; transform: translateY(-50%);
+  z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
+}
+.awh__cue span {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.26em; text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.42);
+}
+.awh__cue i { position: relative; width: 1px; height: 64px; background: var(--line-dark); overflow: hidden; }
+.awh__cue i::after {
+  content: ''; position: absolute; left: 0; top: -100%; width: 100%; height: 100%;
+  background: rgba(247, 244, 236, 0.55); animation: awhCue 2.8s ease-in-out infinite;
+}
+@keyframes awhCue { 0% { top: -100%; } 55% { top: 0; } 100% { top: 100%; } }
+
+/* ============================================================
+   02 — THE RECORD
+   Four figures, four rows of a twelve-column field. Never a card.
+   ============================================================ */
+.awr {
+  position: relative; z-index: 2;
+  background: var(--cream);
+  padding: clamp(6rem, 14vw, 11rem) 0 clamp(4.5rem, 9vw, 7.5rem);
+}
+.awr__head { margin-bottom: clamp(4.5rem, 11vw, 9rem); }
+.awr__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.12; letter-spacing: -0.012em;
+  margin-top: 1.4rem; max-width: 15ch;
+}
+.awr__intro {
+  margin-top: 1.6rem; max-width: 48ch;
+  font-size: 1rem; line-height: 1.75; color: var(--muted-light);
+}
+
+.awr__field {
+  position: relative;
+  display: grid; grid-template-columns: repeat(12, 1fr);
+  column-gap: clamp(0.75rem, 1.6vw, 1.6rem);
+}
+.awr__margin { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--line-lighter); }
+.awr__margin-fill {
+  position: absolute; inset: 0; background: rgba(22, 21, 15, 0.28);
+  transform-origin: top; transform: scaleY(0);
+}
+
+.awr__figure { position: relative; margin: 0; }
+.awr__figure--1 { grid-column: 6 / span 7;  grid-row: 1; }
+.awr__figure--2 { grid-column: 1 / span 6;  grid-row: 2; margin-top: clamp(4rem, 9vw, 7.5rem); }
+.awr__figure--3 { grid-column: 7 / span 6;  grid-row: 3; margin-top: clamp(3rem, 7vw, 6rem); }
+.awr__figure--4 { grid-column: 2 / span 8;  grid-row: 4; margin-top: clamp(4rem, 10vw, 8rem); }
+
+.awr__index {
+  display: block; margin-bottom: clamp(1rem, 2vw, 1.6rem);
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
+  color: var(--muted-light); opacity: 0.6;
+}
+.awr__value {
+  overflow: hidden;
+  padding: 0.06em 0 0.1em;
+}
+.awr__value-inner {
+  display: flex; align-items: flex-start; gap: 0.04em;
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(4rem, 13.5vw, 11.5rem);
+  line-height: 0.82; letter-spacing: -0.045em;
+  color: var(--ink);
+}
+.awr__suffix {
+  font-style: normal; font-size: 0.3em; line-height: 1;
+  margin-top: 0.22em; letter-spacing: -0.01em; color: var(--muted-light);
+}
+.awr__rule {
+  display: block; height: 1px; width: 100%; max-width: 520px;
+  background: rgba(22, 21, 15, 0.75); transform-origin: left;
+  margin: clamp(1.5rem, 3vw, 2.4rem) 0 clamp(0.9rem, 1.8vw, 1.4rem);
+}
+.awr__figure figcaption { display: flex; flex-direction: column; gap: 0.55rem; }
+.awr__label {
+  font-family: var(--font-mono); font-size: clamp(0.72rem, 1vw, 0.83rem);
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+}
+.awr__note {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em;
+  color: var(--muted-light); opacity: 0.85;
+}
+
+/* ============================================================
+   03 — RECOGNITION STATEMENT
+   ============================================================ */
+.aws {
+  position: relative; z-index: 2; overflow: hidden;
+  background: var(--cream-deep);
+  padding: clamp(7rem, 16vw, 13rem) 0 clamp(5rem, 10vw, 8rem);
+}
+.aws__lines { position: absolute; inset: -10% 0; z-index: 1; opacity: 0.09; color: var(--ink); pointer-events: none; }
+.aws__lines svg { width: 100%; height: 100%; }
+.aws__lines line, .aws__lines path { stroke: currentColor; stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+.aws .aw-grain { z-index: 2; opacity: 0.055; mix-blend-mode: multiply; }
+
+.aws__inner { position: relative; z-index: 3; }
+.aws__quote {
+  display: flex; flex-direction: column;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  font-family: var(--font-serif); font-weight: 400; font-style: italic;
+  font-size: clamp(1.95rem, 6.2vw, 5rem);
+  line-height: 1.1; letter-spacing: -0.022em;
+  color: var(--ink);
+}
+.aws__frag { display: block; will-change: transform; }
+.aws__frag--a { align-self: flex-start; }
+.aws__frag--b { align-self: flex-end; text-align: right; }
+.aws__frag--a::before { content: '\201C'; }
+.aws__frag--b::after { content: '\201D'; }
+.aws__attr {
+  display: block; margin-top: clamp(2.5rem, 5vw, 3.5rem); text-align: right;
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted-light);
+}
+
+/* ============================================================
+   04 — BAR COUNCIL RECORD
+   An archival sheet: ruled margin, index, registration marks.
+   Typographic archive language only — no facsimile document.
+   ============================================================ */
+.awb {
+  position: relative; z-index: 2;
+  background: var(--cream-soft);
+  padding: clamp(6rem, 13vw, 10rem) 0 clamp(7rem, 15vw, 12rem);
+}
+.awb__head { max-width: 62ch; margin-bottom: clamp(3.5rem, 8vw, 6rem); }
+.awb__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.2rem, 5.2vw, 4.2rem); line-height: 1.04; letter-spacing: -0.022em;
+  margin-top: 1.4rem;
+}
+.awb__title em { font-style: italic; }
+.awb__note { margin-top: 1.5rem; max-width: 46ch; font-size: 0.98rem; line-height: 1.7; color: var(--muted-light); }
+
+.awb__stack { position: relative; }
+.awb__paper { position: absolute; border: 1px solid var(--line-lighter); background: var(--cream-deep); opacity: 0.55; }
+.awb__paper--1 { inset: 9px -9px -9px 9px; }
+.awb__paper--2 { inset: 18px -18px -18px 18px; opacity: 0.32; }
+
+.awb__sheet {
+  position: relative; z-index: 1;
+  background: var(--white); border: 1px solid var(--line-light);
+  padding: clamp(1.75rem, 4vw, 3rem) clamp(1.5rem, 3.5vw, 3rem) clamp(0.5rem, 1.5vw, 1rem);
+}
+.awb__mark { position: absolute; width: 9px; height: 9px; opacity: 0.5; }
+.awb__mark::before, .awb__mark::after { content: ''; position: absolute; background: var(--gold-dim); }
+.awb__mark::before { left: 50%; top: 0; width: 1px; height: 100%; }
+.awb__mark::after { top: 50%; left: 0; height: 1px; width: 100%; }
+.awb__mark--tl { left: -5px; top: -5px; }
+.awb__mark--tr { right: -5px; top: -5px; }
+.awb__mark--bl { left: -5px; bottom: -5px; }
+.awb__mark--br { right: -5px; bottom: -5px; }
+
+.awb__sheet-head {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted-light);
+}
+.awb__sheet-rule {
+  display: block; height: 1px; margin-top: 0.9rem;
+  background: rgba(22, 21, 15, 0.6); transform-origin: left;
+}
+
+.awb__entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1.6fr) minmax(0, 1fr) 6rem;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: baseline;
+  padding: clamp(1.6rem, 3.2vw, 2.4rem) 0;
+}
+.awb__entry-line {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--line-light); transform-origin: left;
+}
+.awb__index { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted-light); opacity: 0.65; }
+.awb__name { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.3rem, 2.4vw, 2rem); line-height: 1.1; }
+.awb__role {
+  display: block; margin-top: 0.55rem;
+  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted-light);
+}
+.awb__key {
+  display: block; margin-bottom: 0.45rem;
+  font-family: var(--font-mono); font-size: 0.57rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted-light); opacity: 0.7;
+}
+.awb__val { font-family: var(--font-mono); font-size: 0.92rem; color: var(--ink); }
+.awb__since { text-align: right; }
+
+/* ============================================================
+   05 — REGULAR APPEARANCES
+   One institution takes the black at a time.
+   ============================================================ */
+.awc {
+  position: relative; z-index: 2; overflow: hidden;
+  background: var(--cream);
+  padding: clamp(6rem, 13vw, 10rem) 0 clamp(7rem, 16vw, 12rem);
+}
+.awc__bg { position: absolute; inset: -9% 0; z-index: 1; opacity: 0.07; will-change: transform; }
+.awc__bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1); }
+
+.awc__grid {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.35fr);
+  gap: clamp(2.5rem, 6vw, 6rem); align-items: start;
+}
+.awc__aside { position: sticky; top: clamp(6rem, 14vh, 9rem); }
+.awc__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.08; letter-spacing: -0.018em;
+  margin-top: 1.4rem;
+}
+.awc__title em { font-style: italic; }
+.awc__note { margin-top: 1.4rem; max-width: 32ch; font-size: 0.95rem; line-height: 1.7; color: var(--muted-light); }
+.awc__counter {
+  display: block; margin-top: clamp(2rem, 4vw, 3rem);
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--muted-light);
+}
+.awc__counter b { font-weight: 400; color: var(--ink); }
+
+.awc__list { border-top: 1px solid var(--line-light); }
+.awc__item {
+  position: relative;
+  padding: clamp(2rem, 4.5vw, 3.2rem) 0 clamp(2rem, 4.5vw, 3.2rem) clamp(2.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line-light);
+}
+.awc__item-index {
+  position: absolute; left: 0; top: clamp(2.2rem, 4.8vw, 3.5rem);
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+  color: var(--muted-light); opacity: 0.5;
+  transition: opacity 0.55s var(--ease), color 0.55s var(--ease);
+}
+.awc__item-name {
+  display: block;
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.45rem, 3.3vw, 2.85rem); line-height: 1.1; letter-spacing: -0.018em;
+  color: rgba(22, 21, 15, 0.24);
+  transition: color 0.6s var(--ease);
+}
+.awc__item-domains {
+  display: block; margin-top: 1rem; max-width: 54ch;
+  font-family: var(--font-mono); font-size: 0.65rem; line-height: 1.95; letter-spacing: 0.05em;
+  color: var(--muted-light);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+}
+.awc__item.is-active .awc__item-name { color: var(--ink); }
+.awc__item.is-active .awc__item-index { opacity: 1; color: var(--gold-dim); }
+.awc__item.is-active .awc__item-domains { opacity: 1; transform: none; }
+
+/* ============================================================
+   06 — MILESTONES
+   Huge years, small entries, ruled breaks, a great deal of air.
+   ============================================================ */
+.awm {
+  position: relative; z-index: 2;
+  background: var(--black); color: var(--cream);
+  padding: clamp(7rem, 15vw, 11rem) 0 clamp(8rem, 17vw, 13rem);
+}
+.awm__head { margin-bottom: clamp(4rem, 9vw, 7rem); }
+.awm__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -0.022em;
+  color: var(--cream); margin-top: 1.4rem;
+}
+.awm__title em { font-style: italic; color: rgba(247, 244, 236, 0.5); }
+.awm__note {
+  margin-top: 1.5rem;
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em;
+  color: var(--muted-dark);
+}
+
+.awm__entry {
+  position: relative;
+  display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(1.25rem, 4vw, 4rem);
+  padding: clamp(3rem, 7vw, 5rem) 0 clamp(3.5rem, 8vw, 6.5rem);
+  align-items: start;
+}
+.awm__entry-rule {
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--line-darker); transform-origin: left;
+}
+.awm__index {
+  position: absolute; top: clamp(1rem, 2vw, 1.6rem); right: 0;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
+  color: rgba(247, 244, 236, 0.35);
+}
+.awm__year {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(3.2rem, 10vw, 8.4rem); line-height: 0.84; letter-spacing: -0.04em;
+  color: var(--cream);
+}
+.awm__year--long { font-size: clamp(2.3rem, 7vw, 5.6rem); letter-spacing: -0.03em; }
+.awm__entry--b .awm__year { padding-left: clamp(0.75rem, 5vw, 4.5rem); }
+.awm__entry-text { padding-top: clamp(0.4rem, 1.8vw, 1.5rem); }
+.awm__entry-title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.2rem, 2vw, 1.6rem); line-height: 1.2; }
+.awm__entry-body { margin-top: 0.95rem; max-width: 46ch; font-size: 0.95rem; line-height: 1.75; color: rgba(247, 244, 236, 0.6); }
+
+/* ============================================================
+   07 — CLOSING
+   ============================================================ */
+.awx {
+  position: relative; overflow: hidden;
+  background: var(--black);
+  padding: clamp(7rem, 16vw, 12rem) 0 clamp(8rem, 18vw, 13rem);
+}
+.awx__bg { position: absolute; inset: -9% 0; z-index: 1; opacity: 0.14; will-change: transform; }
+.awx__bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.15) brightness(0.82); }
+.awx::after {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  background: radial-gradient(ellipse at 28% 22%, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.95) 72%);
+}
+.awx .aw-grain { z-index: 3; }
+.awx__inner { position: relative; z-index: 4; }
+
+.awx__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.7rem, 8.6vw, 7.2rem); line-height: 0.98; letter-spacing: -0.028em;
+  color: var(--cream); margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+.awx__line { display: block; overflow: hidden; padding-bottom: 0.04em; }
+.awx__line-inner { display: block; }
+.awx__line--em .awx__line-inner { font-style: italic; color: rgba(247, 244, 236, 0.55); }
+.awx__rule {
+  display: block; height: 1px; width: min(420px, 62%);
+  background: var(--line-dark); transform-origin: left;
+  margin: clamp(2.5rem, 5vw, 4rem) 0 clamp(1.5rem, 3vw, 2rem);
+}
+.awx__note { max-width: 44ch; font-size: 1.02rem; line-height: 1.75; color: rgba(247, 244, 236, 0.62); }
+.awx__links { display: flex; flex-wrap: wrap; gap: clamp(1.25rem, 4vw, 3rem); margin-top: clamp(3rem, 6vw, 4.5rem); }
+.awx__links a {
+  display: inline-flex; align-items: center; gap: 0.75rem; padding-bottom: 0.7rem;
+  font-family: var(--font-mono); font-size: 0.71rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.78);
+  border-bottom: 1px solid var(--line-dark);
+  transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.awx__links a i { font-style: normal; transition: transform 0.4s var(--ease); }
+.awx__links a:hover { color: var(--cream); border-color: rgba(247, 244, 236, 0.45); }
+.awx__links a:hover i { transform: translateX(5px); }
+
+/* ============================================================
+   RESPONSIVE
+   Mobile keeps the typography and the hierarchy; it drops the
+   simultaneous layers, the parallax and the sticky column.
+   ============================================================ */
+@media (max-width: 1080px) {
+  .awc__grid { grid-template-columns: 1fr; }
+  .awc__aside { position: static; }
+  .awc__note { max-width: 46ch; }
+  .awb__entry { grid-template-columns: 3rem minmax(0, 1.2fr) minmax(0, 1fr); }
+  .awb__since { grid-column: 2 / -1; text-align: left; display: flex; align-items: baseline; gap: 0.75rem; }
+  .awb__since .awb__key { margin-bottom: 0; }
+}
+
+@media (max-width: 860px) {
+  .awh__cue { display: none; }
+  .awh__grid { background-size: calc(100% / 3) 100%; }
+
+  .awr__field { grid-template-columns: 1fr; }
+  .awr__margin { display: none; }
+  .awr__figure--1, .awr__figure--2, .awr__figure--3, .awr__figure--4 {
+    grid-column: 1 / -1; grid-row: auto; margin-top: clamp(3.5rem, 12vw, 5.5rem);
+  }
+  .awr__figure--1 { margin-top: 0; }
+
+  .awm__entry { grid-template-columns: 1fr; gap: 1.5rem; }
+  .awm__entry--b .awm__year { padding-left: 0; }
+  .awm__index { position: static; display: block; margin-bottom: 1.25rem; }
+}
+
 @media (max-width: 720px) {
-  .rec-wall { grid-template-columns: 1fr; }
-  .aw-bar__row { grid-template-columns: 32px 1fr 1fr; gap: 0.6rem; }
-  .aw-bar__row span:nth-child(4) { display: none; }
-  .aw-courts__wrap { height: auto; }
-  .aw-courts__sticky { position: static; height: auto; overflow: visible; }
-  .aw-courts__track { flex-wrap: wrap; transform: none !important; padding-left: 0; }
-  .aw-courts__cue { display: none; }
-  .ms-timeline__item { grid-template-columns: 1fr; gap: 0.4rem; }
+  .awh__file { margin-left: 0; }
+  .aws__frag--b { align-self: flex-start; text-align: left; }
+  .aws__attr { text-align: left; }
+
+  .awb__paper--2 { display: none; }
+  .awb__entry { grid-template-columns: 2.25rem minmax(0, 1fr); row-gap: 1.25rem; }
+  .awb__identity, .awb__enrol, .awb__since { grid-column: 2; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   No scroll choreography runs, so every state resolves to its
+   final, fully readable form.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .awh__cue i::after { animation: none; opacity: 0; }
+  .awc__item-name { color: var(--ink); }
+  .awc__item-domains { opacity: 1; transform: none; }
+  .awr__margin-fill { transform: scaleY(1); }
+  .awx__links a i, .awc__item-name, .awc__item-domains { transition: none; }
 }
