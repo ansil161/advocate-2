@@ -1,0 +1,74 @@
+/* ============================================================
+   STACKED SECTION TRANSITION — structure
+   Each panel pins once it is fully in view; the next slides up over it while
+   the one beneath recedes. Built for the Team page, now shared with About.
+   ------------------------------------------------------------
+   These rules used to live in Team.css. They moved here when About started
+   using the same primitive: Team.css only loads on the lazily-routed Team page,
+   so anything left there is simply absent on every other route.
+
+   Class names keep the `t-` prefix they were written with. Renaming them would
+   have meant touching the Team page's markup and its responsive overrides,
+   which this environment cannot re-verify visually (scroll animation is frozen
+   in the automated tab), so the names stayed put deliberately.
+
+   Colour and chrome stay with each page — `.t-panel*` in Team.css,
+   `.a-panel` in About.css. Only pinning behaviour is shared.
+   ============================================================ */
+
+.t-stackRoot,
+.a-stackRoot {
+  --stack-overlap: 46vh;
+  position: relative;
+  /* Never set overflow here — the panels (and Team's expertise track) use
+     position: sticky, which silently dies under a clipping ancestor. */
+}
+
+.t-stack { position: relative; }
+
+/* `top` is set inline per panel by StackSection — it has to be the panel's own
+   overhang below the fold, which CSS has no unit for. */
+.t-stack__panel {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  will-change: transform, opacity;
+}
+
+/* Real in-flow height, not padding — a sticky child can only travel inside its
+   parent's content box, so this is what buys the pin its distance. */
+.t-stack__spacer { height: var(--stack-overlap); pointer-events: none; }
+
+.t-stack--flat .t-stack__panel { position: relative; top: auto; min-height: 0; }
+
+/* Each panel is pulled up so it begins covering the one before it exactly when
+   that one starts its pin. Net document height is unchanged. */
+.t-stack + .t-stack,
+.t-arrival__wrap + .t-stack {
+  margin-top: calc(var(--stack-overlap) * -1);
+}
+
+@media (max-width: 1080px) {
+  .t-stackRoot,
+  .a-stackRoot { --stack-overlap: 30vh; }
+}
+
+/* Stacking panels cost too much on small screens, and the effect reads as a
+   stutter rather than as depth — everything falls back to plain document flow. */
+@media (max-width: 760px) {
+  .t-stackRoot,
+  .a-stackRoot { --stack-overlap: 0px; }
+  .t-stack__spacer { display: none; }
+  .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
+  .t-stack + .t-stack,
+  .t-arrival__wrap + .t-stack { margin-top: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-stackRoot,
+  .a-stackRoot { --stack-overlap: 0px; }
+  .t-stack__spacer { display: none; }
+  .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
+  .t-stack + .t-stack,
+  .t-arrival__wrap + .t-stack { margin-top: 0; }
+}

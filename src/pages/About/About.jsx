@@ -4,6 +4,7 @@ import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import Counter from '../../components/ui/Counter.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
+import StackSection from '../../components/ui/StackSection.jsx';
 import AboutHero from './sections/AboutHero.jsx';
 import StorySection from './sections/StorySection.jsx';
 import AboutCTA from './sections/AboutCTA.jsx';
@@ -36,8 +37,16 @@ export default function About() {
 
       <StorySection />
 
+      {/* The stacked act. Five plates — black, cream, black, cream, black — laid
+          over one another as you scroll, then released back to ordinary flow at
+          Legacy. Deliberately not applied page-wide: the effect is a change of
+          register, and it only reads as one while the sections around it scroll
+          normally. It sits here because the narrative has just finished (Story)
+          and these five are the argument; it resolves onto the Still Point quote,
+          which is the last plate and the exhale. */}
+      <div className="a-stackRoot">
       {/* OurPhilosophy */}
-      <section className="a-philosophy" id="a-philosophy">
+      <StackSection id="a-philosophy" className="a-panel a-philosophy" depth={1} dim={0.45}>
         <div className="container">
           <span className="chapter-label chapter-label--light"><b>02</b> Our Philosophy</span>
           <h2 className="h2 h2--light" style={{ maxWidth: '18ch' }}><SplitText text={philosophy.title} /></h2>
@@ -52,10 +61,10 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </StackSection>
 
       {/* DecisionRoom */}
-      <section className="a-decision" id="a-decision">
+      <StackSection id="a-decision" className="a-panel a-decision" depth={2}>
         <div className="container a-decision__grid">
           <div>
             <span className="chapter-label"><b>03</b> The Decision Room</span>
@@ -70,10 +79,10 @@ export default function About() {
             <img src={libraryImg} alt="" />
           </Reveal>
         </div>
-      </section>
+      </StackSection>
 
       {/* MattersBuilt */}
-      <section className="a-built" id="a-built">
+      <StackSection id="a-built" className="a-panel a-built" depth={3} dim={0.45}>
         <div className="container">
           <span className="chapter-label chapter-label--light"><b>04</b> What We’ve Built</span>
           <div className="a-built__grid">
@@ -94,10 +103,10 @@ export default function About() {
             {office.features.map((f, i) => <Reveal as="span" key={f} delay={i * 0.04}>{f}</Reveal>)}
           </div>
         </div>
-      </section>
+      </StackSection>
 
       {/* OurPrinciples */}
-      <section className="a-principles" id="a-principles">
+      <StackSection id="a-principles" className="a-panel a-principles" depth={4}>
         <div className="container">
           <div className="section-head">
             <span className="eyebrow"><SplitText text="Our Principles" /></span>
@@ -113,17 +122,19 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </StackSection>
 
-      {/* StillPoint */}
-      <section className="a-still" id="a-still">
+      {/* StillPoint — the last plate, so nothing covers it: it holds, then the
+          page is handed back to ordinary scrolling at Legacy. */}
+      <StackSection id="a-still" className="a-panel a-still" depth={5}>
         <div className="container">
           <Reveal as="p" className="a-still__quote">
             <SplitText text="“Practical solutions, delivered with a human touch.”" stagger={0.02} />
           </Reveal>
           <Reveal as="p" className="a-still__attr" delay={0.3}>— Sridhar Lendalay</Reveal>
         </div>
-      </section>
+      </StackSection>
+      </div>
 
       {/* Legacy */}
       <section className="a-legacy" id="a-legacy">

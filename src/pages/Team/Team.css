@@ -1,17 +1,185 @@
-.t-arrival { position: relative; min-height: 65vh; display: flex; align-items: flex-end; background: var(--black); padding: clamp(9rem, 16vw, 12rem) 0 clamp(4rem, 8vw, 6rem); overflow: hidden; }
-.t-arrival__bg { position: absolute; inset: -6%; opacity: 0.28; will-change: transform; }
-.t-arrival__bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); }
-.t-arrival::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,0.4), rgba(10,10,10,0.9)); }
-.t-arrival__content { position: relative; z-index: 2; }
-.t-arrival__sub { max-width: 58ch; color: rgba(247,244,236,0.72); font-size: 1.08rem; line-height: 1.65; margin-top: 1.5rem; }
+/* ============================================================
+   TEAM — cinematic scroll journey
+   Sections stack: each panel pins once fully in view, then the
+   next slides up over it and the one beneath recedes.
+   ============================================================ */
 
-.t-bench { background: var(--cream); padding: clamp(4rem, 8vw, 6.5rem) 0; position: relative; z-index: 2; }
-.t-bench__featured { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; align-items: start; }
-.t-bench__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: start; }
+.t-stackRoot {
+  --stack-overlap: 46vh;
+  position: relative;
+  /* Never set overflow here — the panels and the expertise track both use
+     position: sticky, which silently dies under a clipping ancestor. */
+}
+
+.t-stack { position: relative; }
+/* `top` is set inline per panel by StackSection — it has to be the panel's
+   own overhang below the fold, which CSS has no unit for. */
+.t-stack__panel {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  will-change: transform, opacity;
+}
+/* Real in-flow height, not padding — a sticky child can only travel inside its
+   parent's content box, so this is what buys the pin its distance. */
+.t-stack__spacer { height: var(--stack-overlap); pointer-events: none; }
+.t-stack--flat .t-stack__panel { position: relative; top: auto; min-height: 0; }
+
+/* Each panel is pulled up so it begins covering the one before it exactly
+   when that one starts its pin. Net document height is unchanged. */
+.t-stack + .t-stack,
+.t-arrival__wrap + .t-stack {
+  margin-top: calc(var(--stack-overlap) * -1);
+}
+
+/* No `position` here — .t-stack__panel owns it, and an equal-specificity
+   `relative` would quietly beat the sticky rule. */
+.t-panel {
+  border-top-left-radius: clamp(14px, 1.6vw, 24px);
+  border-top-right-radius: clamp(14px, 1.6vw, 24px);
+  box-shadow: 0 -30px 70px -30px rgba(10, 10, 10, 0.55);
+  overflow: hidden;
+}
+.t-panel--cream { background: var(--cream); }
+.t-panel--soft { background: var(--cream-soft); }
+.t-panel--deep { background: var(--cream-deep); }
+.t-panel--dark { background: var(--black-soft); }
+/* The expertise panel wraps its own position:sticky track. `overflow: hidden`
+   here would become that track's scrollport and silently kill its pinning, so
+   this one panel stays unclipped — the track does its own clipping. */
+.t-panel--black { background: var(--black); overflow: visible; }
+
+/* A hairline of gold across the leading edge of each panel — the seam you
+   see for a moment as it slides up. */
+.t-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim) 22%, var(--gold-soft) 50%, var(--gold-dim) 78%, transparent);
+  opacity: 0.6;
+  z-index: 20;
+}
 
 /* ============================================================
-   ADVOCATE CARD — photo frame + expand-in-place details
+   MOVEMENT I — THE WALL (pinned hero)
+   Portraits drift; the sentence does not.
    ============================================================ */
+.t-arrival__wrap { position: relative; height: 240vh; z-index: 0; }
+.t-arrival {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+}
+
+.t-arrival__wallWrap { position: absolute; inset: 0; z-index: 0; will-change: transform; }
+.t-arrival__wall {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+/* Columns overhang the frame top and bottom so the drift never exposes an edge.
+   `min-height: 0` on the column and its tiles is required: grid items default
+   to `min-height: auto`, which would let the portraits' intrinsic height force
+   the column far taller than 144% (and blow up the drift, which is a
+   percentage of the column's own height). */
+.t-arrival__col {
+  position: relative;
+  top: -22%;
+  height: 144%;
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 2px;
+  will-change: transform;
+}
+.t-arrival__tile { position: relative; min-height: 0; overflow: hidden; background: var(--black-card); }
+/* The portraits are presence, not subject — pushed well down so the statement
+   holds the frame. Most of the source shots have bright walls behind them, so
+   this needs to be much darker than it looks like it should be. */
+.t-arrival__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: grayscale(1) contrast(1.18) brightness(0.44);
+}
+
+.t-arrival__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.9) 34%, rgba(10,10,10,0.68) 68%, rgba(10,10,10,0.6) 100%),
+    linear-gradient(180deg, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.42) 42%, rgba(10,10,10,0.94) 100%);
+}
+
+.t-arrival__content { position: relative; z-index: 3; width: 100%; will-change: transform, opacity; }
+.t-arrival__eyebrow { margin-bottom: 0.9rem; }
+.t-arrival__rule {
+  display: block;
+  width: clamp(64px, 8vw, 116px);
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-soft), transparent);
+  transform-origin: left;
+  margin-bottom: clamp(1.6rem, 3vw, 2.4rem);
+}
+/* Wide enough that "as the people carrying it." stays on one line — at a
+   narrower measure it drops an orphaned "it." onto a third line. */
+.t-arrival__headline {
+  max-width: 26ch;
+  font-size: clamp(2.4rem, 5.4vw, 4.8rem);
+  text-shadow: 0 6px 50px rgba(10, 10, 10, 0.6);
+}
+.t-arrival__sub {
+  margin-top: clamp(1.6rem, 3vw, 2.4rem);
+  max-width: 48ch;
+  color: rgba(247, 244, 236, 0.74);
+  font-size: clamp(0.95rem, 1.15vw, 1.08rem);
+  line-height: 1.7;
+}
+
+/* Bottom-left, horizontal: the right gutter belongs to ChapterSpine, and a
+   second vertical label there reads as clutter. */
+.t-arrival__cue {
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(2.25rem, 5vw, 3.5rem);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.t-arrival__cue::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-soft), transparent);
+}
+
+.t-arrival--static { position: relative; height: auto; min-height: 78vh; padding: 8rem 0; }
+
+/* ============================================================
+   MOVEMENT II — FULL PROFILE CARDS
+   ============================================================ */
+.t-bench { padding: clamp(5rem, 9vw, 8rem) 0 clamp(4rem, 8vw, 6.5rem); }
+/* A rem measure, not `ch` — `ch` here resolves against this element's 16px
+   body font rather than the display-size heading inside it, which clamps the
+   headline to ~267px and breaks it into four lines. */
+.t-bench__head { max-width: 44rem; margin-bottom: clamp(2.75rem, 5vw, 4.25rem); }
+.t-bench__featured { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; align-items: start; }
+.t-bench__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: start; }
+
 .adv-card {
   background: var(--cream-soft);
   border: 1px solid var(--line-light);
@@ -23,66 +191,114 @@
 .adv-card:hover { border-color: var(--gold-dim); box-shadow: 0 24px 50px -28px rgba(22,21,15,0.35); }
 
 .adv-card__photo { position: relative; aspect-ratio: 3/4; overflow: hidden; }
-.adv-card--lg .adv-card__photo { aspect-ratio: 16/11; }
+
+/* The two senior cards run photo-left / text-right. The portraits are tall,
+   so a wide landscape frame would crop the faces straight off. */
+.adv-card--lg {
+  display: grid;
+  grid-template-columns: minmax(0, 0.46fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+}
+.adv-card--lg .adv-card__photo { grid-area: 1 / 1; aspect-ratio: 4/5; }
+.adv-card--lg .adv-card__body { grid-area: 1 / 2; }
+.adv-card--lg .adv-card__details { grid-area: 2 / 1 / 3 / -1; }
 .adv-card__photo-inner {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(155deg, var(--black-card) 0%, var(--black) 70%);
   overflow: hidden;
-  transition: transform 0.6s var(--ease);
+  transition: transform 0.7s var(--ease);
 }
 .adv-card:hover .adv-card__photo-inner { transform: scale(1.045); }
+.adv-card__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 14%;
+  filter: grayscale(1) contrast(1.04) brightness(0.94);
+  transition: filter 0.7s var(--ease);
+}
+.adv-card:hover .adv-card__img { filter: grayscale(0.15) contrast(1.02) brightness(1); }
 .adv-card__initials {
   font-family: var(--font-serif); font-weight: 400; color: rgba(247,244,236,0.92);
   font-size: clamp(2.4rem, 7vw, 3.6rem); letter-spacing: 0.04em; position: relative; z-index: 2;
 }
 .adv-card--lg .adv-card__initials { font-size: clamp(3rem, 6vw, 4.4rem); }
-.adv-card__photo-glow {
-  position: absolute; width: 70%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, rgba(169,131,79,0.28), transparent 70%);
-  filter: blur(6px);
-}
 .adv-card__photo-grain {
-  position: absolute; inset: 0; opacity: 0.12; mix-blend-mode: overlay; pointer-events: none;
+  position: absolute; inset: 0; opacity: 0.1; mix-blend-mode: overlay; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.adv-card__photo-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 60px 8px rgba(0,0,0,0.55); }
-.adv-card__photo-outline { position: absolute; inset: 10px; border: 1px solid rgba(255,255,255,0.14); pointer-events: none; }
+.adv-card__photo-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 70px 10px rgba(0,0,0,0.5); }
+.adv-card__photo-outline { position: absolute; inset: 10px; border: 1px solid rgba(255,255,255,0.14); pointer-events: none; z-index: 3; }
 .adv-card__curtain { position: absolute; inset: 0; background: var(--cream); transform-origin: bottom; z-index: 5; }
-.adv-card__index { position: absolute; top: 14px; left: 14px; z-index: 3; font-family: var(--font-serif); font-size: 0.75rem; color: var(--gold-soft); letter-spacing: 0.05em; }
+.adv-card__index { position: absolute; top: 14px; left: 14px; z-index: 6; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold-soft); letter-spacing: 0.05em; }
 .adv-card__exp-badge {
-  position: absolute; left: 0; bottom: 0; z-index: 3;
+  position: absolute; left: 0; bottom: 0; z-index: 6;
   background: var(--black); color: var(--gold-soft);
   font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
   padding: 0.55rem 1rem; border-top-right-radius: 2px;
 }
 
 .adv-card__body { padding: 1.6rem 1.6rem 1.3rem; display: flex; flex-direction: column; flex: 1; }
-.adv-card--lg .adv-card__body { padding: 2rem 2.25rem 1.6rem; }
+.adv-card--lg .adv-card__body { padding: clamp(2rem, 3.4vw, 3rem) clamp(2rem, 3.4vw, 3.25rem) 2rem; }
 .adv-card__name { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; margin-bottom: 0.3rem; }
-.adv-card--lg .adv-card__name { font-size: 1.9rem; }
+.adv-card--lg .adv-card__name { font-size: clamp(1.9rem, 2.6vw, 2.35rem); margin-bottom: 0.5rem; }
 .adv-card__role { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.9rem; }
 .adv-card__brief { font-size: 0.88rem; color: var(--muted-light); line-height: 1.55; margin-bottom: 1.1rem; }
 .adv-card--lg .adv-card__brief { font-size: 0.95rem; max-width: 60ch; }
 
-.adv-card__toggle {
-  align-self: flex-end; width: 38px; height: 38px; border-radius: 50%;
-  border: 1px solid var(--line-light); position: relative; flex-shrink: 0;
-  transition: background 0.35s var(--ease), border-color 0.35s var(--ease), transform 0.35s var(--ease);
+/* Credentials on the face of the senior cards. */
+.adv-card__creds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem 2rem;
+  margin: 0 0 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line-light);
+  max-width: 46rem;
 }
-.adv-card__toggle:hover { border-color: var(--gold); transform: scale(1.06); }
-.adv-card__toggle.is-open { background: var(--black); border-color: var(--black); }
+.adv-card__creds dt {
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.adv-card__creds dd { font-size: 0.86rem; line-height: 1.45; color: var(--ink); }
+
+/* A labelled control rather than a bare "+" adrift in the card. */
+.adv-card__toggle {
+  align-self: flex-start;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0 0;
+  border-top: 1px solid transparent;
+  transition: color 0.35s var(--ease);
+}
+.adv-card__toggle-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: color 0.35s var(--ease);
+}
+.adv-card__toggle:hover .adv-card__toggle-label { color: var(--gold); }
+.adv-card__toggle-icon {
+  position: relative; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--line-light); flex-shrink: 0;
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.adv-card__toggle:hover .adv-card__toggle-icon { border-color: var(--gold); }
+.adv-card__toggle.is-open .adv-card__toggle-icon { background: var(--black); border-color: var(--black); }
 .adv-card__toggle-line {
-  position: absolute; top: 50%; left: 50%; width: 14px; height: 1px; background: var(--ink);
+  position: absolute; top: 50%; left: 50%; width: 10px; height: 1px; background: var(--ink);
   transform: translate(-50%, -50%); transition: transform 0.35s var(--ease), background 0.35s var(--ease);
 }
 .adv-card__toggle-line--v { transform: translate(-50%, -50%) rotate(90deg); }
 .adv-card__toggle.is-open .adv-card__toggle-line { background: var(--cream); }
 .adv-card__toggle.is-open .adv-card__toggle-line--v { transform: translate(-50%, -50%) rotate(0deg); }
 
-.adv-card__details {
-  overflow: hidden;
-  transition: height 0.45s var(--ease);
-}
+.adv-card__details { overflow: hidden; transition: height 0.45s var(--ease); }
 .adv-card__details-inner { padding: 0 1.6rem; }
 .adv-card__details.is-open .adv-card__details-inner { padding: 1.4rem 1.6rem 1.8rem; border-top: 1px solid var(--line-light); transition: padding 0.45s var(--ease); }
 .adv-card--lg .adv-card__details-inner { padding: 0 2.25rem; }
@@ -92,17 +308,74 @@
 .adv-card__meta-grid div { font-size: 0.88rem; }
 .adv-card__meta-grid span { display: block; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
 
-.t-culture { background: var(--cream-deep); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
-.t-culture__grid { display: grid; grid-template-columns: 200px 1fr; gap: clamp(2rem, 4vw, 4rem); }
+/* ============================================================
+   MOVEMENT III — THE STANDARD
+   ============================================================ */
+.t-standard {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: clamp(6rem, 12vw, 10rem) 0;
+  overflow: hidden;
+}
+.t-standard__frame { position: absolute; inset: 0; z-index: 0; will-change: clip-path; }
+.t-standard__frame img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) brightness(0.34); will-change: transform; }
+.t-standard::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(19,19,17,0.72), rgba(19,19,17,0.4) 45%, rgba(19,19,17,0.88));
+}
+.t-standard__content { position: relative; z-index: 2; }
+.t-standard__quote { max-width: 20ch; }
+.t-standard__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  max-width: 780px;
+  border-top: 1px solid var(--line-dark);
+  padding-top: 2rem;
+}
+.t-standard__statValue {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  color: var(--gold-soft);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+.t-standard__statLabel {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.55);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   CULTURE
+   ============================================================ */
+.t-culture { padding: clamp(5rem, 10vw, 8rem) 0; }
+.t-culture__wash { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.t-culture__wash img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+  opacity: 0.12;
+  mask-image: linear-gradient(200deg, rgba(0,0,0,0.9) 0%, transparent 62%);
+  -webkit-mask-image: linear-gradient(200deg, rgba(0,0,0,0.9) 0%, transparent 62%);
+}
+.t-culture__grid { position: relative; z-index: 1; display: grid; grid-template-columns: 200px 1fr; gap: clamp(2rem, 4vw, 4rem); padding-block: clamp(5rem, 10vw, 8rem); }
 .t-culture__points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2.5rem; }
-.t-culture__point-num { display: block; font-family: var(--font-serif); color: var(--gold); font-size: 0.85rem; margin-bottom: 0.75rem; }
+.t-culture__point-num { display: block; font-family: var(--font-mono); color: var(--gold); font-size: 0.72rem; margin-bottom: 0.75rem; }
 .t-culture__point h4 { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; margin-bottom: 0.75rem; }
 .t-culture__point p { font-size: 0.9rem; color: var(--muted-light); line-height: 1.6; }
 
 /* ============================================================
    EXPERTISE MAP — scroll-scrubbed horizontal track
    ============================================================ */
-.t-expertise { background: var(--black); padding: clamp(5rem, 10vw, 7rem) 0 0; position: relative; z-index: 2; }
+.t-expertise { padding: clamp(5rem, 10vw, 7rem) 0 0; }
 .t-expertise__head { position: relative; padding-bottom: 3rem; }
 .t-expertise__head .h2 { margin-bottom: 0; }
 .t-expertise__cue { position: absolute; right: var(--gutter, 0); bottom: 3rem; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-soft); writing-mode: vertical-rl; }
@@ -111,21 +384,64 @@
 .t-expertise__track { display: flex; gap: 1px; background: var(--line-darker); padding-left: var(--gutter, 2rem); }
 .t-expertise__item { flex: 0 0 clamp(220px, 22vw, 300px); background: var(--black-soft); padding: 2.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; min-height: 220px; justify-content: flex-end; text-decoration: none; transition: background 0.3s; }
 .t-expertise__item:hover { background: var(--black-card); }
-.t-expertise__num { font-family: var(--font-serif); font-size: 0.85rem; color: var(--gold); }
+.t-expertise__num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--gold); }
 .t-expertise__name { font-family: var(--font-serif); font-size: clamp(1.1rem, 1.8vw, 1.4rem); color: var(--cream); line-height: 1.2; }
 
-.t-return { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; text-align: center; position: relative; z-index: 2; }
+/* ============================================================
+   RETURN
+   ============================================================ */
+.t-return { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; text-align: center; position: relative; z-index: 6; }
 .t-return__text { font-family: var(--font-serif); font-size: clamp(1.6rem, 3vw, 2.2rem); max-width: 30ch; margin: 0 auto 1.5rem; line-height: 1.3; }
 .t-return .link-arrow { justify-content: center; display: inline-flex; }
 
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 1080px) {
-  .t-bench__featured, .t-bench__grid, .t-culture__points { grid-template-columns: 1fr 1fr; }
+  .t-stackRoot { --stack-overlap: 30vh; }
+  .t-arrival__wall { grid-template-columns: repeat(3, 1fr); }
+  .t-arrival__col:nth-child(4) { display: none; }
+  .t-bench__grid, .t-culture__points { grid-template-columns: 1fr 1fr; }
   .t-culture__grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 720px) {
-  .t-bench__featured, .t-bench__grid, .t-culture__points { grid-template-columns: 1fr; }
+
+@media (max-width: 760px) {
+  /* Stacking panels and pinned heroes cost too much on small screens —
+     everything falls back to plain document flow. */
+  .t-stackRoot { --stack-overlap: 0px; }
+  .t-stack__spacer { display: none; }
+  .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
+  .t-stack + .t-stack, .t-arrival__wrap + .t-stack { margin-top: 0; }
+  .t-panel { border-radius: 0; box-shadow: none; }
+
+  .t-arrival__wrap { height: auto; }
+  .t-arrival { position: relative; height: auto; min-height: 88vh; padding: 7rem 0 5rem; }
+  .t-arrival__wall { grid-template-columns: repeat(2, 1fr); }
+  .t-arrival__col:nth-child(n + 3) { display: none; }
+  .t-arrival__col { transform: none !important; top: -12%; height: 124%; }
+  .t-arrival__headline { max-width: 14ch; }
+  .t-arrival__cue { display: none; }
+
+  .adv-card__creds { grid-template-columns: 1fr; gap: 1rem; }
+
+  .t-bench__grid, .t-culture__points { grid-template-columns: 1fr; }
+  .adv-card--lg { grid-template-columns: 1fr; }
+  .adv-card--lg .adv-card__photo { grid-area: auto; aspect-ratio: 3/4; min-height: 0; }
+  .adv-card--lg .adv-card__body { grid-area: auto; }
+  .adv-card--lg .adv-card__details { grid-area: auto; }
+  .t-standard { min-height: 0; }
+  .t-standard__frame { clip-path: none !important; }
+  .t-standard__stats { grid-template-columns: 1fr; gap: 1.5rem; }
   .t-expertise__wrap { height: auto; }
   .t-expertise__sticky { position: static; height: auto; overflow: visible; }
   .t-expertise__track { flex-wrap: wrap; transform: none !important; padding-left: 0; }
   .t-expertise__cue { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-stackRoot { --stack-overlap: 0px; }
+  .t-stack__spacer { display: none; }
+  .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
+  .t-stack + .t-stack, .t-arrival__wrap + .t-stack { margin-top: 0; }
+  .t-arrival__wrap { height: auto; }
 }

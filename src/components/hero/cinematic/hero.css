@@ -1,0 +1,274 @@
+/* ============================================================
+   SLA — THE ARRIVAL · overlay typography
+   ------------------------------------------------------------
+   The 3D world is the hero. Everything in this file is meant to
+   sit lightly on top of it and then get out of the way.
+   ============================================================ */
+
+.chero {
+  position: relative;
+  background: var(--black);
+}
+
+.chero__stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  background: #0b0a09;
+}
+
+.chero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.chero__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Reads the frame down top and bottom so the typography always has
+   something to sit on, whatever the camera is looking at. */
+.chero__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 7, 0.5) 0%, rgba(8, 8, 7, 0) 26%),
+    linear-gradient(0deg, rgba(8, 8, 7, 0.62) 0%, rgba(8, 8, 7, 0) 34%);
+}
+
+/* ---- loader ---------------------------------------------- */
+.chero__loader {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: #0b0a09;
+  transition: opacity 1.1s var(--ease), visibility 1.1s;
+}
+.chero__loader.is-done {
+  opacity: 0;
+  visibility: hidden;
+}
+.chero__loader-mark {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  color: var(--cream);
+}
+.chero__loader-line {
+  display: block;
+  width: min(220px, 40vw);
+  height: 1px;
+  background: rgba(247, 244, 236, 0.16);
+  overflow: hidden;
+}
+.chero__loader-line i {
+  display: block;
+  height: 100%;
+  background: var(--gold-soft);
+  transform-origin: left center;
+  transition: transform 0.5s var(--ease);
+}
+.chero__loader-word {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.42);
+}
+
+/* ---- opening typography ----------------------------------- */
+.chero__intro {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: clamp(5.5rem, 12vw, 9rem);
+  pointer-events: none;
+}
+/* The shared .container carries `margin-inline: auto`, which as a flex
+   item shrink-wraps and centres the headline instead of setting it on
+   the gutter. */
+.chero__intro > .container { width: 100%; }
+.chero__eyebrow {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.55);
+  margin-bottom: 1.1rem;
+}
+.chero__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.9rem, 7.4vw, 6rem);
+  line-height: 0.98;
+  letter-spacing: -0.012em;
+  color: var(--cream);
+}
+.chero__sub {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.44);
+}
+
+.chero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.6rem, 3.4vw, 2.6rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  pointer-events: none;
+}
+.chero__scroll span {
+  font-size: 0.58rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.4);
+}
+.chero__scroll i {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(180deg, rgba(211, 177, 127, 0.75), rgba(211, 177, 127, 0));
+  animation: cheroDrop 2.6s var(--ease-soft) infinite;
+}
+@keyframes cheroDrop {
+  0% { transform: scaleY(0); transform-origin: top; }
+  45% { transform: scaleY(1); transform-origin: top; }
+  55% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ---- travelling captions ---------------------------------- */
+.chero__caption {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(4rem, 9vw, 6.5rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  width: min(90vw, 46rem);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.1vw, 1.7rem);
+  line-height: 1.35;
+  color: rgba(247, 244, 236, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  text-wrap: balance;
+}
+.chero__caption span {
+  color: rgba(247, 244, 236, 0.5);
+}
+
+/* ---- the way out ------------------------------------------ */
+.chero__final {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(2rem, 5vw, 3.4rem);
+  z-index: 7;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+}
+.chero__final.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+.chero__final-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: center;
+}
+.chero__final-note {
+  font-size: 0.6rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.42);
+}
+.chero__final-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+}
+.chero__btn-line {
+  color: var(--cream);
+  border-color: rgba(247, 244, 236, 0.28);
+}
+
+/* ---- held still: reduced motion, and the no-WebGL fallback ----
+   One frame instead of a journey, laid out as an ordinary editorial
+   hero — headline, then the two links, both left-aligned. */
+.chero.is-still .chero__intro {
+  padding-bottom: clamp(9rem, 18vw, 13rem);
+}
+.chero.is-still .chero__final {
+  bottom: clamp(3rem, 7vw, 4.5rem);
+}
+/* Aligned to the same container edge as the headline above it. */
+.chero.is-still .chero__final-inner {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  align-items: flex-start;
+  text-align: left;
+}
+.chero.is-still .chero__scrim {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 7, 0.45) 0%, rgba(8, 8, 7, 0) 24%),
+    linear-gradient(0deg, rgba(8, 8, 7, 0.78) 0%, rgba(8, 8, 7, 0) 52%);
+}
+
+/* ---- the navigation steps back while the camera is moving --- */
+body.is-cinema .nav-bar {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  transition: opacity 0.6s var(--ease), background 0.6s var(--ease);
+}
+body.is-cinema .nav-bar:not(:hover) .nav-links,
+body.is-cinema .nav-bar:not(:hover) .nav-actions {
+  opacity: 0.42;
+  transition: opacity 0.6s var(--ease);
+}
+
+/* ---- reduced motion / compact ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .chero__scroll i { animation: none; }
+  .chero__caption { display: none; }
+}
+
+@media (max-width: 860px) {
+  .chero__intro { padding-bottom: clamp(6.5rem, 20vw, 9rem); }
+  .chero__caption { bottom: clamp(6rem, 18vw, 8rem); }
+  .chero__final-cta { flex-direction: column; width: min(88vw, 20rem); }
+  .chero__final-cta .btn { width: 100%; justify-content: center; }
+}

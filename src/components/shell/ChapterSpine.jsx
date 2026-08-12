@@ -10,14 +10,24 @@ export default function ChapterSpine({ sectionIds = [], dark = false, darkIds })
 
   useEffect(() => {
     if (!sectionIds.length) return;
+    // More than one section can hold the centre band at once — most obviously
+    // where sections stack, since a pinned panel keeps crossing it while the
+    // next one rises over the top of it. Tracking only the newest intersection
+    // would leave the rail stuck on the pinned panel for the whole stack, so
+    // keep the set and take the furthest along: that is both the panel painted
+    // on top there and the one being scrolled into everywhere else.
+    const visible = new Set();
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const idx = sectionIds.indexOf(entry.target.id);
-            if (idx !== -1) setActive(idx);
-          }
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
         });
+        let idx = -1;
+        visible.forEach(id => {
+          idx = Math.max(idx, sectionIds.indexOf(id));
+        });
+        if (idx !== -1) setActive(idx);
       },
       { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
     );

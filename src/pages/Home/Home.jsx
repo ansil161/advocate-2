@@ -1,7 +1,7 @@
+import { Suspense, lazy } from 'react';
 import Layout from '../../components/shell/Layout.jsx';
 import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
 import Consult from '../../components/shell/Consult.jsx';
-import Hero from './sections/Hero.jsx';
 import Numbers from './sections/Numbers.jsx';
 import Firm from './sections/Firm.jsx';
 import Practice from './sections/Practice.jsx';
@@ -12,13 +12,20 @@ import Manifesto from './sections/Manifesto.jsx';
 import ClientTestimonials from './sections/ClientTestimonials.jsx';
 import './Home.css';
 
+// The cinematic hero carries Three.js with it. Splitting it out keeps
+// it off the critical path — the rest of the page parses and paints
+// while the world loads behind the hero's own entrance card.
+const HeroExperience = lazy(() => import('../../components/hero/cinematic/HeroExperience.jsx'));
+
 const CHAPTERS = ['hero', 'firm', 'practice', 'proof', 'team', 'manifesto', 'testimonials', 'consult'];
 
 export default function Home() {
   return (
     <Layout navTheme="dark">
       <ChapterSpine sectionIds={CHAPTERS} dark />
-      <Hero />
+      <Suspense fallback={<div className="chero-placeholder" id="hero" />}>
+        <HeroExperience />
+      </Suspense>
       <Numbers />
       <Firm />
       <Practice />
