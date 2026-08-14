@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Icon from '../../../components/ui/Icon.jsx';
 import { chamberImage } from '../lib/practiceImagery.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -17,7 +18,6 @@ gsap.registerPlugin(ScrollTrigger);
 //    THE MATTER    the file is closed and far off; the camera closes on it
 //    ——            the cover lifts, the leaves come apart
 //    THE APPROACH  each leaf stands up into a bay — the file becomes a colonnade,
-//                  the chamber plan is drawn on the floor between the columns
 //    ——            the camera keeps going and passes between the bays
 //    THE CHAMBER   the columns clear frame and the institution resolves behind them
 //
@@ -36,7 +36,6 @@ const CUE = {
   bays: 0.34, // leaves stand up into a colonnade of bays
   approach: 0.33, // 02 — THE APPROACH
   heads: 0.4, // the practice's heads of work run up the bays
-  plan: 0.38, // the chamber plan draws on the floor
   approachOut: 0.6,
   through: 0.62, // the camera passes between the bays
   chamber: 0.66, // 03 — THE CHAMBER
@@ -69,24 +68,6 @@ const MAX_BAYS = 5;
 // not a constant: `geom()` measures it against whatever the frame has spare.
 const BAY_WIDTH = 0.44;
 
-// The chamber in plan — bench, clerk, witness box, the bar, counsel tables and
-// the public gallery. Drawn rather than photographed, and drawn as one stroke
-// vocabulary so the whole thing can be dashed on from a single tween.
-const PLAN = [
-  { d: 'M 12 10 L 188 10 L 188 132 L 12 132 Z', cls: 'room' },
-  { d: 'M 62 20 L 138 20 L 148 38 L 52 38 Z', cls: 'key' }, // the bench
-  { d: 'M 88 44 L 112 44 L 112 55 L 88 55 Z', cls: 'thin' }, // clerk
-  { d: 'M 152 44 L 176 44 L 176 62 L 152 62 Z', cls: 'thin' }, // witness box
-  { d: 'M 24 44 L 48 44 L 48 62 L 24 62 Z', cls: 'thin' }, // jury/officers
-  { d: 'M 16 74 L 184 74', cls: 'key' }, // the bar
-  { d: 'M 40 84 L 88 84 L 88 96 L 40 96 Z', cls: 'thin' },
-  { d: 'M 112 84 L 160 84 L 160 96 L 112 96 Z', cls: 'thin' },
-  { d: 'M 30 106 L 170 106', cls: 'thin' },
-  { d: 'M 30 114 L 170 114', cls: 'thin' },
-  { d: 'M 30 122 L 170 122', cls: 'thin' },
-  { d: 'M 100 14 L 100 128', cls: 'axis' },
-];
-
 export default function PracticeCinematic({ practice }) {
   const trackRef = useRef(null);
   const el = useRef({});
@@ -95,7 +76,6 @@ export default function PracticeCinematic({ practice }) {
   const heads = useRef([]);
   const forumNames = useRef([]);
   const forumIndex = useRef([]);
-  const planPaths = useRef([]);
 
   const bayTags = practice.tags.slice(0, MAX_BAYS);
   const forums = practice.forums;
@@ -134,7 +114,7 @@ export default function PracticeCinematic({ practice }) {
       // --------------------------------------------------------
       function buildStill() {
         const r = el.current;
-        gsap.set([r.file, r.plan, r.datum, r.margin], { autoAlpha: 0 });
+        gsap.set([r.file, r.datum, r.margin], { autoAlpha: 0 });
         gsap.set(r.chamber, { autoAlpha: 1, scale: 1 });
         gsap.set(r.focus, { filter: 'blur(0px)' });
         gsap.set(r.photo, { filter: PHOTO_FINAL });
@@ -157,7 +137,6 @@ export default function PracticeCinematic({ practice }) {
         const leaves = isCinematic ? plates.current.slice(1).filter(Boolean) : [];
         const cover = plates.current[0];
         const rulesEls = isCinematic ? rules.current.filter(Boolean) : [];
-        const paths = isCinematic ? planPaths.current.filter(Boolean) : [];
         // No colonnade on a phone means no bays to label. The heads of work are
         // still read there — from the list inside the Approach chapter, which is
         // the same list screen readers get on every viewport.
@@ -210,8 +189,6 @@ export default function PracticeCinematic({ practice }) {
         gsap.set(r.focus, { filter: isCinematic ? 'blur(16px)' : 'blur(8px)' });
         gsap.set(r.photo, { filter: PHOTO_LATENT });
         gsap.set(r.file, { z: isCinematic ? -520 : -260 });
-        gsap.set(r.plan, { autoAlpha: 0 });
-        gsap.set(paths, { strokeDasharray: (i, t) => t.getTotalLength(), strokeDashoffset: (i, t) => t.getTotalLength() });
         gsap.set(r.datum, { scaleX: 0, autoAlpha: 0 });
         gsap.set(r.daylight, { yPercent: 100 });
         gsap.set(r.margin, { autoAlpha: 0 });
@@ -331,8 +308,6 @@ export default function PracticeCinematic({ practice }) {
         );
 
         // ---- 03 · the chamber is drawn between the bays ----
-        tl.to(r.plan, { autoAlpha: 1, duration: 0.06 }, CUE.plan);
-        tl.to(paths, { strokeDashoffset: 0, duration: 0.2, stagger: 0.012, ease: 'power1.inOut' }, CUE.plan);
         tl.to(r.markMatter, { autoAlpha: 0, duration: 0.03 }, CUE.split);
         tl.to(r.markApproach, { autoAlpha: 1, duration: 0.04 }, CUE.approach - 0.03);
 
@@ -354,7 +329,6 @@ export default function PracticeCinematic({ practice }) {
           tl.to(leaf, { autoAlpha: 0, duration: 0.09 }, CUE.through + 0.09);
         });
         tl.to(r.datum, { autoAlpha: 0, scaleX: 1.4, duration: 0.12 }, CUE.through);
-        tl.to(r.plan, { autoAlpha: 0, scale: 1.5, duration: 0.13, ease: 'power2.in' }, CUE.through + 0.01);
         tl.to(headEls, { x: (i) => bayX(i) * 2.4, autoAlpha: 0, duration: 0.08, stagger: 0.01 }, CUE.through);
 
         // ---- 05 · the institution resolves ----
@@ -460,21 +434,6 @@ export default function PracticeCinematic({ practice }) {
           <div className="pcin__vignette" />
         </div>
 
-        {/* The chamber in plan, drawn on the floor between the bays. Captioned:
-            most of the drawing is occluded by the colonnade standing in front
-            of it, and what survives between the bays is a handful of rules that
-            read as stray marks unless something says what they are. The caption
-            is a child of the plan so it fades and pushes past the lens with it,
-            on the one tween that already owns the drawing. */}
-        <div className="pcin__plan" ref={ref('plan')} aria-hidden="true">
-          <svg className="pcin__plan-svg" viewBox="0 0 200 142" preserveAspectRatio="xMidYMid meet">
-            {PLAN.map((p, i) => (
-              <path key={i} className={`pcin__plan-path pcin__plan-path--${p.cls}`} d={p.d} ref={push(planPaths, i)} />
-            ))}
-          </svg>
-          <span className="pcin__plan-cap">The chamber in plan — bench · clerk · the bar · counsel · gallery</span>
-        </div>
-
         {/* The datum the colonnade stands on. */}
         <div className="pcin__datum" ref={ref('datum')} aria-hidden="true" />
 
@@ -492,13 +451,13 @@ export default function PracticeCinematic({ practice }) {
               and nothing else. */}
           {bayTags.slice(1).map((tag, i) => (
             <span className="pcin__head" key={tag} ref={push(heads, i)}>
-              <b>{String(i + 1).padStart(2, '0')}</b>
+              <b aria-hidden="true" />
               {tag}
             </span>
           ))}
 
           <div className="pcin__plate pcin__plate--cover" ref={push(plates, 0)}>
-            <span className="pcin__plate-mark">File — SLA / PA / {practice.n}</span>
+            <span className="pcin__plate-mark">File — SLA / Practice</span>
             <span className="pcin__plate-hr" />
             <span className="pcin__plate-title">{practice.title}</span>
             <span className="pcin__plate-foot">
@@ -511,12 +470,12 @@ export default function PracticeCinematic({ practice }) {
 
         {/* Sheet furniture. Not meant to be read at a glance. */}
         <div className="pcin__margin" ref={ref('margin')} aria-hidden="true">
-          <span className="pcin__margin-note pcin__margin-note--tl">SLA / PA / {practice.n} — 12</span>
+          <span className="pcin__margin-note pcin__margin-note--tl">SLA / Practice Areas</span>
           <span className="pcin__margin-note pcin__margin-note--tr">Hyderabad · Telangana</span>
           <span className="pcin__margin-note pcin__margin-note--run">
-            <b ref={ref('markMatter')}>01 — The Matter</b>
-            <b ref={ref('markApproach')}>02 — The Approach</b>
-            <b ref={ref('markChamber')}>03 — The Chamber</b>
+            <b ref={ref('markMatter')}>The Matter</b>
+            <b ref={ref('markApproach')}>The Approach</b>
+            <b ref={ref('markChamber')}>The Chamber</b>
           </span>
           <span className="pcin__margin-note pcin__margin-note--br">{practice.title}</span>
         </div>
@@ -526,7 +485,7 @@ export default function PracticeCinematic({ practice }) {
           <div className="pcin__chapter" ref={ref('mType')}>
             <div className="container pcin__chapter-grid">
               <div>
-                <span className="pcin__cue">01 — The Matter</span>
+                <span className="pcin__cue"><Icon name="document" /> The Matter</span>
                 <h2 className="pcin__title">
                   The <i>Matter</i>
                 </h2>
@@ -539,7 +498,7 @@ export default function PracticeCinematic({ practice }) {
           <div className="pcin__chapter" ref={ref('aType')}>
             <div className="container pcin__chapter-grid">
               <div>
-                <span className="pcin__cue">02 — The Approach</span>
+                <span className="pcin__cue"><Icon name="compass" /> The Approach</span>
                 <h2 className="pcin__title">
                   The <i>Approach</i>
                 </h2>
@@ -567,7 +526,7 @@ export default function PracticeCinematic({ practice }) {
           <div className="pcin__chapter" ref={ref('cType')}>
             <div className="container pcin__chapter-grid">
               <div>
-                <span className="pcin__cue">03 — The Chamber</span>
+                <span className="pcin__cue"><Icon name="courthouse" /> The Chamber</span>
                 {/* The forum names cycle one at a time, and on their own a
                     courthouse name in display serif is just a place name. Here
                     the deck runs as a lede rather than under the title: the
@@ -587,7 +546,7 @@ export default function PracticeCinematic({ practice }) {
                 <ol className="pcin__forum-index">
                   {forums.map((f, i) => (
                     <li key={f} ref={push(forumIndex, i)}>
-                      <b>{String(i + 1).padStart(2, '0')}</b>
+                      <Icon name="courthouse" />
                       {f}
                     </li>
                   ))}

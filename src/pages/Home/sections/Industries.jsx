@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import Icon, { industryIcon } from '../../../components/ui/Icon.jsx';
 import Reveal, { RevealGroup, RevealItem } from '../../../components/ui/Reveal.jsx';
 import SplitText from '../../../components/ui/SplitText.jsx';
 import { industries } from '../../../data/industries.js';
@@ -52,13 +53,13 @@ export default function Industries() {
                 with the sector.
               </p>
               <span className="industries__count">
-                <b>{String(industries.length).padStart(2, '0')}</b> sectors advised
+                <b>Eight</b> sectors advised
               </span>
             </Reveal>
           </header>
 
           <RevealGroup className="industries__grid" stagger={0.07} amount={0.1}>
-            {industries.map((ind, i) => (
+            {industries.map(ind => (
               <RevealItem
                 as={Link}
                 key={ind.slug}
@@ -68,7 +69,7 @@ export default function Industries() {
               >
                 <span className="ind-card__glow" aria-hidden="true" />
                 <span className="ind-card__arc" aria-hidden="true" />
-                <span className="ind-card__idx">{String(i + 1).padStart(2, '0')}</span>
+                <span className="ind-card__idx"><Icon name={industryIcon(ind.slug)} /></span>
                 <h3 className="ind-card__name">{ind.name}</h3>
                 <p className="ind-card__note">{ind.note}</p>
                 <span className="ind-card__go">

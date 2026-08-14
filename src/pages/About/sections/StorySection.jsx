@@ -75,12 +75,22 @@ const N = BEATS.length;
 export default function StorySection() {
   const sectionRef = useRef(null);
   const beatRefs = useRef([]);
-  const railFillRef = useRef(null);
-  const railDotRef = useRef(null);
   const threadGlowRef = useRef(null);
   const threadCoreRef = useRef(null);
 
   useLayoutEffect(() => {
+    let live = true;
+
+    // ScrollTrigger measures start/end once and refreshes on `window.load`.
+    // Arriving here from another route is a client-side navigation, so that
+    // event fired long ago — yet the hero and stat band above this section are
+    // still settling as their webfonts swap in, which moves the section and
+    // leaves every beat mapped to the wrong scroll position. One refresh once
+    // the fonts have resolved puts the measurements back on the real layout.
+    document.fonts?.ready.then(() => {
+      if (live) ScrollTrigger.refresh();
+    });
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
@@ -109,13 +119,11 @@ export default function StorySection() {
             trigger: sectionRef.current,
             start: 'top top',
             end: 'bottom bottom',
-            scrub: 1,
+            // 1s of smoothing let a fast flick outrun the timeline by a whole
+            // beat or more, so the cards in the middle of the sequence were
+            // never reaching full opacity before the scroll had moved on.
+            scrub: 0.5,
             invalidateOnRefresh: true,
-            onUpdate(self) {
-              const p = self.progress;
-              if (railFillRef.current) railFillRef.current.style.transform = `scaleY(${p})`;
-              if (railDotRef.current) railDotRef.current.style.top = `${p * 100}%`;
-            },
           },
         });
 
@@ -123,13 +131,18 @@ export default function StorySection() {
           tl.to(thread, { strokeDashoffset: 0, duration: N - 1, ease: 'none' }, 0);
         }
 
+        // One timeline unit per beat. Of that unit, the cross-fades take 0.3 at
+        // each end and the beat holds fully opaque for the 0.67 between — the
+        // hold has to be the majority of the unit, or the sequence reads as a
+        // continuous blur with nothing legible in it.
+        const FADE = 0.3;
         beats.forEach((el, i) => {
           const at = i;
           if (i > 0) {
-            tl.to(el, { autoAlpha: 1, scale: 1, y: 0, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out' }, at - 0.42);
+            tl.to(el, { autoAlpha: 1, scale: 1, y: 0, filter: 'blur(0px)', duration: FADE, ease: 'power2.out' }, at - 0.42);
           }
           if (i < N - 1) {
-            tl.to(el, { autoAlpha: 0, scale: 1.06, y: -22, filter: 'blur(6px)', duration: 0.36, ease: 'power2.in' }, at + 0.42);
+            tl.to(el, { autoAlpha: 0, scale: 1.06, y: -22, filter: 'blur(6px)', duration: FADE, ease: 'power2.in' }, at + 0.55);
           }
         });
       }
@@ -152,7 +165,10 @@ export default function StorySection() {
       }
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      live = false;
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -175,15 +191,6 @@ export default function StorySection() {
               vectorEffect="non-scaling-stroke"
             />
           </svg>
-
-          <div className="story__rail" aria-hidden="true">
-            <span className="story__rail-cap">Origin</span>
-            <div className="story__rail-track">
-              <div className="story__rail-fill" ref={railFillRef} />
-              <div className="story__rail-dot" ref={railDotRef} />
-            </div>
-            <span className="story__rail-cap">Today</span>
-          </div>
 
           <div className="story__beats">
             {BEATS.map((b, i) =>

@@ -26,9 +26,10 @@
 .t-stack--flat .t-stack__panel { position: relative; top: auto; min-height: 0; }
 
 /* Each panel is pulled up so it begins covering the one before it exactly
-   when that one starts its pin. Net document height is unchanged. */
-.t-stack + .t-stack,
-.t-arrival__wrap + .t-stack {
+   when that one starts its pin. Net document height is unchanged.
+   The hero is deliberately excluded: it is an interactive stage in ordinary
+   flow, and pulling the bench panel up over it would swallow the quote. */
+.t-stack + .t-stack {
   margin-top: calc(var(--stack-overlap) * -1);
 }
 
@@ -62,112 +63,390 @@
 }
 
 /* ============================================================
-   MOVEMENT I — THE WALL (pinned hero)
-   Portraits drift; the sentence does not.
+   MOVEMENT I — THE LINEUP (hero)
+   The whole bench standing in one row on a black stage, heads on
+   a common line, reflected in the floor. Pointing at an advocate
+   lights them, sinks the rest, and names them.
    ============================================================ */
-.t-arrival__wrap { position: relative; height: 240vh; z-index: 0; }
-.t-arrival {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--black);
-  display: flex;
-  align-items: center;
-}
-
-.t-arrival__wallWrap { position: absolute; inset: 0; z-index: 0; will-change: transform; }
-.t-arrival__wall {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-}
-/* Columns overhang the frame top and bottom so the drift never exposes an edge.
-   `min-height: 0` on the column and its tiles is required: grid items default
-   to `min-height: auto`, which would let the portraits' intrinsic height force
-   the column far taller than 144% (and blow up the drift, which is a
-   percentage of the column's own height). */
-.t-arrival__col {
+.t-lineup {
   position: relative;
-  top: -22%;
-  height: 144%;
-  min-height: 0;
-  display: grid;
-  grid-auto-rows: 1fr;
-  gap: 2px;
-  will-change: transform;
-}
-.t-arrival__tile { position: relative; min-height: 0; overflow: hidden; background: var(--black-card); }
-/* The portraits are presence, not subject — pushed well down so the statement
-   holds the frame. Most of the source shots have bright walls behind them, so
-   this needs to be much darker than it looks like it should be. */
-.t-arrival__tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 18%;
-  filter: grayscale(1) contrast(1.18) brightness(0.44);
+  background: var(--black);
+  overflow: hidden;
+  /* Top padding clears the fixed nav, which wraps to two lines on narrow
+     desktops — hence the generous floor. */
+  padding: clamp(7rem, 13vh, 9.5rem) 0 clamp(3.5rem, 7vw, 5.5rem);
+  isolation: isolate;
 }
 
-.t-arrival__scrim {
+.t-lineup__stars {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    linear-gradient(90deg, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.9) 34%, rgba(10,10,10,0.68) 68%, rgba(10,10,10,0.6) 100%),
-    linear-gradient(180deg, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.42) 42%, rgba(10,10,10,0.94) 100%);
+  inset: -12% -8%;
+  z-index: 0;
+  pointer-events: none;
+  /* Plain white specks, as in the reference — a gold starfield reads as glitter
+     rather than as depth behind the group. */
+  background-image:
+    radial-gradient(1.6px 1.6px at 24px 38px, rgba(228, 226, 227, 0.55), transparent 100%),
+    radial-gradient(1.2px 1.2px at 152px 96px, rgba(228, 226, 227, 0.34), transparent 100%),
+    radial-gradient(1.1px 1.1px at 88px 214px, rgba(228, 226, 227, 0.22), transparent 100%),
+    radial-gradient(1.4px 1.4px at 268px 158px, rgba(228, 226, 227, 0.4), transparent 100%);
+  background-size: 230px 260px, 310px 290px, 370px 340px, 470px 430px;
+  /* `alternate` rather than a looping translate: the four layers tile at
+     different sizes, so no single offset would seam them all back up. */
+  animation: t-lineup-drift 150s ease-in-out infinite alternate;
+}
+@keyframes t-lineup-drift {
+  to { transform: translate3d(-46px, -30px, 0); }
 }
 
-.t-arrival__content { position: relative; z-index: 3; width: 100%; will-change: transform, opacity; }
-.t-arrival__eyebrow { margin-bottom: 0.9rem; }
-.t-arrival__rule {
+/* A pool of warm light for the row to stand in, so the figures read as lit
+   rather than pasted onto the black. */
+.t-lineup__glow {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 0;
+  width: min(130vw, 1600px);
+  aspect-ratio: 2 / 1;
+  transform: translate(-50%, -34%);
+  pointer-events: none;
+  /* Very low: the reference's stage is flat #0a0a0a and this only has to stop
+     the figures reading as cut out and pasted on. */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(169, 131, 79, 0.07),
+    rgba(169, 131, 79, 0.02) 45%,
+    transparent 70%
+  );
+}
+
+.t-lineup__head { position: relative; z-index: 2; }
+.t-lineup__rule {
   display: block;
   width: clamp(64px, 8vw, 116px);
   height: 1px;
+  margin: 0.9rem 0 clamp(1.4rem, 2.6vw, 2.1rem);
   background: linear-gradient(90deg, var(--gold-soft), transparent);
   transform-origin: left;
-  margin-bottom: clamp(1.6rem, 3vw, 2.4rem);
 }
 /* Wide enough that "as the people carrying it." stays on one line — at a
    narrower measure it drops an orphaned "it." onto a third line. */
-.t-arrival__headline {
+.t-lineup__headline {
   max-width: 26ch;
-  font-size: clamp(2.4rem, 5.4vw, 4.8rem);
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
   text-shadow: 0 6px 50px rgba(10, 10, 10, 0.6);
 }
-.t-arrival__sub {
-  margin-top: clamp(1.6rem, 3vw, 2.4rem);
-  max-width: 48ch;
+.t-lineup__sub {
+  margin-top: clamp(1.4rem, 2.6vw, 2.1rem);
+  max-width: 52ch;
   color: rgba(247, 244, 236, 0.74);
   font-size: clamp(0.95rem, 1.15vw, 1.08rem);
   line-height: 1.7;
 }
 
-/* Bottom-left, horizontal: the right gutter belongs to ChapterSpine, and a
-   second vertical label there reads as clutter. */
-.t-arrival__cue {
-  position: absolute;
-  left: var(--gutter);
-  bottom: clamp(2.25rem, 5vw, 3.5rem);
-  z-index: 4;
+/* The reference's rail: max-w-[1200px] mx-auto px-8 gap-8, the row in the
+   middle and a button either side of it. The row therefore stops short of the
+   viewport edge and the starfield shows past both ends of it, which is what
+   gives the group its stage. */
+.t-lineup__rail {
+  /* Declared here rather than on the stage so the buttons can line themselves
+     up against the figures too. How tightly shoulders overlap; below ~0.8 the
+     faces start colliding. */
+  --pack: 0.84;
+  /* Scaled to stand tall rather than to fit: on the reference the figures
+     carry most of the viewport's height and the row runs off both sides, with
+     the arrows paging through it. */
+  --head: clamp(40px, 5.6vw, 86px);
+  --crown: calc(var(--head) * 0.75);
+  --floor: calc(var(--head) * 4.5);
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  font-size: 0.64rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--gold-soft);
-}
-.t-arrival__cue::before {
-  content: '';
-  width: 34px;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold-soft), transparent);
+  gap: clamp(0.5rem, 2vw, 2rem);
+  width: 100%;
+  max-width: 1200px;
+  margin: clamp(2.25rem, 4.5vw, 3.5rem) auto 0;
+  padding-inline: clamp(0.5rem, 2vw, 2rem);
 }
 
-.t-arrival--static { position: relative; height: auto; min-height: 78vh; padding: 8rem 0; }
+/* --- the stage ------------------------------------------------------------
+   Every figure is sized off `--head`, so this one value rescales the whole row
+   without disturbing the alignment. `--crown` is where every skull starts and
+   `--floor` is the waterline the reflection hinges on. */
+.t-lineup__stage {
+  flex: 1;
+  /* Without this the flex item refuses to shrink below the row's width and
+     the buttons get pushed off the rail. */
+  min-width: 0;
+  position: relative;
+  /* Just past where the reflection has faded out — any taller and the row
+     floats above a band of dead black. */
+  height: calc(var(--floor) * 1.42);
+}
+
+/* Eleven advocates never fit a viewport at a size where a face is legible, so
+   the row scrolls. A real scroll container (rather than a transformed track)
+   is what gives this trackpad swipes and keyboard-focus scrolling for free. */
+.t-lineup__viewport {
+  position: absolute;
+  inset: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* On the container, not the track: the absolutely-positioned rows resolve
+     against the track's border box, so padding there would offset them from
+     the in-flow row and break the reflection's registration.
+     A head-width of lead-in either end, because a figure whose body sits well
+     to one side of their face overhangs the slot they were packed into — at
+     the ends of the row that overhang would otherwise start off-stage. */
+  padding-inline: calc(var(--head) * 1.15);
+}
+.t-lineup__viewport::-webkit-scrollbar { display: none; }
+
+.t-lineup__track { position: relative; width: max-content; height: 100%; }
+
+.t-lineup__row { display: flex; align-items: flex-start; height: var(--floor); }
+
+.t-lineup__row--figures {
+  position: relative;
+  z-index: 1;
+  /* Doubles as the clip: with `no-repeat` the mask covers only the row's own
+     box, so everything hanging below the waterline is masked away rather than
+     ending on a cut edge. */
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* The reflection is the same row again, flipped inside a box of identical
+   height sitting directly below — which mirrors it about the waterline
+   exactly, and keeps it in register for free. Its mask runs bottom-up because
+   the flip has already inverted the element's own axis. */
+.t-lineup__row--mirror {
+  position: absolute;
+  top: var(--floor);
+  left: 0;
+  right: 0;
+  z-index: 0;
+  transform: scaleY(-1);
+  opacity: 0.17;
+  filter: blur(0.6px);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.45) 20%, transparent 46%);
+  mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.45) 20%, transparent 46%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* Names and hit targets ride above both passes, so a plate is never occluded
+   by the next advocate along. */
+.t-lineup__row--hit { position: absolute; top: 0; left: 0; right: 0; z-index: 3; }
+
+/* Each advocate claims exactly their own shoulder width, so the row packs by
+   body rather than by head and closes up with no holes. */
+.t-lineup__slot {
+  position: relative;
+  flex: 0 0 calc(var(--head) * (var(--fig-l) + var(--fig-r)) * var(--pack));
+  height: 100%;
+}
+
+.t-lineup__fig {
+  position: absolute;
+  /* Puts the head `l` in from the slot's leading edge — not at its centre.
+     The sources frame their subject anywhere from hard left to hard right, so
+     a head-centred figure would stand beside a void on one side. */
+  left: calc(var(--head) * (var(--fig-l) * var(--pack) - var(--fig-cx)));
+  top: calc(var(--crown) - var(--head) * var(--fig-crown));
+  width: calc(var(--head) * var(--fig-w));
+  height: calc(var(--head) * var(--fig-h));
+  max-width: none;
+  transform-origin: 50% 100%;
+  /* The reference carries no filter at all — its group is fully lit at rest,
+     and hovering swaps in a second photograph of the same group waving rather
+     than grading anything. There is no waving variant of this bench, and the
+     eleven cut-outs come from eleven different shoots, so this is the one
+     liberty taken: a light common grade so they read as one photograph
+     instead of a collage. It is deliberately gentle — nothing goes dark. */
+  filter: saturate(0.88) brightness(0.94) contrast(1.03);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+.t-lineup__slot.is-active .t-lineup__fig {
+  filter: none;
+  transform: translateY(-4px) scale(1.01);
+}
+
+.t-lineup__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  cursor: pointer;
+}
+.t-lineup__hit:focus-visible { outline: 1px solid var(--gold-soft); outline-offset: -6px; }
+
+.t-lineup__label {
+  position: absolute;
+  width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Everything below is the reference's own plate, transcribed off its computed
+   styles: bg-[#0f0f0f]/95, backdrop-blur-xl, rounded-2xl, shadow-2xl,
+   border-[#d8b068]/30, px-4 py-3, min-w-[220px], and a scale-95 → 100 lift.
+   The name is deliberately sans, not the page's Playfair — this plate is UI
+   riding over the photograph, not editorial text. */
+.t-lineup__plate {
+  position: absolute;
+  /* Centred on the face, not on the slot — the two are not the same point. */
+  left: calc(var(--head) * var(--fig-l) * var(--pack));
+  top: calc(var(--crown) + var(--head) * 2.6);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 220px;
+  max-width: min(20rem, 78vw);
+  padding: 12px 16px;
+  border: 1px solid rgba(216, 176, 104, 0.3);
+  border-radius: 16px;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  opacity: 0;
+  /* Both axes, as the reference does it — the plate is centred on its anchor
+     point rather than hanging below it. */
+  transform: translate(-50%, -50%) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.t-lineup__slot.is-active .t-lineup__plate {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.t-lineup__name {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.25;
+  color: #d8b068;
+  white-space: nowrap;
+}
+.t-lineup__role {
+  margin-top: 0.25rem;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: #d1d5db;
+}
+.t-lineup__go {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.t-lineup__go::before {
+  content: '';
+  width: 0; height: 0;
+  border-left: 8px solid #d8b068;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+/* The row runs past both sides of the stage; these dissolve it into the black
+   instead of letting it stop against a hard edge. */
+.t-lineup__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  /* Matched to the track's lead-in, so the row dissolves exactly where it
+     runs out of stage rather than over the nearest face. */
+  width: calc(var(--head) * 1.15);
+  pointer-events: none;
+}
+.t-lineup__edge--left { left: 0; background: linear-gradient(90deg, var(--black) 10%, transparent); }
+.t-lineup__edge--right { right: 0; background: linear-gradient(270deg, var(--black) 10%, transparent); }
+
+/* The reference's own button: w-16 h-32, bg-black/40 → /80 on hover,
+   backdrop-blur-md, rounded-2xl, border-white/10, gold chevron. */
+.t-lineup__nav {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 80px;
+  /* The rail centres on the stage, but the stage's lower third is reflection.
+     This lifts the buttons back onto the middle of the figures themselves. */
+  transform: translateY(calc(var(--floor) * -0.21));
+  color: #d8b068;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  /* Held back until the row is pointed at, as on the reference — at rest the
+     photograph carries the section on its own. Touch has no hover, so there
+     the buttons simply stay put. */
+  opacity: 0;
+  transition: background 0.3s ease, opacity 0.3s ease;
+}
+.t-lineup__rail:hover .t-lineup__nav,
+.t-lineup__nav:focus-visible { opacity: 1; }
+.t-lineup__nav:hover { background: rgba(0, 0, 0, 0.8); }
+.t-lineup__nav:disabled { opacity: 0 !important; pointer-events: none; }
+
+.t-lineup__chev { width: 24px; height: 24px; }
+
+@media (min-width: 768px) {
+  .t-lineup__nav { width: 64px; height: 128px; border-radius: 16px; }
+  .t-lineup__chev { width: 40px; height: 40px; }
+}
+@media (hover: none) {
+  .t-lineup__nav { opacity: 1; }
+}
+
+.t-lineup__quote {
+  position: relative;
+  z-index: 2;
+  max-width: 60rem;
+  margin: clamp(1.5rem, 3vw, 2.5rem) auto 0;
+  padding: clamp(1.4rem, 3vw, 2.1rem) clamp(1.5rem, 3.5vw, 2.6rem);
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.022);
+}
+.t-lineup__quote p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+  line-height: 1.6;
+  text-align: center;
+  color: rgba(247, 244, 236, 0.92);
+}
 
 /* ============================================================
    MOVEMENT II — FULL PROFILE CARDS
@@ -229,7 +508,6 @@
 .adv-card__photo-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 70px 10px rgba(0,0,0,0.5); }
 .adv-card__photo-outline { position: absolute; inset: 10px; border: 1px solid rgba(255,255,255,0.14); pointer-events: none; z-index: 3; }
 .adv-card__curtain { position: absolute; inset: 0; background: var(--cream); transform-origin: bottom; z-index: 5; }
-.adv-card__index { position: absolute; top: 14px; left: 14px; z-index: 6; font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold-soft); letter-spacing: 0.05em; }
 .adv-card__exp-badge {
   position: absolute; left: 0; bottom: 0; z-index: 6;
   background: var(--black); color: var(--gold-soft);
@@ -368,24 +646,212 @@
 }
 .t-culture__grid { position: relative; z-index: 1; display: grid; grid-template-columns: 200px 1fr; gap: clamp(2rem, 4vw, 4rem); padding-block: clamp(5rem, 10vw, 8rem); }
 .t-culture__points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2.5rem; }
-.t-culture__point-num { display: block; font-family: var(--font-mono); color: var(--gold); font-size: 0.72rem; margin-bottom: 0.75rem; }
+.t-culture__point-num { display: block; color: var(--gold); font-size: 1.6rem; margin-bottom: 0.75rem; }
 .t-culture__point h4 { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; margin-bottom: 0.75rem; }
 .t-culture__point p { font-size: 0.9rem; color: var(--muted-light); line-height: 1.6; }
 
 /* ============================================================
-   EXPERTISE MAP — scroll-scrubbed horizontal track
+   EXPERTISE MAP — a read index beside a specimen plate
+   Rows on the left, one sticky plate on the right that belongs to
+   whichever row holds the reading line. See sections/ExpertiseScroller.jsx;
+   all arrival and redraw motion is authored there, never here.
    ============================================================ */
-.t-expertise { padding: clamp(5rem, 10vw, 7rem) 0 0; }
-.t-expertise__head { position: relative; padding-bottom: 3rem; }
+.t-expertise { padding: clamp(5rem, 10vw, 7rem) 0 clamp(4rem, 8vw, 6rem); }
+.t-expertise__head { position: relative; padding-bottom: clamp(2.5rem, 5vw, 4rem); }
 .t-expertise__head .h2 { margin-bottom: 0; }
-.t-expertise__cue { position: absolute; right: var(--gutter, 0); bottom: 3rem; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-soft); writing-mode: vertical-rl; }
-.t-expertise__wrap { height: 200vh; position: relative; }
-.t-expertise__sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; overflow: hidden; }
-.t-expertise__track { display: flex; gap: 1px; background: var(--line-darker); padding-left: var(--gutter, 2rem); }
-.t-expertise__item { flex: 0 0 clamp(220px, 22vw, 300px); background: var(--black-soft); padding: 2.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; min-height: 220px; justify-content: flex-end; text-decoration: none; transition: background 0.3s; }
-.t-expertise__item:hover { background: var(--black-card); }
-.t-expertise__num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--gold); }
-.t-expertise__name { font-family: var(--font-serif); font-size: clamp(1.1rem, 1.8vw, 1.4rem); color: var(--cream); line-height: 1.2; }
+
+.t-xmap__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(0, 0.72fr);
+  gap: clamp(2.5rem, 4vw, 4rem);
+  /* Stretch, not start: the aside carries the column rule, so it has to run
+     the full height of the index rather than stopping at the plate's foot. */
+  align-items: stretch;
+}
+
+/* ---- the index --------------------------------------------------------- */
+.t-xmap__list { list-style: none; border-top: 1px solid var(--line-darker); }
+.t-xmap__row { position: relative; }
+.t-xmap__link {
+  position: relative;
+  display: grid;
+  /* The forum column is a fixed measure, not `auto`. Each row is its own grid,
+     so an auto column would size to that row's own text and the meta would sit
+     at a different x on every line. */
+  grid-template-columns: 2.9rem minmax(0, 1fr) clamp(6.5rem, 10vw, 10rem) 1.4rem;
+  align-items: baseline;
+  gap: 0 clamp(0.9rem, 2vw, 1.6rem);
+  padding: clamp(1.35rem, 2.4vw, 2rem) clamp(0.9rem, 2vw, 1.5rem);
+  text-decoration: none;
+}
+/* No fill on the active row. A washed rectangle is a selected card; a bench
+   index marks its place with a rule and with type. */
+
+/* The rule is the row's own bottom border so it can be drawn in on arrival —
+   a border-bottom cannot be scaled. */
+.t-xmap__rule {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--line-darker); transform-origin: left;
+}
+.t-xmap__row.is-active .t-xmap__rule { background: var(--gold-dim); }
+
+/* A hairline down the active row's leading edge — the reader's finger in the
+   margin, kept to 1px so it stays a mark and never becomes a bar. */
+.t-xmap__edge {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: var(--gold); transform: scaleY(0); transform-origin: top;
+  transition: transform 0.6s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__edge { transform: scaleY(1); }
+
+.t-xmap__mark {
+  font-size: 1.7rem; color: var(--gold-dim); align-self: center;
+  transition: color 0.5s var(--ease), transform 0.6s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__mark { color: var(--gold-soft); transform: scale(1.12); }
+
+/* The active row steps toward the reader by translating, never by changing a
+   padding or a height. Anything that reflows the list would move the rows
+   under the reading line that chose them, and the plate would flicker between
+   two domains as the two fought each other. */
+.t-xmap__body {
+  display: flex; flex-direction: column; min-width: 0;
+  transition: transform 0.6s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__body { transform: translateX(clamp(6px, 1vw, 14px)); }
+.t-xmap__name {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.3rem, 2vw, 1.75rem); line-height: 1.18;
+  color: rgba(247, 244, 236, 0.62);
+  transition: color 0.5s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__name { color: var(--cream); }
+
+/* Off on desktop: the plate is already showing this domain's summary, and a
+   second copy opening inside the row would both duplicate it and resize the
+   row it opened in. It comes back below 1080px, where there is no plate. */
+.t-xmap__short {
+  display: none;
+  max-width: 52ch; font-size: 0.9rem; line-height: 1.6; color: var(--muted-dark);
+}
+
+.t-xmap__forum {
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.14em; line-height: 1.45;
+  /* Wraps rather than nowraps: "Debt Recovery Tribunal (DRT)" is longer than
+     any sensible fixed column, and on one line it ran under the arrow. */
+  text-transform: uppercase; text-align: right;
+  /* Two lines are always reserved, so a long forum name doesn't make its own
+     row taller than its neighbours and break the column's rhythm. */
+  min-height: 2.9em;
+  color: rgba(247, 244, 236, 0.3);
+  transition: color 0.5s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__forum { color: var(--gold-soft); }
+
+.t-xmap__go {
+  justify-self: end; color: var(--gold);
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+.t-xmap__row.is-active .t-xmap__go { opacity: 1; transform: translateX(0); }
+
+.t-xmap__link:focus-visible { outline: 1px solid var(--gold); outline-offset: -2px; }
+
+/* ---- the specimen plate ------------------------------------------------- */
+/* Not a card. The only structure here is a column rule and a set of hairlines,
+   the way a printed brief is structured — no bordered box, no corner brackets,
+   no chip pills, no glow. The aside stretches the full height of the section so
+   the column rule runs the whole way; the plate inside it is what sticks. */
+.t-xmap__aside {
+  position: relative;
+  padding-left: clamp(1.75rem, 3vw, 3rem);
+}
+/* A real element, not a border, because the column rule draws down on arrival
+   and retracts on the way out. */
+.t-xmap__spine {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 1px;
+  background: var(--line-darker);
+}
+.t-xmap__plate { position: sticky; top: clamp(4.5rem, 11vh, 7rem); }
+
+/* The plate itself: the institution the domain is heard in, with the domain's
+   mark struck into its corner. No frame around it — the photograph's own edge
+   is the edge, and a single hairline closes it off underneath. */
+.t-xmap__well {
+  position: relative; overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--black-soft);
+  border-bottom: 1px solid var(--line-darker);
+}
+.t-xmap__photo {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.85s var(--ease);
+  filter: grayscale(1) contrast(1.06) brightness(0.5);
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-xmap__photo { transition: none; }
+}
+/* Weighted to the foot, where the mark sits. */
+.t-xmap__wash {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.4) 0%, rgba(10, 10, 10, 0.08) 38%, rgba(10, 10, 10, 0.85) 100%);
+}
+.t-xmap__mark-well {
+  position: absolute; display: block;
+  left: clamp(1rem, 2vw, 1.6rem); bottom: clamp(1rem, 2vw, 1.6rem);
+}
+/* The icon set's own 1.15 stroke is drawn for a 24px badge; at this size it
+   would read as a fat outline instead of a drafted line. */
+.t-xmap__mark-big { font-size: clamp(3.25rem, 5.5vw, 4.5rem); color: var(--gold-soft); stroke-width: 0.6; }
+
+.t-xmap__cap { padding-top: clamp(1.5rem, 2.6vw, 2.25rem); }
+.t-xmap__cap-eyebrow {
+  display: block; margin-bottom: 0.85rem;
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.26em;
+  text-transform: uppercase; color: var(--gold);
+}
+.t-xmap__cap-name {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem); line-height: 1.15; color: var(--cream);
+}
+.t-xmap__cap-short {
+  margin-top: 0.9rem; max-width: 34ch;
+  font-size: 0.9rem; line-height: 1.65; color: var(--muted-dark);
+}
+.t-xmap__cap-label {
+  display: block; margin-top: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.24em;
+  text-transform: uppercase; color: rgba(247, 244, 236, 0.32);
+}
+/* A ruled schedule, one forum to a line — the form a table of authorities
+   takes on paper. Pills would have been the template answer. */
+.t-xmap__cap-forums { list-style: none; margin-top: 0.75rem; }
+.t-xmap__cap-forums li {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--line-darker);
+  font-size: 0.84rem; line-height: 1.4; color: rgba(247, 244, 236, 0.72);
+}
+
+/* A sticky plate taller than the fold can never show its own foot, and the
+   schedule is the part that would be lost. On short viewports the well gives
+   up its air rather than the plate giving up its content. */
+@media (max-height: 820px) {
+  .t-xmap__well { aspect-ratio: 16 / 9; }
+  .t-xmap__mark-big { font-size: clamp(2.6rem, 6.5vh, 3.75rem); }
+  .t-xmap__cap { padding-top: 1.25rem; }
+  .t-xmap__cap-name { font-size: clamp(1.25rem, 1.9vw, 1.5rem); }
+  .t-xmap__cap-short { margin-top: 0.7rem; font-size: 0.84rem; }
+  .t-xmap__cap-label { margin-top: 1.6rem; }
+  .t-xmap__cap-forums li { padding: 0.45rem 0; }
+}
+/* Shorter still, and the summary is what goes: the mark, the name and the
+   schedule of forums are the plate; a paragraph that would push the schedule
+   past the fold is not. */
+@media (max-height: 700px) {
+  .t-xmap__cap-short { display: none; }
+}
 
 /* ============================================================
    RETURN
@@ -399,10 +865,21 @@
    ============================================================ */
 @media (max-width: 1080px) {
   .t-stackRoot { --stack-overlap: 30vh; }
-  .t-arrival__wall { grid-template-columns: repeat(3, 1fr); }
-  .t-arrival__col:nth-child(4) { display: none; }
   .t-bench__grid, .t-culture__points { grid-template-columns: 1fr 1fr; }
   .t-culture__grid { grid-template-columns: 1fr; }
+
+  /* Below this the plate has no room to be a plate. The index carries the
+     section on its own, so every row opens its summary permanently rather
+     than holding it back for an active state that no longer has a reward. */
+  .t-xmap__inner { grid-template-columns: minmax(0, 1fr); }
+  .t-xmap__aside { display: none; }
+  .t-xmap__short { display: block; margin-top: 0.7rem; }
+  .t-xmap__row.is-active .t-xmap__body { transform: none; }
+  .t-xmap__link { grid-template-columns: 2.6rem minmax(0, 1fr) 1.5rem; }
+  /* Both are placed explicitly: with one item out of auto-flow the rest
+     would otherwise cascade into the wrong cells. */
+  .t-xmap__forum { grid-column: 2; grid-row: 2; text-align: left; margin-top: 0.8rem; }
+  .t-xmap__go { grid-column: 3; grid-row: 1; align-self: center; }
 }
 
 @media (max-width: 760px) {
@@ -411,16 +888,14 @@
   .t-stackRoot { --stack-overlap: 0px; }
   .t-stack__spacer { display: none; }
   .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
-  .t-stack + .t-stack, .t-arrival__wrap + .t-stack { margin-top: 0; }
+  .t-stack + .t-stack { margin-top: 0; }
   .t-panel { border-radius: 0; box-shadow: none; }
 
-  .t-arrival__wrap { height: auto; }
-  .t-arrival { position: relative; height: auto; min-height: 88vh; padding: 7rem 0 5rem; }
-  .t-arrival__wall { grid-template-columns: repeat(2, 1fr); }
-  .t-arrival__col:nth-child(n + 3) { display: none; }
-  .t-arrival__col { transform: none !important; top: -12%; height: 124%; }
-  .t-arrival__headline { max-width: 14ch; }
-  .t-arrival__cue { display: none; }
+  .t-lineup__headline { max-width: 14ch; }
+  /* Nothing to point with: the row is swiped instead, and the plate is opened
+     by tapping a figure. */
+  .t-lineup__nav { display: none; }
+  .t-lineup__edge { width: 32px; }
 
   .adv-card__creds { grid-template-columns: 1fr; gap: 1rem; }
 
@@ -432,16 +907,26 @@
   .t-standard { min-height: 0; }
   .t-standard__frame { clip-path: none !important; }
   .t-standard__stats { grid-template-columns: 1fr; gap: 1.5rem; }
-  .t-expertise__wrap { height: auto; }
-  .t-expertise__sticky { position: static; height: auto; overflow: visible; }
-  .t-expertise__track { flex-wrap: wrap; transform: none !important; padding-left: 0; }
-  .t-expertise__cue { display: none; }
+  .t-xmap__link {
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    padding-left: 0; padding-right: 0;
+    row-gap: 0.6rem;
+  }
+  .t-xmap__row.is-active .t-xmap__link { padding-left: 0; background: transparent; }
+  .t-xmap__go { display: none; }
+  .t-xmap__forum { grid-column: 2; grid-row: 2; margin-top: 0.7rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .t-stackRoot { --stack-overlap: 0px; }
   .t-stack__spacer { display: none; }
   .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
-  .t-stack + .t-stack, .t-arrival__wrap + .t-stack { margin-top: 0; }
-  .t-arrival__wrap { height: auto; }
+  .t-stack + .t-stack { margin-top: 0; }
+
+  /* The lineup keeps its hover states — they carry the names — but loses the
+     drifting starfield and the lift under the pointer. */
+  .t-lineup__stars { animation: none; }
+  .t-lineup__fig { transition: filter 0.2s linear; }
+  .t-lineup__slot.is-active .t-lineup__fig { transform: none; }
+  .t-lineup__plate { transition: opacity 0.2s linear; transform: translate(-50%, 0); }
 }

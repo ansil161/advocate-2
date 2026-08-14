@@ -76,7 +76,7 @@ export default function AwardsHero() {
       <div className="container awh__foot">
         <span><i>Enrolled</i>Bar Council of Telangana, 1996</span>
         <span><i>Practice</i>Hyderabad, Telangana</span>
-        <span className="awh__file">SLA / REC / 01–06</span>
+        <span className="awh__file">SLA / Recognition</span>
       </div>
 
       <div className="awh__cue" aria-hidden="true">

@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import Icon from '../../../components/ui/Icon.jsx';
 import SplitText from '../../../components/ui/SplitText.jsx';
 import Reveal from '../../../components/ui/Reveal.jsx';
+import ContactForm from '../../../components/ui/ContactForm.jsx';
 import { consult } from '../../../data/consult.js';
 import bgImg from '../../../assets/img/bookshelf-mono.webp';
 
@@ -17,7 +18,7 @@ export default function AboutCTA() {
           <span className="a-cta__corner a-cta__corner--bl" aria-hidden="true" />
           <span className="a-cta__corner a-cta__corner--br" aria-hidden="true" />
 
-          <span className="chapter-label chapter-label--light"><b>07</b> Begin Your Matter</span>
+          <span className="chapter-label chapter-label--light"><Icon name="conversation" /> Begin Your Matter</span>
           <h2 className="h2 h2--light a-cta__title">
             <SplitText text="The next chapter is" as="div" />
             <SplitText text="yours to write." as="div" className="a-cta__title--em" />
@@ -30,8 +31,13 @@ export default function AboutCTA() {
             <span className="a-cta__sign-name">Sridhar Lendalay</span>
             <span className="a-cta__sign-role">Founder &amp; Senior Advocate</span>
           </Reveal>
-          <Reveal delay={0.15}>
-            <Link to="/contact" className="btn btn--solid magnetic a-cta__btn"><span>Go to Contact Form →</span></Link>
+          <Reveal className="a-cta__form" delay={0.15} y={20}>
+            <ContactForm
+              variant="dark"
+              heading="Open Your Matter"
+              note="Send the outline — the reply comes from the firm."
+              submitLabel="Send to the Firm"
+            />
           </Reveal>
           <Reveal as="p" className="a-cta__alt" delay={0.2}>
             Prefer to talk first? <a href={`tel:${consult.phoneHref}`}>{consult.phone}</a> · <a href={`mailto:${consult.email}`}>{consult.email}</a>

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+import ContactForm from '../../../components/ui/ContactForm.jsx';
 import { MQ, rise, EASE } from '../motion.js';
 import closingImg from '../../../assets/img/columns-abstract.webp';
 
@@ -22,6 +23,7 @@ export default function AwardsClosing() {
           .from('.awx__rule', { scaleX: 0, duration: 1.2 }, 0.6)
           .from('.awx__note', { autoAlpha: 0, y: 18, duration: 1 }, 0.7);
         rise('.awx__links a', { trigger: '.awx__links', y: 18, stagger: 0.1, start: 'top 92%' });
+        rise('.awx__form', { trigger: '.awx__form', y: 24, start: 'top 88%' });
       });
 
       mm.add(MQ.cinematic, () => {
@@ -44,18 +46,29 @@ export default function AwardsClosing() {
       <div className="aw-grain" aria-hidden="true" />
 
       <div className="container awx__inner">
-        <span className="aw-label aw-label--light awx__label">In closing</span>
-        <h2 className="awx__title">
-          <span className="awx__line"><span className="awx__line-inner">The record</span></span>
-          <span className="awx__line awx__line--em"><span className="awx__line-inner">continues.</span></span>
-        </h2>
-        <span className="awx__rule" aria-hidden="true" />
-        <p className="awx__note">
-          Thirty years of practice. Eleven advocates. One standard that hasn’t moved.
-        </p>
-        <div className="awx__links">
-          <Link to="/about"><span>About SLA</span><i aria-hidden="true">→</i></Link>
-          <Link to="/contact"><span>Contact the firm</span><i aria-hidden="true">→</i></Link>
+        <div className="awx__grid">
+          <div className="awx__lead">
+            <span className="aw-label aw-label--light awx__label">In closing</span>
+            <h2 className="awx__title">
+              <span className="awx__line"><span className="awx__line-inner">The record</span></span>
+              <span className="awx__line awx__line--em"><span className="awx__line-inner">continues.</span></span>
+            </h2>
+            <span className="awx__rule" aria-hidden="true" />
+            <p className="awx__note">
+              Thirty years of practice. Eleven advocates. One standard that hasn’t moved.
+            </p>
+            <div className="awx__links">
+              <Link to="/about"><span>About SLA</span><i aria-hidden="true">→</i></Link>
+            </div>
+          </div>
+
+          <div className="awx__form">
+            <ContactForm
+              variant="dark"
+              heading="Add your matter to it"
+              note="Set out the outline — the firm takes it from there."
+            />
+          </div>
         </div>
       </div>
     </section>

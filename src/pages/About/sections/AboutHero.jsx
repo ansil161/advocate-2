@@ -421,7 +421,7 @@ export default function AboutHero() {
         <div className="ahero__accent" ref={ref('accent')} aria-hidden="true" />
 
         <div className="ahero__notation" ref={ref('notation')} aria-hidden="true">
-          <span className="ahero__note ahero__note--tl">Pl. 01 — Elevation</span>
+          <span className="ahero__note ahero__note--tl">Plate — Elevation</span>
           <span className="ahero__note ahero__note--tr">Sec. A–A</span>
           <span className="ahero__note ahero__note--ml">
             17.3850° N
@@ -429,7 +429,7 @@ export default function AboutHero() {
             78.4867° E
           </span>
           <span className="ahero__note ahero__note--mr">Scale 1 : 200</span>
-          <span className="ahero__note ahero__note--bl">SLA / About / 01</span>
+          <span className="ahero__note ahero__note--bl">SLA / About</span>
           <span className="ahero__note ahero__note--br">Glazed curtain wall</span>
         </div>
 

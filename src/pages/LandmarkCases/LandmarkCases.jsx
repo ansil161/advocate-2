@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Layout from '../../components/shell/Layout.jsx';
 import Consult from '../../components/shell/Consult.jsx';
-import CaseDossier from './sections/CaseDossier.jsx';
+import MatterSequence from './sections/MatterSequence.jsx';
 import { landmarkCases, disclaimer } from '../../data/landmarkCases.js';
 import bgImg from '../../assets/img/bookshelf-mono.webp';
 import './LandmarkCases.css';
@@ -61,7 +61,14 @@ export default function LandmarkCases() {
 
         // The sheet doesn't just slide up — it settles. A short lag on the
         // archive's own content reads as paper coming to rest under the edge.
-        gsap.from('.lc-archive__inner', {
+        //
+        // Applied to the head, NOT to `.lc-archive__inner`. A transform makes
+        // an element the containing block for every sticky descendant, and the
+        // casebook's stage is pinned inside that wrapper — transforming it
+        // pinned the stage 260px down the wrapper instead of to the viewport,
+        // with no error and no clue. The head is the only thing on screen at
+        // the hand-off anyway, which is all the settle was ever describing.
+        gsap.from('.lc-head', {
           yPercent: 6,
           ease: 'none',
           scrollTrigger: { ...window_, end: 'top 20%' },
@@ -84,21 +91,8 @@ export default function LandmarkCases() {
           ease: EASE,
           scrollTrigger: { trigger: '.lc-head', start: 'top 86%', once: true },
         });
-        gsap.from('.cd-rail__label, .cd-tab', {
-          autoAlpha: 0,
-          x: -18,
-          duration: 0.9,
-          stagger: 0.06,
-          ease: EASE,
-          scrollTrigger: { trigger: '.cd', start: 'top 78%', once: true },
-        });
-        gsap.from('.cd-file', {
-          autoAlpha: 0,
-          y: 44,
-          duration: 1.2,
-          ease: EASE,
-          scrollTrigger: { trigger: '.cd', start: 'top 78%', once: true },
-        });
+        // The sequence below owns its own arrival — every panel is scrubbed
+        // against its own entry, so a second trigger here would fight it.
       });
     }, rootRef);
 
@@ -131,7 +125,7 @@ export default function LandmarkCases() {
           <div className="container lc-hero__foot">
             <span><i>Matters</i>2,000+ since 1996</span>
             <span><i>Forums</i>District Courts to the High Court</span>
-            <span className="lc-hero__file">SLA / LMC / 01–06</span>
+            <span className="lc-hero__file">SLA / Landmark Matters</span>
           </div>
 
           <div className="lc-hero__cue" aria-hidden="true">
@@ -150,14 +144,19 @@ export default function LandmarkCases() {
                 <span className="lc-head__label">The Archive</span>
                 <h2 className="lc-head__title">Selected matters,<br />anonymised.</h2>
                 <p className="lc-head__note">
-                  Six representative files, drawn across the firm’s practice areas. Names, citations
+                  Four representative matters, drawn across the firm’s practice areas. Names, citations
                   and party details are withheld — the shape of the matter is the point.
                 </p>
                 <span className="lc-head__rule" aria-hidden="true" />
               </header>
+            </div>
 
-              <CaseDossier cases={landmarkCases} />
+            {/* Full-bleed: the photograph is half the argument in each matter,
+                and the measure would strand it. Four of the six are carried
+                here — the run reads as a sequence, not an inventory. */}
+            <MatterSequence cases={landmarkCases.filter(c => c.featured)} />
 
+            <div className="container">
               <p className="lc-foot-note">{disclaimer}</p>
             </div>
           </div>

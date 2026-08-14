@@ -445,7 +445,7 @@ export const bookLeft = () =>
     ctx.stroke();
 
     ctx.fillStyle = 'rgba(30,26,19,0.82)';
-    ctx.font = `italic 400 44px ${SERIF}`;
+    ctx.font = `400 44px ${SERIF}`;
     ctx.fillText('A judgment is only as good', w / 2, 622);
     ctx.fillText('as its execution.', w / 2, 682);
 

@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import Layout from '../../components/shell/Layout.jsx';
+import Icon, { PROCESS_ICONS } from '../../components/ui/Icon.jsx';
+import ContactForm from '../../components/ui/ContactForm.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import { consult } from '../../data/consult.js';
@@ -7,22 +8,7 @@ import { process } from '../../data/firm.js';
 import bgImg from '../../assets/img/colonnade-diagonal.webp';
 import './Contact.css';
 
-const MATTER_TYPES = ['Civil Litigation', 'Criminal Law', 'Banking & Recovery', 'Real Estate', 'Family & Succession', 'Corporate & Commercial', 'Other'];
-
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', matter: MATTER_TYPES[0], message: '' });
-
-  function update(field, value) { setForm(f => ({ ...f, [field]: value })); }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    const subject = encodeURIComponent(`Consultation request — ${form.matter}`);
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nMatter type: ${form.matter}\n\n${form.message}`
-    );
-    window.location.href = `mailto:${consult.email}?subject=${subject}&body=${body}`;
-  }
-
   return (
     <Layout navTheme="dark">
       <section className="c-hero" id="c-hero">
@@ -52,34 +38,8 @@ export default function Contact() {
             </Reveal>
           </div>
 
-          <Reveal as="form" className="c-form" onSubmit={handleSubmit}>
-            <div className="c-form__row">
-              <label>
-                <span>Name</span>
-                <input required value={form.name} onChange={e => update('name', e.target.value)} placeholder="Your full name" />
-              </label>
-              <label>
-                <span>Phone</span>
-                <input required value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="+91" />
-              </label>
-            </div>
-            <label>
-              <span>Email</span>
-              <input required type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@email.com" />
-            </label>
-            <label>
-              <span>Matter Type</span>
-              <select value={form.matter} onChange={e => update('matter', e.target.value)}>
-                {MATTER_TYPES.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-            </label>
-            <label>
-              <span>Brief Description</span>
-              <textarea rows="4" value={form.message} onChange={e => update('message', e.target.value)} placeholder="Tell us briefly about your matter…" />
-            </label>
-            <button type="submit" className="btn btn--solid magnetic" style={{ width: '100%' }}>
-              <span>Send via Email</span>
-            </button>
+          <Reveal className="c-form-wrap">
+            <ContactForm variant="light" />
           </Reveal>
         </div>
       </section>
@@ -89,8 +49,8 @@ export default function Contact() {
           <span className="eyebrow eyebrow--light"><SplitText text="What Happens Next" /></span>
           <div className="c-process__grid">
             {process.map((p, i) => (
-              <Reveal as="div" className="c-process__item" key={p.n} delay={i * 0.08}>
-                <span>{p.n}</span>
+              <Reveal as="div" className="c-process__item" key={p.title} delay={i * 0.08}>
+                <Icon name={PROCESS_ICONS[i]} />
                 <h4>{p.title}</h4>
                 <p>{p.desc}</p>
               </Reveal>

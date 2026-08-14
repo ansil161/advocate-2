@@ -1,9 +1,10 @@
 import SplitText from '../ui/SplitText.jsx';
 import Reveal from '../ui/Reveal.jsx';
+import ContactForm from '../ui/ContactForm.jsx';
 import { consult } from '../../data/consult.js';
 import bgImg from '../../assets/img/columns-abstract.webp';
 
-export default function Consult({ id = 'consult' }) {
+export default function Consult({ id = 'consult', matter }) {
   return (
     <section className="consult" id={id}>
       <div className="consult__bg" aria-hidden="true"><img src={bgImg} alt="" /></div>
@@ -25,22 +26,20 @@ export default function Consult({ id = 'consult' }) {
               <span className="consult__sign-name">Sridhar Lendalay</span>
               <span className="consult__sign-role">Founder &amp; Senior Advocate</span>
             </Reveal>
+            <Reveal as="div" className="consult__meta" delay={0.15}>
+              <div><span>Online</span>2 Morning · 2 Evening</div>
+              <div><span>In-Person</span>{consult.offlineSlots} Slots · Hyderabad Office</div>
+              <div><span>Instagram</span><a href={consult.instagramHref} target="_blank" rel="noopener">{consult.instagram}</a></div>
+            </Reveal>
           </div>
 
           <Reveal className="consult__card" delay={0.15} y={20}>
-            <div className="consult__card-heading">
-              <span>Get in Touch</span>
-              <p>Speak directly with the firm about your matter.</p>
-            </div>
-            <div className="consult__card-actions">
-              <a href={`tel:${consult.phoneHref}`} className="btn btn--solid magnetic"><span>Call {consult.phone}</span></a>
-              <a href={`mailto:${consult.email}`} className="btn btn--line-invert magnetic"><span>Email the Firm</span></a>
-            </div>
-            <div className="consult__card-meta">
-              <div><span>Online</span>2 Morning · 2 Evening</div>
-              <div><span>In-Person</span>{consult.offlineSlots} Slots · Hyderabad Office</div>
-              <div><span>Instagram</span>{consult.instagram}</div>
-            </div>
+            <ContactForm
+              variant="dark"
+              heading="Get in Touch"
+              note="Tell us about your matter — we reply from the firm, not a call centre."
+              defaultMatter={matter}
+            />
           </Reveal>
         </div>
       </div>

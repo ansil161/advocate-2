@@ -43,8 +43,7 @@
 
 /* Each panel is pulled up so it begins covering the one before it exactly when
    that one starts its pin. Net document height is unchanged. */
-.t-stack + .t-stack,
-.t-arrival__wrap + .t-stack {
+.t-stack + .t-stack {
   margin-top: calc(var(--stack-overlap) * -1);
 }
 
@@ -60,8 +59,7 @@
   .a-stackRoot { --stack-overlap: 0px; }
   .t-stack__spacer { display: none; }
   .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
-  .t-stack + .t-stack,
-  .t-arrival__wrap + .t-stack { margin-top: 0; }
+  .t-stack + .t-stack { margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -69,6 +67,5 @@
   .a-stackRoot { --stack-overlap: 0px; }
   .t-stack__spacer { display: none; }
   .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
-  .t-stack + .t-stack,
-  .t-arrival__wrap + .t-stack { margin-top: 0; }
+  .t-stack + .t-stack { margin-top: 0; }
 }

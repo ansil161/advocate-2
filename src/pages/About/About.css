@@ -253,12 +253,6 @@ body.ahero-dark .nav-bar.is-light .nav-phone { color: rgba(247,244,236,0.7); }
 body.ahero-dark .nav-bar.is-light .nav-actions .btn--ghost-invert { border-color: var(--line-dark); color: var(--cream); }
 body.ahero-dark .nav-bar.is-light .menu-toggle span { background: var(--cream); }
 
-/* Same problem for the chapter rail, in the other direction: it defaults to the
-   light-background treatment, which disappears once the stage goes dark. */
-body.ahero-dark .chapter-spine__line { background: var(--line-dark); }
-body.ahero-dark .chapter-spine__num { color: var(--muted-dark); }
-body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
-
 /* ============================================================
    MEASURE OF FIRM
    ============================================================ */
@@ -275,7 +269,13 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
    cards, then a closing statement. See sections/StorySection.jsx.
    ============================================================ */
 .story { position: relative; z-index: 2; background: var(--cream); }
-.story__scroll { position: relative; height: 640vh; }
+/* Seven beats share this height, and the scrubbed timeline divides it evenly —
+   so this is the section's read speed, not just its length. At 640vh each beat
+   held for well under half a viewport of scroll, which a single trackpad flick
+   clears before the cross-fade has caught up: the middle cards were being
+   scrolled straight past. 760vh gives each beat about 110vh. If beats are added
+   to or removed from BEATS in StorySection.jsx, move this with them. */
+.story__scroll { position: relative; height: 760vh; }
 .story__stage {
   position: sticky; top: 0; height: 100svh; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -292,17 +292,6 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 .story__thread-path--glow { stroke-width: 3.5; opacity: 0.18; filter: blur(3px); }
 .story__thread-path--core { stroke-width: 0.6; opacity: 0.5; }
 
-.story__rail {
-  position: absolute; right: clamp(2.5rem, 6vw, 5rem); top: 50%; transform: translateY(-50%); z-index: 4;
-  display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
-}
-.story__rail-cap { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); }
-.story__rail-track { position: relative; width: 1px; height: min(38vh, 300px); background: var(--line-light); }
-.story__rail-fill { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--gold); transform-origin: top; transform: scaleY(0); }
-.story__rail-dot {
-  position: absolute; left: 50%; top: 0; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
-  border-radius: 50%; background: var(--gold-soft); box-shadow: 0 0 0 4px rgba(169, 131, 79, 0.15);
-}
 
 .story__beats { position: absolute; inset: 0; z-index: 2; }
 .story__beat { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 var(--gutter); }
@@ -312,7 +301,7 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 .story__kicker { display: block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 1.1rem; }
 .story__statement-title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.4rem, 5.4vw, 4.4rem); line-height: 1.06; letter-spacing: -0.01em; color: var(--ink); }
 .story__title-line { display: block; }
-.story__title-line:last-child { font-style: italic; color: var(--gold); }
+.story__title-line:last-child { color: var(--gold); }
 .story__statement-body { font-size: 1.05rem; line-height: 1.65; color: var(--muted-light); max-width: 44ch; margin: 1.5rem auto 0; }
 
 /* Photo-card beats — the fixed 4:3 image "window" every era shares. */
@@ -320,7 +309,7 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 .story__card-media { width: 100%; aspect-ratio: 4 / 3; overflow: hidden; }
 .story__card-media img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.4) contrast(1.05); }
 .story__card-text { margin-top: 1.5rem; text-align: left; }
-.story__year { display: block; font-family: var(--font-serif); font-style: italic; font-size: clamp(1.6rem, 2.6vw, 2.1rem); color: var(--gold); line-height: 1; }
+.story__year { display: block; font-family: var(--font-serif); font-size: clamp(1.6rem, 2.6vw, 2.1rem); color: var(--gold); line-height: 1; }
 .story__card-title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.2rem, 1.8vw, 1.5rem); margin-top: 0.6rem; color: var(--ink); }
 .story__card-body { font-size: 0.92rem; line-height: 1.6; color: var(--muted-light); margin-top: 0.6rem; max-width: 34ch; }
 .story__card-meta {
@@ -330,7 +319,7 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 @media (max-width: 860px) {
   .story__scroll { height: auto; }
   .story__stage { position: static; height: auto; overflow: visible; padding: clamp(4rem, 10vw, 6rem) 0; display: block; }
-  .story__grain, .story__thread, .story__rail { display: none; }
+  .story__grain, .story__thread { display: none; }
   .story__beats { position: static; }
   .story__beat { position: static; padding: 0 var(--gutter); margin-bottom: clamp(3.5rem, 12vw, 5.5rem); opacity: 0; visibility: visible; }
   .story__beat:last-child { margin-bottom: 0; }
@@ -371,9 +360,9 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 }
 
 .a-philosophy { background: var(--black); padding: clamp(5rem, 10vw, 8rem) 0; }
-.a-philosophy__statement { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.5rem, 2.6vw, 2.1rem); color: var(--gold-soft); max-width: 24ch; margin: 2rem 0 3rem; line-height: 1.35; }
+.a-philosophy__statement { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.6vw, 2.1rem); color: var(--gold-soft); max-width: 24ch; margin: 2rem 0 3rem; line-height: 1.35; }
 .a-philosophy__points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-.a-philosophy__point span { font-family: var(--font-serif); color: var(--gold); font-size: 0.85rem; }
+.a-philosophy__point > .icon { color: var(--gold); font-size: 1.6rem; }
 .a-philosophy__point h4 { font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; color: var(--cream); margin: 0.75rem 0; }
 .a-philosophy__point p { font-size: 0.9rem; color: var(--muted-dark); line-height: 1.6; }
 
@@ -401,7 +390,7 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 .a-principles { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; }
 .a-principles__list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line-light); border: 1px solid var(--line-light); }
 .a-principles__item { background: var(--cream-soft); padding: 2.25rem 1.75rem; }
-.a-principles__num { font-family: var(--font-serif); color: var(--gold); font-size: 0.85rem; display: block; margin-bottom: 1.25rem; }
+.a-principles__num { color: var(--gold); font-size: 1.6rem; display: block; margin-bottom: 1.25rem; }
 .a-principles__item h4 { font-family: var(--font-serif); font-weight: 400; font-size: 1.15rem; margin-bottom: 0.75rem; }
 .a-principles__item p { font-size: 0.85rem; color: var(--muted-light); line-height: 1.6; }
 
@@ -409,18 +398,274 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
    STILL POINT (dark, contemplative)
    ============================================================ */
 .a-still { background: var(--black); padding: clamp(7rem, 14vw, 11rem) 0; text-align: center; }
-.a-still__quote { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.8rem, 4vw, 3rem); color: var(--cream); max-width: 20ch; margin: 0 auto; line-height: 1.3; }
+.a-still__quote { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 3rem); color: var(--cream); max-width: 20ch; margin: 0 auto; line-height: 1.3; }
 .a-still__attr { margin-top: 2rem; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--gold-soft); text-transform: uppercase; }
 
 /* ============================================================
-   LEGACY
+   LEGACY — THE ROAD
+   The firm's history as a journey rather than a table: one road drawn
+   through the section, a milestone at every turn of it, and the scroll as
+   the camera. See sections/LegacyRoad.jsx — this file is the set, the
+   choreography is authored there and never in CSS.
    ============================================================ */
-.a-legacy { background: var(--cream); padding: clamp(5rem, 10vw, 8rem) 0; position: relative; z-index: 2; }
-.a-legacy__list { border-top: 1px solid var(--line-light); }
-.a-legacy__item { display: grid; grid-template-columns: 120px 1fr; gap: 2rem; padding: 1.75rem 0; border-bottom: 1px solid var(--line-light); }
-.a-legacy__year { font-family: var(--font-serif); color: var(--gold); font-size: 1.1rem; }
-.a-legacy__item h4 { font-family: var(--font-serif); font-weight: 400; font-size: 1.2rem; margin-bottom: 0.4rem; }
-.a-legacy__item p { font-size: 0.9rem; color: var(--muted-light); line-height: 1.55; max-width: 60ch; }
+.lroad {
+  position: relative;
+  z-index: 2;
+  background: var(--cream);
+  --strip: 46px; /* width of the phone road's column, mirrored in the JSX viewBox */
+  /* One radius for every photograph in the section, so the wide stage's plates
+     and the column's do not drift apart. It is a px clamp rather than a
+     percentage because the closing move scales the plates right down, and a
+     percentage radius would swell into an ellipse as they shrank. */
+  --plate-radius: clamp(14px, 1.5vw, 24px);
+}
+
+/* ---- the wide stage ----------------------------------------------------- */
+/* Sticky, not a GSAP pin: no pin-spacer, no pin-related layout fragility, and
+   nothing for React Strict Mode's double-mount to leave behind. */
+/* One screenful of scroll per chapter, plus the title card at the head and the
+   pull-back to the full road at the tail. */
+.lroad__scroll { position: relative; height: calc((var(--chapters, 6) * 1.05 + 2.4) * 100svh); }
+.lroad__stage {
+  position: sticky; top: 0; height: 100svh;
+  overflow: hidden; isolation: isolate; background: var(--cream);
+}
+
+/* The tonal shift the Bench chapter grades the room with. Opacity only. */
+.lroad__tone { position: absolute; inset: 0; z-index: 0; background: var(--cream-deep); opacity: 0; }
+
+/* Flat opacity, not a blend mode: `mix-blend-mode` would pull the whole
+   stage — road, plates and type — into one blend group that has to be
+   re-composited on every scrub frame. */
+.lroad__grain {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The road. The feather at the top and bottom is what gives the journey its
+   depth — the road arrives out of haze and leaves into it, rather than being
+   cut off by the edge of the frame.
+   The feather is painted as two ivory scrims rather than cut with a CSS mask:
+   a mask on a full-stage box forces an offscreen buffer that has to be rebuilt
+   every time the road inside it redraws, which is every scrub frame. Over a
+   flat ivory ground the two are visually identical. */
+.lroad__road { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+/* `--scrim` is opened out by the closing pull-back: the feather is what gives
+   the journey depth, but it would swallow the first and last milestones once
+   the whole road is in frame. */
+.lroad__road::before,
+.lroad__road::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 16%; z-index: 2; pointer-events: none;
+  opacity: var(--scrim, 1);
+}
+.lroad__road::before { top: 0; background: linear-gradient(180deg, var(--cream) 12%, rgba(247, 244, 236, 0) 100%); }
+.lroad__road::after { bottom: 0; background: linear-gradient(0deg, var(--cream) 12%, rgba(247, 244, 236, 0) 100%); }
+/* No `will-change` here on purpose. Promoting the travelling layer makes the
+   camera move cheap but every dash redraw then invalidates the whole
+   320svh-tall texture; unpromoted, both only ever repaint what is on screen. */
+.lroad__travel {
+  position: absolute; top: 0; left: 0; width: 100%;
+  height: calc(var(--road-units, 320) * 1svh);
+}
+.lroad__map { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* Stroke widths are plain px because the viewBox is written in px against the
+   element's own box — the scale is 1, so nothing here is ever stretched. All
+   four are dashed on together by one tween; see the note in the JSX for why
+   this is neither an SVG mask nor a non-scaling stroke. */
+.lroad__path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+/* The bed the road sits on. Deliberately a second flat stroke rather than a
+   blurred one: an SVG filter over a stage-sized box has to be re-rasterised
+   on every scrub frame, and the softness it buys is not worth that. */
+.lroad__path--haze { stroke: rgba(22, 21, 15, 0.07); stroke-width: clamp(30px, 3.6vw, 52px); }
+.lroad__path--verge { stroke: var(--gold); stroke-width: clamp(23px, 2.75vw, 39px); opacity: 0.6; }
+.lroad__path--surface { stroke: #12141a; stroke-width: clamp(20px, 2.4vw, 35px); }
+/* The centre line is a hairline rather than a dashed one: the dash pattern
+   is what draws the road on, and a line cannot carry two of them. */
+.lroad__path--centre { stroke: rgba(247, 244, 236, 0.3); stroke-width: 1.25px; }
+
+/* Milestone markers are HTML, not SVG: they carry type, and the mark itself is
+   a zero-size anchor placed at a knot's own coordinates, so the dot lands
+   exactly *on* the road rather than near it. */
+.lroad__mark { position: absolute; width: 0; height: 0; z-index: 2; }
+.lroad__dot {
+  position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%; background: var(--cream); border: 1px solid var(--gold);
+}
+.lroad__ring {
+  position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px;
+  border-radius: 50%; border: 1px solid rgba(169, 131, 79, 0.5);
+  box-shadow: 0 0 18px 2px rgba(169, 131, 79, 0.2);
+}
+.lroad__mark-year {
+  position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted-light); white-space: nowrap;
+}
+
+/* The frame. One window, six plates, never two of them in it at once. */
+.lroad__frames {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  display: flex; align-items: center; justify-content: flex-end; padding-right: var(--gutter);
+}
+.lroad__frame {
+  position: relative; width: 36%; max-width: 40rem; aspect-ratio: 3 / 2;
+  border-radius: var(--plate-radius);
+}
+/* The shadow belongs to the plate, not the window: an empty window would
+   otherwise sit in the frame, lit and waiting, before the first chapter. */
+.lroad__plate {
+  position: absolute; inset: 0; overflow: hidden; background: var(--cream-deep);
+  border-radius: var(--plate-radius);
+  /* Two shadows: a wide soft one that seats the plate on the page, and a
+     short tight one directly beneath it so the corner reads as a real edge
+     rather than a blurred smudge. */
+  box-shadow:
+    0 34px 70px -26px rgba(22, 21, 15, 0.34),
+    0 6px 16px -8px rgba(22, 21, 15, 0.2);
+}
+
+/* THE LEAF — the element the timeline actually moves.
+   It has to be a positioned block, and that is not a detail: a transform has
+   no effect whatsoever on an inline non-replaced box. As a bare <span> every
+   leaf tween in the timeline was a silent no-op, so all six photographs sat
+   stacked in the window with the last one painting on top, and the section
+   changed its words on scroll without ever changing its picture. */
+.lroad__leaf {
+  position: absolute; inset: 0; display: block; overflow: hidden;
+  border-radius: inherit; background: var(--cream-deep);
+  will-change: transform;
+}
+
+/* Overscanned: the plate drifts inside its window for as long as a chapter
+   holds it, and an exactly-fitting image would show the ivory at the edge. */
+.lroad__plate img {
+  position: absolute; left: -3%; top: -4%; width: 106%; height: 108%;
+  object-fit: cover; filter: grayscale(1) contrast(1.05) brightness(1.03);
+}
+/* A hairline inside the corner, and the light falling off toward it. */
+.lroad__plate-edge {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(247, 244, 236, 0.18);
+  background: radial-gradient(120% 100% at 50% 8%, rgba(22, 21, 15, 0) 42%, rgba(22, 21, 15, 0.2) 100%);
+}
+.lroad__slot {
+  position: absolute; inset: 0; display: grid; place-content: center; text-align: center;
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted-light); border: 1px dashed var(--line-light);
+}
+
+/* The typography. Six chapters share one slot, so the frame never
+   re-composes itself between them. */
+.lroad__type {
+  position: absolute; z-index: 4; top: 0; bottom: 0; left: 32%; width: 22%; min-width: 15rem;
+  display: grid; align-content: center;
+}
+.lroad__chapter { grid-area: 1 / 1; }
+.lroad__chapter-index {
+  display: flex; align-items: center; gap: 0.55rem;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.18em; color: var(--gold);
+}
+.lroad__chapter-index i { display: inline-block; width: 22px; height: 1px; background: var(--line-light); }
+.lroad__chapter-year {
+  display: block; margin-top: 1.1rem;
+  font-family: var(--font-serif); font-size: clamp(2.4rem, 4.4vw, 4.3rem); line-height: 0.95;
+  letter-spacing: -0.02em; color: var(--gold);
+}
+.lroad__chapter-title {
+  margin-top: 0.9rem; font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.15rem, 1.75vw, 1.65rem); line-height: 1.2; color: var(--ink);
+}
+.lroad__chapter-body { margin-top: 0.95rem; font-size: 0.93rem; line-height: 1.62; color: var(--muted-light); }
+/* The Bench chapter carries a little more weight than the ones either side. */
+.lroad__chapter--strong .lroad__chapter-title { font-size: clamp(1.3rem, 2vw, 1.9rem); }
+.lroad__chapter--strong .lroad__chapter-body { color: rgba(22, 21, 15, 0.72); }
+
+/* The coda — the section's own line, read back under the finished map. It sits
+   in the band the lower row of plates leaves free, centred on the stage. */
+.lroad__coda {
+  position: absolute; z-index: 5; left: 0; right: 0; bottom: clamp(1.2rem, 3.4vh, 2.4rem);
+  text-align: center; padding: 0 var(--gutter); pointer-events: none;
+}
+.lroad__coda-rule { display: block; width: 40px; height: 1px; background: var(--gold); margin: 0 auto 0.9rem; }
+.lroad__coda-line {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.2rem, 2vw, 1.9rem); line-height: 1.15; letter-spacing: -0.01em; color: var(--ink);
+}
+.lroad__coda-line em { color: var(--gold); }
+.lroad__coda-years {
+  display: block; margin-top: 0.7rem;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted-light);
+}
+
+/* The title card. It sits above the centre of the stage, not on it: the stage
+   is sticky, so it spends its first screenful of scroll rising into view, and
+   a card centred in the full box would still be half below the fold for most
+   of that arrival. At ~38% it is complete and readable well before the stage
+   locks — and the weight above the centre line is the right editorial
+   composition for an opening title anyway. */
+.lroad__intro {
+  position: absolute; inset: 0; z-index: 5;
+  display: grid; place-content: center; text-align: center;
+  padding: 0 var(--gutter) 24svh;
+}
+.lroad__intro .chapter-label { justify-content: center; }
+.lroad__head {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(2.3rem, 5.6vw, 4.8rem); line-height: 1.02; letter-spacing: -0.015em; color: var(--ink);
+}
+.lroad__head em { display: block; color: var(--gold); }
+.lroad__deck {
+  margin-top: 1.5rem; font-size: 1rem; line-height: 1.6; color: var(--muted-light);
+  max-width: 40ch; margin-inline: auto;
+}
+
+/* No curtain at the end. The map lifts and dissolves and the ivory stage is
+   handed back to the page, which the dark section below simply scrolls up over
+   — the same way every other section on this page changes over. */
+
+@media (max-width: 1180px) {
+  .lroad__type { left: 29%; width: 26%; }
+  .lroad__frame { width: 34%; }
+}
+
+/* ---- the column: phone, and prefers-reduced-motion ---------------------- */
+/* Not the wide stage shrunk — the road stands up, and every chapter is in
+   ordinary flow with its own photograph under it. */
+.lroad--column { padding: clamp(4rem, 12vw, 6.5rem) 0 clamp(3.5rem, 10vw, 5rem); }
+.lroad--column .lroad__head { font-size: clamp(2.2rem, 8.6vw, 3.4rem); }
+.lroad--column .lroad__deck { margin-top: 1.1rem; margin-inline: 0; max-width: 34ch; }
+.lroad__col { position: relative; margin-top: clamp(2.5rem, 9vw, 4rem); padding-left: calc(var(--strip) + 1.1rem); }
+.lroad__col-map { position: absolute; left: 0; top: 0; width: var(--strip); height: 100%; overflow: visible; }
+.lroad--column .lroad__path--verge { stroke-width: 19px; }
+.lroad--column .lroad__path--surface { stroke-width: 16px; }
+.lroad--column .lroad__path--centre { stroke-width: 1px; }
+
+.lroad__row { position: relative; padding-bottom: clamp(3rem, 11vw, 4.5rem); }
+.lroad__row:last-child { padding-bottom: 0; }
+.lroad__row-dot {
+  position: absolute; left: calc(-1 * (var(--strip) / 2 + 1.1rem + 5.5px)); top: 0.5rem;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--cream); border: 1px solid var(--gold);
+  box-shadow: 0 0 0 5px rgba(169, 131, 79, 0.12);
+}
+.lroad--column .lroad__chapter-year { margin-top: 0.9rem; font-size: clamp(2.1rem, 10vw, 3rem); }
+.lroad--column .lroad__chapter-title { font-size: clamp(1.1rem, 5vw, 1.4rem); }
+.lroad--column .lroad__chapter-body { font-size: 0.92rem; max-width: 42ch; }
+.lroad__row-plate {
+  position: relative; margin-top: 1.4rem; aspect-ratio: 4 / 3; overflow: hidden;
+  border-radius: var(--plate-radius);
+  background: var(--cream-deep);
+  box-shadow:
+    0 26px 54px -22px rgba(22, 21, 15, 0.3),
+    0 5px 14px -7px rgba(22, 21, 15, 0.18);
+}
+.lroad__row-plate img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); }
+.lroad__row-plate::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(247, 244, 236, 0.18);
+}
 
 /* ============================================================
    COMMUNITY SERVICE (dark)
@@ -461,15 +706,15 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 .a-cta__corner--bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
 .a-cta__corner--br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 .a-cta__title { margin: 1.5rem auto 2rem; max-width: 16ch; }
-.a-cta__title--em { font-style: italic; color: var(--gold-soft); }
+.a-cta__title--em { color: var(--gold-soft); }
 .a-cta__body { max-width: 46ch; margin: 0 auto 2.25rem; color: rgba(247,244,236,0.62); font-size: 1.05rem; line-height: 1.7; }
 .a-cta__sign {
   display: flex; flex-direction: column; align-items: center; gap: 0.3rem; width: fit-content;
   margin: 0 auto 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--line-darker);
 }
-.a-cta__sign-name { font-family: var(--font-serif); font-style: italic; font-size: 1.1rem; color: var(--cream); }
+.a-cta__sign-name { font-family: var(--font-serif); font-size: 1.1rem; color: var(--cream); }
 .a-cta__sign-role { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-soft); }
-.a-cta__btn { padding: 1.15rem 2.75rem; font-size: 0.82rem; }
+.a-cta__form { display: block; max-width: 540px; margin: 0 auto; text-align: left; }
 .a-cta__alt { margin-top: 1.75rem; font-size: 0.85rem; color: var(--muted-dark); }
 .a-cta__alt a { color: var(--gold-soft); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
 .a-cta__alt a:hover { border-color: var(--gold-soft); }
@@ -482,6 +727,5 @@ body.ahero-dark .chapter-spine__num.is-active { color: var(--gold-soft); }
 @media (max-width: 720px) {
   .a-measure__grid { grid-template-columns: 1fr 1fr; }
   .a-philosophy__points, .a-built__grid, .a-principles__list { grid-template-columns: 1fr; }
-  .a-legacy__item { grid-template-columns: 1fr; gap: 0.5rem; }
   .a-cta__frame { padding: 2.5rem 1.5rem; }
 }

@@ -1,6 +1,5 @@
 import { Suspense, lazy } from 'react';
 import Layout from '../../components/shell/Layout.jsx';
-import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
 import Consult from '../../components/shell/Consult.jsx';
 import Numbers from './sections/Numbers.jsx';
 import Firm from './sections/Firm.jsx';
@@ -17,12 +16,9 @@ import './Home.css';
 // while the world loads behind the hero's own entrance card.
 const HeroExperience = lazy(() => import('../../components/hero/cinematic/HeroExperience.jsx'));
 
-const CHAPTERS = ['hero', 'firm', 'practice', 'proof', 'team', 'manifesto', 'testimonials', 'consult'];
-
 export default function Home() {
   return (
     <Layout navTheme="dark">
-      <ChapterSpine sectionIds={CHAPTERS} dark />
       <Suspense fallback={<div className="chero-placeholder" id="hero" />}>
         <HeroExperience />
       </Suspense>

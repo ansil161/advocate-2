@@ -3,6 +3,9 @@
 // case citations would be seriously misleading. These are anonymized illustrations of the
 // kind of matters the firm's 2000+ case history spans, grounded in the real practice areas.
 //
+// `featured` marks the four matters carried as the landmark page's scroll sequence;
+// the rest remain in the set for anywhere the full list is wanted.
+//
 // `practiceSlug` and `forum` cross-reference the real, sourced practiceAreas.js entries
 // (matching category → forums list) rather than inventing new specifics. `outcome` is a
 // short restatement of each summary's own described result, not a new claim.
@@ -16,6 +19,7 @@ export const landmarkCases = [
     title: 'Secured Asset Recovery via SARFAESI',
     summary: 'Coordinated possession and sale of a defaulted commercial property on behalf of an institutional lender, following statutory notice and DRT challenge proceedings.',
     practiceSlug: 'banking-financial-laws',
+    featured: true,
     forum: 'Debt Recovery Tribunal (DRT)',
     outcome: 'Possession Recovered',
   },
@@ -25,6 +29,7 @@ export const landmarkCases = [
     title: 'Multi-Generation Partition Suit',
     summary: 'Resolved a decades-old ancestral property dispute among extended family branches, securing an independent title through formal court decree.',
     practiceSlug: 'civil-litigation',
+    featured: true,
     forum: 'District Courts',
     outcome: 'Title Decreed',
   },
@@ -34,6 +39,7 @@ export const landmarkCases = [
     title: 'Writ Petition Against Arbitrary Suspension',
     summary: 'Secured reinstatement for a public sector employee following an unlawful disciplinary suspension, argued before the High Court of Telangana.',
     practiceSlug: 'constitutional-writ-practice',
+    featured: true,
     forum: 'High Court of Telangana',
     outcome: 'Reinstatement Secured',
   },
@@ -43,6 +49,7 @@ export const landmarkCases = [
     title: 'FIR Quashed Under Section 482',
     summary: 'Invoked the High Court’s inherent powers to quash a maliciously registered FIR, sparing the client a prolonged and groundless trial.',
     practiceSlug: 'criminal-law',
+    featured: true,
     forum: 'High Court of Telangana',
     outcome: 'FIR Quashed',
   },

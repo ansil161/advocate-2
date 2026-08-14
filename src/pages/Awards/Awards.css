@@ -75,7 +75,7 @@
   font-size: 0.3em; line-height: 1.5;
   padding-left: 0.14em;
 }
-.awh__line--amp .awh__line-inner { font-style: italic; color: rgba(211, 177, 127, 0.72); }
+.awh__line--amp .awh__line-inner { color: rgba(211, 177, 127, 0.72); }
 
 .awh__statement {
   margin-top: clamp(1.5rem, 3vw, 2.25rem);
@@ -121,14 +121,17 @@
 
 /* ============================================================
    02 — THE RECORD
-   Four figures, four rows of a twelve-column field. Never a card.
+   Four figures on the four faces of one solid. The bar turns a quarter at a
+   time as the section is read — every rule that builds the solid is held in
+   the 3D block further down, so below 900px (and under reduced motion) the
+   same markup is four plain blocks down the page.
    ============================================================ */
 .awr {
   position: relative; z-index: 2;
   background: var(--cream);
   padding: clamp(6rem, 14vw, 11rem) 0 clamp(4.5rem, 9vw, 7.5rem);
 }
-.awr__head { margin-bottom: clamp(4.5rem, 11vw, 9rem); }
+.awr__head { margin-bottom: clamp(3.5rem, 8vw, 6rem); }
 .awr__title {
   font-family: var(--font-serif); font-weight: 400;
   font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.12; letter-spacing: -0.012em;
@@ -139,56 +142,217 @@
   font-size: 1rem; line-height: 1.75; color: var(--muted-light);
 }
 
-.awr__field {
-  position: relative;
-  display: grid; grid-template-columns: repeat(12, 1fr);
-  column-gap: clamp(0.75rem, 1.6vw, 1.6rem);
+/* ---- the field ---------------------------------------------------------- */
+/* Two layouts, never both: the stage carries the solids and exists only where
+   the 3D is built; `.awr__flat` carries the same four figures as plain blocks
+   everywhere else. Each is display:none in the other's case, so nothing is
+   announced twice — and both point at the same four image files, so the
+   duplication costs no extra bytes over the wire. */
+.awr__track { display: none; }
+.awr__stage { position: relative; }
+.awr__frame { position: relative; z-index: 2; }
+
+/* The bar is set in a ruled field rather than floated in the middle of the
+   sheet: a hairline above it carrying the section's own label and the count,
+   a hairline below carrying the index and the run's progress. */
+.awr__meta {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1.5rem;
+  padding-bottom: clamp(0.9rem, 1.6vw, 1.3rem);
+  border-bottom: 1px solid var(--line-light);
+  margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  font-family: var(--font-mono); font-size: 0.63rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--muted-light);
 }
-.awr__margin { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--line-lighter); }
-.awr__margin-fill {
-  position: absolute; inset: 0; background: rgba(22, 21, 15, 0.28);
-  transform-origin: top; transform: scaleY(0);
+.awr__count b { font-weight: 400; color: var(--ink); }
+
+.awr__foot {
+  display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem);
+  margin-top: clamp(1.75rem, 3.5vw, 3rem);
+  padding-top: clamp(0.9rem, 1.6vw, 1.3rem);
+  border-top: 1px solid var(--line-light);
+}
+.awr__ticks {
+  display: flex; gap: 0.85rem; flex: none;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.16em;
+}
+.awr__tick { color: rgba(22, 21, 15, 0.25); transition: color 0.5s var(--ease), transform 0.5s var(--ease); }
+.awr__tick.is-active { color: var(--gold-dim); transform: translateY(-2px); }
+.awr__progress { position: relative; flex: 1 1 auto; height: 1px; background: rgba(22, 21, 15, 0.12); }
+.awr__progress-fill {
+  position: absolute; inset: 0; display: block;
+  background: var(--gold-dim); transform-origin: left; transform: scaleX(0);
 }
 
-.awr__figure { position: relative; margin: 0; }
-.awr__figure--1 { grid-column: 6 / span 7;  grid-row: 1; }
-.awr__figure--2 { grid-column: 1 / span 6;  grid-row: 2; margin-top: clamp(4rem, 9vw, 7.5rem); }
-.awr__figure--3 { grid-column: 7 / span 6;  grid-row: 3; margin-top: clamp(3rem, 7vw, 6rem); }
-.awr__figure--4 { grid-column: 2 / span 8;  grid-row: 4; margin-top: clamp(4rem, 10vw, 8rem); }
-
-.awr__index {
-  display: block; margin-bottom: clamp(1rem, 2vw, 1.6rem);
+/* ---- the figure and what it is ------------------------------------------ */
+/* One instance of the number, never a repeat and never cropped: it is the one
+   thing on this page the firm is standing on. Its label sits directly under it
+   across a hairline — figure and name in the same block, not a number on one
+   panel and a caption on another. */
+.awr__seq {
+  display: inline-flex; align-items: center; gap: 0.7rem;
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
-  color: var(--muted-light); opacity: 0.6;
+  color: var(--gold-dim);
 }
-.awr__value {
-  overflow: hidden;
-  padding: 0.06em 0 0.1em;
-}
-.awr__value-inner {
+.awr__seq .icon { font-size: 1.25rem; }
+.awr__figure {
   display: flex; align-items: flex-start; gap: 0.04em;
   font-family: var(--font-serif); font-weight: 400;
-  font-size: clamp(4rem, 13.5vw, 11.5rem);
-  line-height: 0.82; letter-spacing: -0.045em;
-  color: var(--ink);
+  line-height: 0.88; letter-spacing: -0.045em; color: var(--ink);
+  padding-bottom: 0.06em;
 }
-.awr__suffix {
+.awr__figure i {
   font-style: normal; font-size: 0.3em; line-height: 1;
-  margin-top: 0.22em; letter-spacing: -0.01em; color: var(--muted-light);
+  margin-top: 0.28em; color: var(--muted-light);
 }
-.awr__rule {
-  display: block; height: 1px; width: 100%; max-width: 520px;
-  background: rgba(22, 21, 15, 0.75); transform-origin: left;
-  margin: clamp(1.5rem, 3vw, 2.4rem) 0 clamp(0.9rem, 1.8vw, 1.4rem);
-}
-.awr__figure figcaption { display: flex; flex-direction: column; gap: 0.55rem; }
+.awr__hair { display: block; height: 1px; background: rgba(22, 21, 15, 0.22); }
 .awr__label {
-  font-family: var(--font-mono); font-size: clamp(0.72rem, 1vw, 0.83rem);
+  font-family: var(--font-mono); font-size: clamp(0.72rem, 1vw, 0.82rem);
   letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
 }
 .awr__note {
+  display: block;
   font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em;
   color: var(--muted-light); opacity: 0.85;
+}
+
+/* ---- the plate ---------------------------------------------------------- */
+/* Read at close to its own tonality. The old treatment — near-total grayscale
+   under a brightness cut — turned three of the four photographs into black
+   rectangles; the point of a plate is that you can see it. */
+.awr__plate-wash {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,10,10,0.06) 0%, rgba(10,10,10,0) 42%, rgba(10,10,10,0.42) 100%),
+    radial-gradient(88% 68% at 78% 12%, rgba(169,131,79,0.2) 0%, rgba(169,131,79,0) 62%);
+}
+
+/* ---- the flat layout ---------------------------------------------------- */
+.awr__flat { display: grid; gap: clamp(2.5rem, 7vw, 4.5rem); }
+.awr__pair {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 3rem); align-items: center;
+}
+.awr__flat-media { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: var(--black); }
+.awr__flat-media img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(0.72) contrast(1.04) brightness(0.96);
+}
+.awr__flat-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+.awr__flat-copy .awr__figure { font-size: clamp(3rem, 11vw, 5.5rem); }
+.awr__flat-copy .awr__hair { width: min(320px, 100%); }
+
+/* ============================================================
+   THE SOLIDS
+   ------------------------------------------------------------
+   One wide bar split in two boxes that turn as one. Each box carries four
+   faces of a cube: every face is pushed out by half of ITS OWN box depth and
+   turned a quarter more than the last, so each set closes into a solid. The
+   rotation itself is GSAP's — it runs negative, which tips the top face down
+   toward the reader and brings the next figure in from above.
+
+   The plate box is a step taller than the type slab and nudged up, so its
+   faces swing further forward and break the bar's line — and because the two
+   boxes sit at different heights against one perspective origin, a turn shows
+   the underside of one and the top of the other at the same moment.
+   ============================================================ */
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .awr { padding-bottom: 0; }
+  .awr__flat { display: none; }
+  /* The track IS the sticky range: its height is what the timeline is measured
+     against, so start/end and the pin can never disagree. */
+  .awr__track {
+    display: block;
+    height: calc((var(--awr-count, 4) * 0.72 + 0.3) * 100svh);
+  }
+  .awr__stage {
+    display: flex; flex-direction: column; justify-content: center;
+    position: sticky; top: 0; height: 100svh; overflow: hidden;
+  }
+  /* `.container` centres itself with `margin-inline: auto`, and an auto margin
+     on the cross axis stops a flex item stretching — without this the frame
+     collapses to the width of its own content. */
+  .awr__frame { width: 100%; }
+
+  .awr__scene {
+    --awr-h: clamp(250px, 34vh, 360px);
+    position: relative;
+    display: flex; align-items: center; gap: 0;
+    perspective: 3200px; perspective-origin: 50% 50%;
+  }
+  /* The shadow the bar drops on the sheet — what stops the pair reading as two
+     flat cards that happen to be rotating. */
+  .awr__scene::after {
+    content: ''; position: absolute; left: 3%; right: 3%; bottom: -30px; height: 44px;
+    background: radial-gradient(58% 50% at 50% 50%, rgba(22,21,15,0.18), rgba(22,21,15,0) 70%);
+    pointer-events: none; z-index: -1;
+  }
+
+  /* The box holds the position, the solid inside it holds the rotation —
+     separate elements so the layout is never overwritten by the tween.
+     The box deliberately carries NO transform. The tidy way to stop the front
+     face being scaled up (it sits half a depth nearer the camera than the
+     scene's own plane) is a matching `translateZ` push-back here — but a
+     translateZ on this wrapper makes Chrome stop painting the photographs
+     inside the plates, leaving black rectangles, with or without the GPU. The
+     scale-up is corrected with a longer perspective instead. */
+  .awr__box {
+    flex: 1 1 0; min-width: 0;
+    height: var(--h);
+    transform-style: preserve-3d;
+  }
+  .awr__box--type { --h: var(--awr-h); flex-grow: 1.08; }
+  .awr__box--plate { --h: calc(var(--awr-h) * 1.18); margin-top: calc(var(--awr-h) * -0.09); }
+
+  .awr__solid {
+    position: relative; height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  /* No `backface-visibility: hidden` here on purpose. It is the obvious thing
+     to reach for on a cube, it is not needed — four faces of a closed solid
+     already occlude each other by depth — and in Chrome it drops the painting
+     of the photograph inside the plate entirely, leaving a black rectangle. */
+  .awr__face {
+    position: absolute; inset: 0; margin: 0; overflow: hidden;
+    transform: rotateX(calc(var(--i) * 90deg)) translateZ(calc(var(--h) / 2));
+  }
+
+  /* — the type slab — */
+  .awr__face--type {
+    display: flex; flex-direction: column; align-items: flex-start;
+    justify-content: center; gap: clamp(0.8rem, 1.4vh, 1.2rem);
+    padding: clamp(1.5rem, 2.6vw, 2.4rem) clamp(1.75rem, 3.2vw, 3rem);
+    background: var(--cream-soft);
+    box-shadow: inset 0 0 0 1px var(--line-light);
+  }
+  .awr__face--type .awr__figure { font-size: min(calc(var(--h) * 0.34), 7rem); }
+  .awr__face--type .awr__hair { width: min(78%, 380px); }
+  .awr__face--type figcaption { display: flex; flex-direction: column; gap: 0.45rem; }
+
+  /* — the plate panel — */
+  /* One tint on every face. Four different tints is a decoration the reference
+     could afford because its faces were four different projects; here they are
+     four figures from one record, and varying the colour makes the set look
+     unrelated rather than sequential. */
+  .awr__face--plate { background: #16150f; }
+  /* The wash is a SIBLING of the image box, not a child: the tonal treatment
+     is a filter on the image box, and a filter applies to the whole subtree —
+     nested inside, the warm gold wash would be desaturated along with the
+     photograph it is there to warm. */
+  .awr__plate { position: absolute; inset: clamp(0.55rem, 0.85vw, 0.85rem); overflow: hidden; }
+  .awr__plate-inner {
+    position: relative; width: 100%; height: 100%;
+    background-size: cover; background-position: center;
+    filter: grayscale(0.72) contrast(1.04) brightness(0.96);
+  }
+}
+
+/* Under 900px and with reduced motion no solid is built, so the stage is not
+   rendered at all — `.awr__flat` is the whole section. Matched to `FLAT` in
+   RecordSection.jsx. */
+@media (max-width: 720px) {
+  .awr__pair { grid-template-columns: 1fr; gap: 1.25rem; }
+  .awr__flat-media { order: -1; }
 }
 
 /* ============================================================
@@ -208,7 +372,7 @@
 .aws__quote {
   display: flex; flex-direction: column;
   margin-top: clamp(2.5rem, 6vw, 4rem);
-  font-family: var(--font-serif); font-weight: 400; font-style: italic;
+  font-family: var(--font-serif); font-weight: 400;
   font-size: clamp(1.95rem, 6.2vw, 5rem);
   line-height: 1.1; letter-spacing: -0.022em;
   color: var(--ink);
@@ -240,7 +404,7 @@
   font-size: clamp(2.2rem, 5.2vw, 4.2rem); line-height: 1.04; letter-spacing: -0.022em;
   margin-top: 1.4rem;
 }
-.awb__title em { font-style: italic; }
+.awb__title em { color: var(--gold); }
 .awb__note { margin-top: 1.5rem; max-width: 46ch; font-size: 0.98rem; line-height: 1.7; color: var(--muted-light); }
 
 .awb__stack { position: relative; }
@@ -284,7 +448,7 @@
   position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
   background: var(--line-light); transform-origin: left;
 }
-.awb__index { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted-light); opacity: 0.65; }
+.awb__index { font-size: 1.4rem; color: var(--gold-dim); }
 .awb__name { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.3rem, 2.4vw, 2rem); line-height: 1.1; }
 .awb__role {
   display: block; margin-top: 0.55rem;
@@ -322,12 +486,13 @@
   font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.08; letter-spacing: -0.018em;
   margin-top: 1.4rem;
 }
-.awc__title em { font-style: italic; }
+.awc__title em { color: var(--gold); }
 .awc__note { margin-top: 1.4rem; max-width: 32ch; font-size: 0.95rem; line-height: 1.7; color: var(--muted-light); }
 .awc__counter {
-  display: block; margin-top: clamp(2rem, 4vw, 3rem);
-  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--muted-light);
+  display: flex; align-items: center; gap: 0.7rem; margin-top: clamp(2rem, 4vw, 3rem);
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; color: var(--muted-light);
 }
+.awc__counter .icon { font-size: 1.3rem; color: var(--gold-dim); }
 .awc__counter b { font-weight: 400; color: var(--ink); }
 
 .awc__list { border-top: 1px solid var(--line-light); }
@@ -337,9 +502,9 @@
   border-bottom: 1px solid var(--line-light);
 }
 .awc__item-index {
-  position: absolute; left: 0; top: clamp(2.2rem, 4.8vw, 3.5rem);
-  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
-  color: var(--muted-light); opacity: 0.5;
+  position: absolute; left: 0; top: clamp(2rem, 4.6vw, 3.3rem);
+  font-size: 1.25rem;
+  color: var(--muted-light); opacity: 0.45;
   transition: opacity 0.55s var(--ease), color 0.55s var(--ease);
 }
 .awc__item-name {
@@ -375,7 +540,7 @@
   font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -0.022em;
   color: var(--cream); margin-top: 1.4rem;
 }
-.awm__title em { font-style: italic; color: rgba(247, 244, 236, 0.5); }
+.awm__title em { color: rgba(247, 244, 236, 0.5); }
 .awm__note {
   margin-top: 1.5rem;
   font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em;
@@ -392,11 +557,6 @@
 .awm__entry-rule {
   position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: var(--line-darker); transform-origin: left;
-}
-.awm__index {
-  position: absolute; top: clamp(1rem, 2vw, 1.6rem); right: 0;
-  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
-  color: rgba(247, 244, 236, 0.35);
 }
 .awm__year {
   font-family: var(--font-serif); font-weight: 400;
@@ -425,15 +585,17 @@
 }
 .awx .aw-grain { z-index: 3; }
 .awx__inner { position: relative; z-index: 4; }
+.awx__grid { display: grid; grid-template-columns: 1fr 0.9fr; gap: clamp(3rem, 6vw, 5rem); align-items: center; }
+.awx__form { max-width: 540px; }
 
 .awx__title {
   font-family: var(--font-serif); font-weight: 400;
-  font-size: clamp(2.7rem, 8.6vw, 7.2rem); line-height: 0.98; letter-spacing: -0.028em;
+  font-size: clamp(2.7rem, 6.4vw, 5.4rem); line-height: 0.98; letter-spacing: -0.028em;
   color: var(--cream); margin-top: clamp(1.5rem, 3vw, 2.5rem);
 }
 .awx__line { display: block; overflow: hidden; padding-bottom: 0.04em; }
 .awx__line-inner { display: block; }
-.awx__line--em .awx__line-inner { font-style: italic; color: rgba(247, 244, 236, 0.55); }
+.awx__line--em .awx__line-inner { color: rgba(247, 244, 236, 0.55); }
 .awx__rule {
   display: block; height: 1px; width: min(420px, 62%);
   background: var(--line-dark); transform-origin: left;
@@ -458,6 +620,7 @@
    simultaneous layers, the parallax and the sticky column.
    ============================================================ */
 @media (max-width: 1080px) {
+  .awx__grid { grid-template-columns: 1fr; gap: 3.5rem; }
   .awc__grid { grid-template-columns: 1fr; }
   .awc__aside { position: static; }
   .awc__note { max-width: 46ch; }
@@ -470,16 +633,8 @@
   .awh__cue { display: none; }
   .awh__grid { background-size: calc(100% / 3) 100%; }
 
-  .awr__field { grid-template-columns: 1fr; }
-  .awr__margin { display: none; }
-  .awr__figure--1, .awr__figure--2, .awr__figure--3, .awr__figure--4 {
-    grid-column: 1 / -1; grid-row: auto; margin-top: clamp(3.5rem, 12vw, 5.5rem);
-  }
-  .awr__figure--1 { margin-top: 0; }
-
   .awm__entry { grid-template-columns: 1fr; gap: 1.5rem; }
   .awm__entry--b .awm__year { padding-left: 0; }
-  .awm__index { position: static; display: block; margin-bottom: 1.25rem; }
 }
 
 @media (max-width: 720px) {
@@ -501,6 +656,6 @@
   .awh__cue i::after { animation: none; opacity: 0; }
   .awc__item-name { color: var(--ink); }
   .awc__item-domains { opacity: 1; transform: none; }
-  .awr__margin-fill { transform: scaleY(1); }
-  .awx__links a i, .awc__item-name, .awc__item-domains { transition: none; }
+  /* The solid is never built — the stacked fallback above covers the layout. */
+  .awx__links a i, .awc__item-name, .awc__item-domains, .awr__tick { transition: none; }
 }

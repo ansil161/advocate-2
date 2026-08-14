@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Icon from '../../../components/ui/Icon.jsx';
 import { MQ, rise } from '../motion.js';
 import { forums } from '../../../data/awards.js';
 import bgImg from '../../../assets/img/colonnade-diagonal.webp';
@@ -10,8 +11,7 @@ import bgImg from '../../../assets/img/colonnade-diagonal.webp';
 // and because the items are contiguous, whichever one crosses it takes the black.
 export default function CourtsAndTribunals() {
   const rootRef = useRef(null);
-  const counterRef = useRef(null);
-  const total = String(forums.length).padStart(2, '0');
+  const nameRef = useRef(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -28,8 +28,10 @@ export default function CourtsAndTribunals() {
             end: 'bottom 55%',
             onToggle: (self) => {
               item.classList.toggle('is-active', self.isActive);
-              if (self.isActive && counterRef.current) {
-                counterRef.current.textContent = String(i + 1).padStart(2, '0');
+              // The aside names whichever forum is holding the reading line —
+              // it used to count them off instead.
+              if (self.isActive && nameRef.current) {
+                nameRef.current.textContent = forums[i].name;
               }
             },
           });
@@ -64,14 +66,15 @@ export default function CourtsAndTribunals() {
             The forums the firm appears before, with the practice areas argued in each.
           </p>
           <span className="awc__counter">
-            <b ref={counterRef}>01</b> / {total}
+            <Icon name="courthouse" />
+            <b ref={nameRef}>{forums[0].name}</b>
           </span>
         </aside>
 
         <ol className="awc__list">
-          {forums.map((f, i) => (
+          {forums.map(f => (
             <li className="awc__item" key={f.name}>
-              <span className="awc__item-index">{String(i + 1).padStart(2, '0')}</span>
+              <span className="awc__item-index"><Icon name="courthouse" /></span>
               <span className="awc__item-name">{f.name}</span>
               {f.domains.length > 0 && (
                 <span className="awc__item-domains">{f.domains.join('  ·  ')}</span>

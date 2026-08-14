@@ -1,7 +1,10 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
+import Icon from '../../../components/ui/Icon.jsx';
 import { MQ, rise, drawRule, EASE } from '../motion.js';
 import { barCouncilEnrollments } from '../../../data/awards.js';
+
+const WORD_COUNT = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 
 // BAR COUNCIL RECORD — the enrolment particulars presented as an archival sheet:
 // ruled margin, index numbers, registration marks at the corners, entries listed
@@ -9,7 +12,7 @@ import { barCouncilEnrollments } from '../../../data/awards.js';
 // Bar Council document is drawn, and no certificate is implied.
 export default function BarCouncilRecord() {
   const rootRef = useRef(null);
-  const count = String(barCouncilEnrollments.length).padStart(2, '0');
+  const count = WORD_COUNT[barCouncilEnrollments.length] ?? barCouncilEnrollments.length;
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -74,10 +77,10 @@ export default function BarCouncilRecord() {
             <span className="awb__sheet-rule" aria-hidden="true" />
 
             <ol className="awb__list">
-              {barCouncilEnrollments.map((b, i) => (
+              {barCouncilEnrollments.map(b => (
                 <li className="awb__entry" key={b.enrollment}>
                   <span className="awb__entry-line" aria-hidden="true" />
-                  <span className="awb__col awb__index">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="awb__col awb__index"><Icon name="person" /></span>
                   <div className="awb__col awb__identity">
                     <h3 className="awb__name">{b.name}</h3>
                     <span className="awb__role">{b.role}</span>

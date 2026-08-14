@@ -141,190 +141,221 @@
   transform-origin: left; margin-top: clamp(2rem, 4vw, 3rem);
 }
 
-/* ── the dossier ─────────────────────────────────────────── */
-.cd {
-  display: grid; grid-template-columns: minmax(230px, 288px) minmax(0, 1fr);
-  gap: clamp(1.75rem, 4vw, 4.5rem); align-items: start;
-  padding-top: clamp(2.5rem, 5vw, 4rem);
+/* ============================================================
+   03 — FOUR MATTERS
+   ------------------------------------------------------------
+   Not four screens: four states of one screen. The stage sticks to the
+   viewport for the length of the run and the scroll hands it from one matter
+   to the next — see sections/MatterSequence.jsx for the choreography. The
+   plate changes sides on every matter, so the composition swings across the
+   screen; a rail counts 01 → 04 and fills as the deck advances.
+
+   Below 900px — and whenever motion is not wanted — every rule that pins,
+   stacks or absolutely places anything is confined to the query at the
+   bottom of this block, so the deck falls back to plain flow.
+   ============================================================ */
+.mtr {
+  position: relative; z-index: 2;
+  background: var(--black); color: var(--cream);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
 }
 
-.cd-rail { position: sticky; top: clamp(6rem, 12vh, 8.5rem); }
-.cd-rail__label {
-  display: block; padding-bottom: 1rem;
-  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.24em;
-  text-transform: uppercase; color: rgba(22, 21, 15, 0.38);
+/* The rail sits in the page gutter, held to the middle of the screen. */
+.mtr__rail {
+  position: sticky; top: 50vh; float: left; z-index: 3;
+  height: 0; margin-left: clamp(0.75rem, 2vw, 1.75rem);
+  display: flex; align-items: center; gap: 0.85rem;
+  transform: translateY(-50%); pointer-events: none;
 }
-.cd-rail__list { display: flex; flex-direction: column; border-top: 1px solid var(--line-light); }
+/* The run's own progress, read against the deck rather than against the page:
+   a hairline the length of the ticks, filled from the top. */
+.mtr__rail-track {
+  position: relative; width: 1px; align-self: stretch; min-height: 5.5rem;
+  background: rgba(247, 244, 236, 0.14);
+}
+.mtr__rail-fill {
+  position: absolute; inset: 0; display: block;
+  background: linear-gradient(180deg, var(--gold-soft), rgba(169, 131, 79, 0.35));
+  transform-origin: top; transform: scaleY(0);
+}
+.mtr__rail-ticks { display: flex; flex-direction: column; gap: 0.7rem; }
+.mtr__tick {
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em;
+  color: rgba(247, 244, 236, 0.22);
+  transition: color 0.5s var(--ease), transform 0.5s var(--ease);
+}
+.mtr__tick.is-active { color: var(--gold-soft); transform: translateX(3px); }
 
-.cd-tab {
-  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr);
-  gap: 0 0.9rem; align-items: start; text-align: left; width: 100%;
-  padding: 1.05rem 1.1rem 1.05rem 1.15rem;
-  border-bottom: 1px solid var(--line-lighter); background: transparent;
-  transition: background 0.45s var(--ease), padding-left 0.45s var(--ease);
-}
-.cd-tab:hover { background: rgba(22, 21, 15, 0.028); padding-left: 1.5rem; }
-.cd-tab.is-active { background: rgba(22, 21, 15, 0.04); padding-left: 1.5rem; }
-.cd-tab:focus-visible { outline: 1px solid var(--gold); outline-offset: -1px; }
-
-/* The one moving mark on the rail: it travels between entries rather than
-   blinking on and off, so the index reads as a single pointer. */
-.cd-tab__marker { position: absolute; left: 0; top: -1px; bottom: -1px; width: 2px; background: var(--gold); }
-
-.cd-tab__num {
-  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em;
-  color: rgba(22, 21, 15, 0.32); padding-top: 0.15rem;
-  transition: color 0.35s var(--ease);
-}
-.cd-tab.is-active .cd-tab__num { color: var(--gold); }
-.cd-tab__body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-.cd-tab__cat {
-  font-size: 0.86rem; line-height: 1.35; color: var(--muted-light);
-  transition: color 0.35s var(--ease);
-}
-.cd-tab.is-active .cd-tab__cat { color: var(--ink); }
-.cd-tab__forum {
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em;
-  color: rgba(22, 21, 15, 0.3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.cd-rail__progress { margin-top: 1.25rem; height: 1px; background: var(--line-lighter); overflow: hidden; }
-.cd-rail__progress span {
-  display: block; height: 100%; background: var(--gold-dim);
-  transform-origin: left; transition: transform 0.6s var(--ease);
-}
-
-/* ── the file ────────────────────────────────────────────── */
-.cd-file { position: relative; min-width: 0; }
-.cd-file__head {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
-  padding-bottom: 0.9rem;
-  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.18em;
-  text-transform: uppercase; color: rgba(22, 21, 15, 0.36);
-}
-.cd-file__count b { font-weight: 400; color: var(--gold); }
-.cd-file__count i { font-style: normal; opacity: 0.45; padding: 0 0.15rem; }
-
-/* Two offset sheets behind the live page — the rest of the file, seen edge-on. */
-.cd-file__sheet {
+.mtr__panel {
   position: relative;
-  background: var(--cream-soft);
-  border: 1px solid var(--line-light);
-  box-shadow: 0 24px 60px -40px rgba(22, 21, 15, 0.55);
+  min-height: 100svh;
+  /* The plate's column is sized to the plate, not to a fraction — a fraction
+     leaves a dead gutter between the picture and the copy, because the plate
+     takes its width from its height. */
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding: clamp(3rem, 6vh, 5.5rem) var(--gutter);
+  border-top: 1px solid rgba(247, 244, 236, 0.07);
 }
-.cd-file__sheet::before,
-.cd-file__sheet::after {
-  content: ''; position: absolute; z-index: -1;
-  left: 10px; right: 10px; top: 8px; bottom: -8px;
-  background: var(--cream-soft); border: 1px solid var(--line-lighter);
-}
-.cd-file__sheet::after { left: 20px; right: 20px; top: 16px; bottom: -16px; opacity: 0.6; }
+.mtr__panel:first-of-type { border-top: none; }
+/* Alternating sides, placed rather than reordered: the plate must stay in the
+   column that is sized to it, whichever side of the panel it sits on. The
+   source order never changes, so the copy is announced before the picture. */
+.mtr__panel--flip { grid-template-columns: minmax(0, 1fr) auto; }
+.mtr__panel--flip .mtr__figure { grid-column: 2; grid-row: 1; }
+.mtr__panel--flip .mtr__body { grid-column: 1; grid-row: 1; }
 
-/* A margin rule, as on a legal pad. */
-.cd-file__margin {
-  position: absolute; top: 0; bottom: 0; left: clamp(1.5rem, 3vw, 2.4rem);
-  width: 1px; background: rgba(169, 131, 79, 0.22);
-}
-
-.cd-doc {
+/* ---- the plate ---------------------------------------------------------- */
+/* The cell shrinks to the plate rather than filling its column, so the numeral
+   — positioned against the cell — lands on the plate's own corner instead of
+   floating in the gutter beside it. */
+.mtr__figure { position: relative; display: flex; justify-self: start; }
+.mtr__panel--flip .mtr__figure { justify-self: end; }
+/* Sized by HEIGHT, not by the column. A portrait plate that takes its width
+   from the grid is taller than the screen at any usable column width, and the
+   panel stops being one-to-a-screen. Height first, width follows the aspect,
+   and the plate hugs the outer margin so the run reads as a spread. */
+.mtr__frame {
   position: relative; overflow: hidden;
-  padding: clamp(2.25rem, 4.5vw, 3.5rem) clamp(1.75rem, 4vw, 3.5rem)
-           clamp(2.25rem, 4.5vw, 3.25rem) clamp(2.75rem, 5.5vw, 4.5rem);
-  min-height: clamp(430px, 52vh, 520px);
+  height: min(76svh, 620px); aspect-ratio: 1 / 1; width: auto; max-width: 100%;
+  border-radius: clamp(10px, 1.2vw, 16px);
+  /* The clip the reveal walks open. Declared here so the panel looks right
+     before GSAP has run, and for anyone it never runs for. */
+  clip-path: inset(0% 0% 0% 0%);
+  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9);
 }
-
-/* The file number, set large and nearly invisible — depth, not decoration. */
-.cd-doc__ghost {
-  position: absolute; right: clamp(-0.5rem, 1vw, 1rem); bottom: -0.22em;
-  font-family: var(--font-serif); font-size: clamp(11rem, 22vw, 19rem); line-height: 0.75;
-  color: rgba(22, 21, 15, 0.038); pointer-events: none; user-select: none;
+.mtr__img {
+  position: absolute; inset: -8% 0;
+  width: 100%; height: 116%;
+  object-fit: cover;
+  /* Pushed most of the way to monochrome so four photographs shot on four
+     different days read as one set; the warmth comes back through the wash. */
+  filter: grayscale(0.86) contrast(1.06) brightness(0.9);
 }
-
-.cd-doc__stamp {
-  position: absolute; top: clamp(1.6rem, 3.2vw, 2.4rem); right: clamp(1.6rem, 3.2vw, 2.4rem);
-  max-width: 42%; text-align: center;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--gold-dim); box-shadow: 0 0 0 3px var(--cream-soft), 0 0 0 4px rgba(122, 102, 66, 0.35);
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--gold-dim);
+/* A warm wash, so the photographs sit in the palette instead of beside it. */
+.mtr__wash {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 10, 10, 0.08) 0%, rgba(10, 10, 10, 0) 42%, rgba(10, 10, 10, 0.5) 100%),
+    radial-gradient(90% 70% at 76% 8%, rgba(169, 131, 79, 0.24) 0%, rgba(169, 131, 79, 0) 62%);
 }
+.mtr__numeral {
+  position: absolute; z-index: 2; right: -0.06em; bottom: -0.28em;
+  font-family: var(--font-serif); font-size: clamp(6rem, 12vw, 12rem);
+  line-height: 0.72; letter-spacing: -0.04em;
+  color: var(--cream); opacity: 0.82;
+  text-shadow: 0 18px 50px rgba(0, 0, 0, 0.75);
+  user-select: none; pointer-events: none;
+}
+.mtr__panel--flip .mtr__numeral { right: auto; left: -0.06em; }
 
-.cd-doc__cat {
-  display: block; margin-bottom: 1rem; max-width: 52%;
+/* ---- the copy ----------------------------------------------------------- */
+.mtr__body {
+  display: flex; flex-direction: column; align-items: flex-start;
+  max-width: 34rem; justify-self: center; min-width: 0;
+}
+.mtr__cat {
+  display: inline-flex; align-items: center; gap: 0.65rem;
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--gold);
+  text-transform: uppercase; color: var(--gold-soft);
+  margin-bottom: clamp(1rem, 2vh, 1.6rem);
 }
-.cd-doc__title {
+.mtr__cat .icon { font-size: 1.3rem; color: var(--gold); }
+.mtr__title {
   font-family: var(--font-serif); font-weight: 400;
-  font-size: clamp(1.65rem, 2.9vw, 2.45rem); line-height: 1.14; letter-spacing: -0.018em;
-  max-width: 20ch; color: var(--ink);
-  margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: min(clamp(1.9rem, 3.4vw, 3.2rem), 7.6vh);
+  line-height: 1.06; letter-spacing: -0.02em; color: var(--cream);
 }
+.mtr__account {
+  margin-top: clamp(1.1rem, 2.4vh, 1.8rem);
+  font-size: min(clamp(0.95rem, 1.1vw, 1.1rem), 2.3vh); line-height: 1.75;
+  color: rgba(247, 244, 236, 0.66); max-width: 46ch;
+}
+.mtr__data {
+  display: grid; grid-template-columns: repeat(2, minmax(0, auto));
+  justify-content: start; gap: clamp(1.5rem, 3vw, 3rem);
+  margin-top: clamp(1.4rem, 3vh, 2.2rem);
+  padding-top: clamp(1.2rem, 2.4vh, 1.8rem);
+  border-top: 1px solid rgba(247, 244, 236, 0.12);
+  width: 100%;
+}
+.mtr__data dt {
+  font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(247, 244, 236, 0.34); margin-bottom: 0.5rem;
+}
+.mtr__data dd { font-size: clamp(0.92rem, 1.05vw, 1.02rem); color: rgba(247, 244, 236, 0.86); }
+/* The result is the point of the entry, so it is the one value in gold. */
+.mtr__data-outcome dd { color: var(--gold-soft); }
 
-.cd-doc__meta {
-  display: flex; flex-wrap: wrap; gap: 1.25rem clamp(1.75rem, 4vw, 3.25rem);
-  padding: 1.15rem 0; margin-bottom: clamp(1.5rem, 3vw, 2rem);
-  border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light);
+.mtr__withheld {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-top: clamp(1rem, 2.2vh, 1.6rem);
+  font-family: var(--font-mono); font-size: 0.54rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(247, 244, 236, 0.3);
 }
-.cd-doc__meta dt {
-  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem;
-}
-.cd-doc__meta dd { font-size: 0.92rem; line-height: 1.45; color: var(--ink); }
+.mtr__withheld i { display: block; width: 2.5rem; height: 1px; background: rgba(247, 244, 236, 0.2); flex: none; }
 
-.cd-doc__summary { font-size: 1.02rem; line-height: 1.78; color: var(--muted-light); max-width: 58ch; }
+.mtr__body .link-arrow { margin-top: clamp(1.1rem, 2.4vh, 1.8rem); font-size: 0.85rem; }
 
-.cd-doc__withheld { display: flex; align-items: center; gap: 1rem; margin-top: clamp(1.75rem, 3.5vw, 2.5rem); flex-wrap: wrap; }
-.cd-doc__redacted { display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto; }
-.cd-doc__redacted i { display: block; height: 6px; background: rgba(22, 21, 15, 0.16); }
-.cd-doc__redacted i:nth-child(1) { width: 96px; }
-.cd-doc__redacted i:nth-child(2) { width: 68px; }
-.cd-doc__redacted i:nth-child(3) { width: 42px; }
-.cd-doc__withheld-note {
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em;
-  text-transform: uppercase; color: rgba(22, 21, 15, 0.34);
-}
+/* ---- the stage ---------------------------------------------------------- */
+/* Everything that makes the run a deck rather than a list. Held inside the
+   query so that below it — and under reduced motion — the panels are still
+   four ordinary sections in normal flow.
 
-.cd-doc__link { margin-top: clamp(1.75rem, 3.5vw, 2.25rem); position: relative; z-index: 2; }
-
-/* ── step through the file ───────────────────────────────── */
-.cd-file__nav {
-  display: flex; justify-content: space-between; gap: 1rem;
-  margin-top: clamp(1.5rem, 3vw, 2.25rem);
-}
-.cd-step {
-  display: flex; align-items: center; gap: 0.85rem; background: transparent; text-align: left;
-  color: var(--muted-light); transition: color 0.35s var(--ease);
-}
-.cd-step--next { text-align: right; }
-.cd-step:hover { color: var(--ink); }
-.cd-step i { font-style: normal; color: var(--gold); transition: transform 0.4s var(--ease); }
-.cd-step:hover i { transform: translateX(-4px); }
-.cd-step--next:hover i { transform: translateX(4px); }
-.cd-step span { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.86rem; }
-.cd-step b {
-  font-family: var(--font-mono); font-weight: 400; font-size: 0.58rem;
-  letter-spacing: 0.18em; text-transform: uppercase; color: rgba(22, 21, 15, 0.34);
+   The track is the section's own height: the stage sticks for as long as the
+   section is taller than the screen, which is what gives the timeline its
+   scroll to run against. `--mtr-count` is set on the element by the section,
+   so adding a fifth matter lengthens the track without touching this file. */
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .mtr { height: calc((var(--mtr-count, 4) + 0.4) * 100svh); }
+  .mtr__stage {
+    position: sticky; top: 0;
+    height: 100svh; overflow: hidden;
+  }
+  .mtr__deck { position: absolute; inset: 0; }
+  /* The matters are stacked, not sequenced: each one owns the whole stage and
+     the timeline decides which is uncovered. */
+  .mtr__layer {
+    position: absolute; inset: 0;
+    min-height: 0; height: 100%;
+    border-top: none;
+  }
+  .mtr__frame, .mtr__body { will-change: transform, opacity; }
+  /* The rail is held against the stage rather than the page, so it cannot
+     drift out of the deck at either end of the track. */
+  .mtr__rail {
+    position: absolute; top: 50%; left: 0; float: none;
+    height: auto; z-index: 4;
+  }
 }
 
 .lc-foot-note {
   margin-top: clamp(3rem, 6vw, 4.5rem); padding-top: 1.5rem;
   border-top: 1px solid var(--line-lighter);
-  max-width: 78ch; font-size: 0.78rem; line-height: 1.7; font-style: italic;
+  max-width: 78ch; font-size: 0.78rem; line-height: 1.7;
   color: rgba(22, 21, 15, 0.42);
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (max-width: 1024px) {
-  .cd { grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); }
-  .cd-doc__cat, .cd-doc__stamp { max-width: 46%; }
+@media (max-width: 1180px) {
+  .mtr__panel { gap: clamp(1.5rem, 4vw, 3rem); }
+  .mtr__body { max-width: 30rem; }
 }
 
-@media (max-width: 860px) {
-  /* Below the cinematic breakpoint the hero releases: no sticky hand-off,
-     the two sections simply follow one another. */
+/* A short viewport loses the ornament before it loses a word: the numeral
+   goes, then the panel stops insisting on a full screen. */
+@media (max-height: 720px) {
+  .mtr__numeral { font-size: clamp(4.5rem, 9vw, 8rem); }
+  .mtr__panel { min-height: 0; padding-block: clamp(3rem, 7vh, 5rem); }
+}
+
+/* Below the sequence's breakpoint — and whenever motion is not wanted — the
+   panels stack: photograph above copy, nothing pinned, nothing scrubbed, and
+   the rail dropped because there is no longer a run for it to count. */
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
   .lc-hero { position: relative; height: auto; min-height: 92svh; }
   .lc-hero__cue { display: none; }
   .lc-hero__grid { background-size: calc(100% / 3) 100%; }
@@ -333,25 +364,29 @@
   .lc-head { grid-template-columns: 1fr; align-items: start; }
   .lc-head__note { max-width: 60ch; }
 
-  .cd { grid-template-columns: 1fr; gap: 2rem; }
-  .cd-rail { position: static; }
-  .cd-rail__list { flex-direction: row; overflow-x: auto; border-top: none; border-bottom: 1px solid var(--line-light); scrollbar-width: none; }
-  .cd-rail__list::-webkit-scrollbar { display: none; }
-  .cd-tab { flex: 0 0 auto; min-width: 190px; border-bottom: none; padding-left: 1.1rem !important; }
-  .cd-tab__marker { left: 0; right: 0; top: auto; bottom: -1px; width: auto; height: 2px; }
-  .cd-file__sheet::before, .cd-file__sheet::after { display: none; }
-  .cd-doc__stamp { position: static; display: inline-block; max-width: none; margin-bottom: 1.25rem; }
-  .cd-doc__cat { max-width: none; }
-  .cd-doc { min-height: 0; }
-  .cd-doc__ghost { font-size: 9rem; }
-}
-
-@media (max-width: 560px) {
-  .cd-file__nav { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .cd-step--next { flex-direction: row-reverse; text-align: left; }
+  .mtr__rail { display: none; }
+  .mtr__panel,
+  .mtr__panel--flip {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    gap: clamp(1.75rem, 5vw, 2.5rem);
+    padding-block: clamp(3rem, 8vw, 4.5rem);
+  }
+  .mtr__panel--flip .mtr__figure { order: 0; }
+  .mtr__panel--flip .mtr__body { order: 0; }
+  .mtr__frame { height: auto; aspect-ratio: 3 / 2; width: 100%; margin: 0; clip-path: none; }
+  .mtr__numeral,
+  .mtr__panel--flip .mtr__numeral {
+    right: 0.4rem; left: auto; bottom: -0.2em;
+    font-size: clamp(4rem, 16vw, 7rem);
+  }
+  .mtr__body { max-width: none; justify-self: stretch; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lc-hero { position: relative; height: auto; min-height: 92svh; }
   .lc-hero__cue i::after { animation: none; opacity: 0; }
+  .mtr__tick { transition: none; }
+  /* The reveal never runs, so the plate must already be uncovered. */
+  .mtr__frame { clip-path: none; }
+  .mtr__img { position: static; width: 100%; height: 100%; inset: auto; }
 }

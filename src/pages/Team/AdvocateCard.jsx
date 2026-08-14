@@ -8,7 +8,6 @@ export default function AdvocateCard({
   advocate,
   large = false,
   delay = 0,
-  index = 0,
   open,
   onToggle,
 }) {
@@ -32,7 +31,6 @@ export default function AdvocateCard({
       transition={{ duration: 0.85, delay, ease: EASE }}
     >
       <div className="adv-card__photo">
-        <span className="adv-card__index">{String(index + 1).padStart(2, '0')}</span>
         <div className="adv-card__photo-inner">
           {photo ? (
             <img className="adv-card__img" src={photo} alt={a.name} loading="lazy" />

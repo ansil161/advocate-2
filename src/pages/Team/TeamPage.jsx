@@ -2,8 +2,8 @@ import { useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Layout from '../../components/shell/Layout.jsx';
-import ChapterSpine from '../../components/shell/ChapterSpine.jsx';
 import Consult from '../../components/shell/Consult.jsx';
+import Icon, { PHILOSOPHY_ICONS } from '../../components/ui/Icon.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import AdvocateCard from './AdvocateCard.jsx';
@@ -14,10 +14,9 @@ import ExpertiseScroller from './sections/ExpertiseScroller.jsx';
 import { team } from '../../data/team.js';
 import { philosophy } from '../../data/firm.js';
 import { practiceAreas } from '../../data/practiceAreas.js';
+import { scrollToHash } from '../../lib/useLenis.js';
 import cultureImg from '../../assets/img/bench-corridor.webp';
 import './Team.css';
-
-const CHAPTERS = ['t-arrival', 't-bench', 't-standard', 't-culture', 't-expertise'];
 
 export default function TeamPage() {
   const featured = team.filter(t => t.featured);
@@ -36,12 +35,18 @@ export default function TeamPage() {
     setOpenSlug(cur => (cur === slug ? null : slug));
   }, []);
 
+  // Picking someone out of the hero lineup opens their card on the bench and
+  // takes the page there. Lenis owns the scroll position, so this has to go
+  // through it — a bare scrollIntoView is written over on the next frame.
+  const openFromLineup = useCallback(slug => {
+    setOpenSlug(slug);
+    scrollToHash('#t-bench');
+  }, []);
+
   return (
     <Layout navTheme="dark">
-      <ChapterSpine sectionIds={CHAPTERS} dark />
-
       <div className="t-stackRoot">
-        <TeamArrival />
+        <TeamArrival onSelect={openFromLineup} />
 
         <StackSection id="t-bench" className="t-panel t-panel--cream" depth={1}>
           <div className="container t-bench">
@@ -50,11 +55,10 @@ export default function TeamPage() {
               <h2 className="h2"><SplitText text="Who you will actually be sitting across from." /></h2>
             </div>
             <div className="t-bench__featured">
-              {featured.map((a, i) => (
+              {featured.map(a => (
                 <AdvocateCard
                   advocate={a}
                   large
-                  index={i}
                   key={a.slug}
                   open={openSlug === a.slug}
                   onToggle={toggleCard}
@@ -65,7 +69,6 @@ export default function TeamPage() {
               {rest.map((a, i) => (
                 <AdvocateCard
                   advocate={a}
-                  index={featured.length + i}
                   delay={(i % 3) * 0.06}
                   key={a.slug}
                   open={openSlug === a.slug}
@@ -85,14 +88,14 @@ export default function TeamPage() {
             <img src={cultureImg} alt="" loading="lazy" />
           </div>
           <div className="container t-culture__grid">
-            <span className="chapter-label"><b>Culture</b></span>
+            <span className="chapter-label"><Icon name="hand" /> <b>Culture</b></span>
             <div>
               <h2 className="h2"><SplitText text={philosophy.title} /></h2>
               <Reveal as="p" className="lede">{philosophy.statement}</Reveal>
               <div className="t-culture__points">
                 {philosophy.points.map((pt, i) => (
                   <Reveal as="div" className="t-culture__point" key={pt.title} delay={i * 0.08}>
-                    <span className="t-culture__point-num">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="t-culture__point-num"><Icon name={PHILOSOPHY_ICONS[i]} /></span>
                     <h4>{pt.title}</h4>
                     <p>{pt.body}</p>
                   </Reveal>
@@ -108,7 +111,6 @@ export default function TeamPage() {
           <div className="container t-expertise__head">
             <span className="eyebrow eyebrow--light"><SplitText text="Expertise Map" /></span>
             <h2 className="h2 h2--light"><SplitText text="Twelve domains, one bench." /></h2>
-            <span className="t-expertise__cue">Scroll</span>
           </div>
           <ExpertiseScroller items={practiceAreas} />
         </StackSection>

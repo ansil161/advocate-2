@@ -1,4 +1,8 @@
 // Team content sourced verbatim from SLA Advocates firm briefs.
+//
+// `photo` points at a background-free cut-out in public/team/ (see the README
+// there for the spec). It is optional: CounselCard falls back to the monogram
+// composition for anyone without one, or whose file fails to load.
 
 export const team = [
   {
@@ -10,6 +14,7 @@ export const team = [
     cases: '2000+ Cases',
     qualification: 'M.A., B.A., LLB — Osmania University',
     enrollment: 'Bar Council of Telangana — TS/286/1996',
+    photo: '/team/sridhar-lendalay.webp',
     bio: 'Torch bearer of SLA Advocates. Celebrated for masterful High Court cross-examination, landmark recoveries, and championing under-privileged clients with compassion and integrity.',
     longBio: 'Sridhar Lendalay stands as Senior Advocate and Torch Bearer of SLA Advocates, commanding over thirty years of distinguished legal mastery with comprehensive litigation and advisory across civil, criminal, constitutional, corporate, banking, tax, labour, IP, real estate, family, and consumer laws. Enrolled with the Bar Council of Telangana after earning his LLB from Osmania University, he forged his expertise first as a junior under Rajeev Indani, then through pivotal association with Damodar Mundra from 1997, leading to independent practice in 2005 and founding the firm in 2013. Celebrated for masterful High Court cross-examinations that extract critical arguments, he delivers strategic oversight and landmark victories with commanding courtroom presence, while providing practical solutions infused with a human touch.',
     featured: true,
@@ -23,6 +28,7 @@ export const team = [
     cases: '1000+ Cases',
     qualification: 'B.Com., LLB, LLM — Osmania University',
     enrollment: 'Bar Council of Telangana — TS/1124/2008',
+    photo: '/team/palanati-lakshman.webp',
     bio: 'Cornerstone of our litigation strength since 2012 — civil, criminal and constitutional matters across Telangana and Andhra Pradesh, known for commanding courtroom presence.',
     longBio: 'Palanati Lakshman, Senior Advocate at SLA Advocates, commands nineteen-plus years of authoritative practice across high-stakes civil, criminal, and constitutional matters in Telangana and Andhra Pradesh courts. He launched his distinguished career at Rao and Reddy Associates in 2008 before joining SLA Advocates in 2012 as a cornerstone of the litigation strength. An expert in civil litigations spanning property disputes, commercial recovery, injunctions and contracts, as well as criminal practice including trials, bail applications, evidence handling and appeals, he is known for meticulous preparation and pragmatic solutions that blend rigorous legal analysis with client-centric advocacy.',
     featured: true,

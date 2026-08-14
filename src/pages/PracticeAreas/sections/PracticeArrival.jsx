@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Icon, { practiceIcon } from '../../../components/ui/Icon.jsx';
 import Reveal from '../../../components/ui/Reveal.jsx';
 import SplitText from '../../../components/ui/SplitText.jsx';
 import heroImg from '../../../assets/img/hero-courthouse.webp';
@@ -53,7 +54,7 @@ export default function PracticeArrival({ practice }) {
       </div>
       <div className="container pd-arrival__content" ref={contentRef}>
         <span className="chapter-label chapter-label--light">
-          <b>{practice.n}</b> / 12 — Practice Areas
+          <Icon name={practiceIcon(practice.slug)} /> Practice Areas
         </span>
         <h1 className="h1 h2--light">
           <SplitText text={practice.title} />

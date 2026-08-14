@@ -1,139 +1,244 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import SplitText from '../../../components/ui/SplitText.jsx';
 import { team } from '../../../data/team.js';
-import { photoFor } from '../lib/teamPhotos.js';
+import { philosophy } from '../../../data/firm.js';
+import { figureFor, figureVars } from '../lib/lineup.js';
 
 const EASE = [0.16, 1, 0.3, 1];
 
-// Four columns of the real bench, dealt round-robin so no column repeats a
-// face and no two neighbours start on the same one.
-const COLUMN_COUNT = 4;
-const PER_COLUMN = 4;
-const COLUMNS = Array.from({ length: COLUMN_COUNT }, (_, c) =>
-  Array.from({ length: PER_COLUMN }, (_, r) => team[(c * PER_COLUMN + r) % team.length])
-);
-
-// Alternating drift so the wall breathes against itself rather than sliding
-// as one block. Percentages are of each column's own height.
-const DRIFT = [
-  ['1%', '-13%'],
-  ['-12%', '2%'],
-  ['3%', '-16%'],
-  ['-9%', '4%'],
-];
+const BENCH = team.filter(a => figureFor(a.slug));
 
 /**
- * Movement I — "The Wall".
+ * Movement I — "The Lineup".
  *
- * The bench itself is the hero: eleven real portraits in counter-drifting
- * columns behind a statement that holds completely still. The motion belongs
- * to the photographs, never to the sentence — the line resolves once and stays
- * resolved, then hands off by fading as the wall darkens.
+ * The whole bench stands in one row on a black stage, heads on a common line,
+ * reflected in the floor beneath them. At rest the row is dark and even;
+ * pointing at an advocate lights them, sinks everyone else, and names them on
+ * a plate at chest height.
+ *
+ * Laid out the way the reference is: a heading and a hover cue, then the row,
+ * then a single pull quote. The card, the arrows and the stage colours are all
+ * taken from the reference's own CSS rather than eyeballed.
+ *
+ * Where this departs from it is in construction. The reference is one flat
+ * group photograph with a hand-traced clip-path per person, used both as the
+ * hit area and to mask in a brighter copy of the same photo on hover. The
+ * bench was never photographed together, so this is eleven separate cut-outs
+ * instead — which is more work to align, but lets each figure be lit, lifted
+ * and dimmed independently.
+ *
+ * The figures are sized to stand tall rather than to all fit, so the row runs
+ * past the viewport and the arrows page through it — again as the reference
+ * does. They render twice: once upright, once as the reflection. The second
+ * pass is a copy of the same row, mirrored about the floor line, so it stays
+ * in register with the first for free.
  */
-export default function TeamArrival() {
-  const wrapRef = useRef(null);
+export default function TeamArrival({ onSelect }) {
+  const [active, setActive] = useState(null);
+  const [edges, setEdges] = useState({ start: true, end: true });
+  const viewportRef = useRef(null);
   const reduce = useReducedMotion();
 
-  const { scrollYProgress } = useScroll({
-    target: wrapRef,
-    offset: ['start start', 'end end'],
-  });
+  const syncEdges = useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEdges({ start: el.scrollLeft <= 2, end: el.scrollLeft >= max - 2 });
+  }, []);
 
-  // Hooks can't be called in a loop body conditionally, so all four drifts are
-  // declared up front and picked by index below.
-  const y0 = useTransform(scrollYProgress, [0, 1], DRIFT[0]);
-  const y1 = useTransform(scrollYProgress, [0, 1], DRIFT[1]);
-  const y2 = useTransform(scrollYProgress, [0, 1], DRIFT[2]);
-  const y3 = useTransform(scrollYProgress, [0, 1], DRIFT[3]);
-  const columnY = [y0, y1, y2, y3];
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    syncEdges();
+    // The arrows depend on how many figures fit, which changes with the
+    // viewport — and `--head` is a clamp(), so a resize restyles the row too.
+    const ro = new ResizeObserver(syncEdges);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [syncEdges]);
 
-  const wallScale = useTransform(scrollYProgress, [0, 1], [1.06, 1]);
-  const scrimOpacity = useTransform(scrollYProgress, [0, 0.55, 1], [0.9, 0.94, 1]);
+  const nudge = dir => {
+    const el = viewportRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.66, behavior: reduce ? 'auto' : 'smooth' });
+  };
 
-  const contentOpacity = useTransform(scrollYProgress, [0.58, 0.86], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.86], ['0px', '-70px']);
-  const cueOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  // With a pointer, hover has already named the figure by the time it is
+  // clicked, so the click opens the profile. With touch there is no hover, so
+  // the first tap names and the second opens.
+  const choose = i => {
+    if (active !== i) setActive(i);
+    else onSelect?.(BENCH[i].slug);
+  };
 
-  const wall = (
-    <div className="t-arrival__wall" aria-hidden="true">
-      {COLUMNS.map((col, c) => (
-        <motion.div
-          className="t-arrival__col"
-          key={c}
-          style={reduce ? undefined : { y: columnY[c] }}
+  const row = mirror => (
+    <div
+      className={`t-lineup__row t-lineup__row--${mirror ? 'mirror' : 'figures'}`}
+      aria-hidden="true"
+    >
+      {BENCH.map((a, i) => (
+        <div
+          className={`t-lineup__slot${active === i ? ' is-active' : ''}`}
+          key={a.slug}
+          style={figureVars(a.slug)}
         >
-          {col.map((person, r) => (
-            <div className="t-arrival__tile" key={`${c}-${r}`}>
-              <img src={photoFor(person.slug)} alt="" loading={c < 2 ? 'eager' : 'lazy'} />
-            </div>
-          ))}
-        </motion.div>
+          {/* Nothing here is lazy, not even the figures that start off-screen
+              on a narrow viewport: they sit in a horizontal scroller, and a
+              browser that skips one at first layout does not reliably come
+              back for it when a resize brings it into view — which leaves a
+              hole in the row. Eleven cut-outs is ~500 KB, and they are the
+              hero. */}
+          <img
+            className="t-lineup__fig"
+            src={figureFor(a.slug).src}
+            alt=""
+            draggable="false"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
       ))}
     </div>
   );
 
-  const content = (
-    <>
-      <span className="eyebrow eyebrow--light t-arrival__eyebrow">
-        The Team — Eleven Advocates
-      </span>
-      <motion.span
-        className="t-arrival__rule"
-        aria-hidden="true"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
-      />
-      <h1 className="h1 h2--light t-arrival__headline">
-        <SplitText text="A case is only as good" as="div" delay={0.35} />
-        <SplitText text="as the people carrying it." as="div" delay={0.5} />
-      </h1>
-      <motion.p
-        className="t-arrival__sub"
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 1.05, ease: EASE }}
-      >
-        Seventy-five-plus years of courtroom experience across eleven advocates —
-        and one senior advocate&rsquo;s signature on every file that leaves the office.
-      </motion.p>
-    </>
-  );
-
-  if (reduce) {
-    return (
-      <section className="t-arrival t-arrival--static" id="t-arrival">
-        {wall}
-        <div className="t-arrival__scrim" style={{ opacity: 0.72 }} aria-hidden="true" />
-        <div className="container t-arrival__content">{content}</div>
-      </section>
-    );
-  }
-
   return (
-    <div className="t-arrival__wrap" ref={wrapRef} id="t-arrival">
-      <section className="t-arrival">
-        <motion.div className="t-arrival__wallWrap" style={{ scale: wallScale }}>
-          {wall}
-        </motion.div>
-        <motion.div
-          className="t-arrival__scrim"
-          style={{ opacity: scrimOpacity }}
+    <section className="t-lineup" id="t-arrival">
+      <div className="t-lineup__stars" aria-hidden="true" />
+      <div className="t-lineup__glow" aria-hidden="true" />
+
+      <div className="container t-lineup__head">
+        <span className="eyebrow eyebrow--light">The Team — Eleven Advocates</span>
+        <motion.span
+          className="t-lineup__rule"
           aria-hidden="true"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
         />
-
-        <motion.div
-          className="container t-arrival__content"
-          style={{ opacity: contentOpacity, y: contentY }}
+        <h1 className="h1 h2--light t-lineup__headline">
+          <SplitText text="A case is only as good" as="div" delay={0.35} />
+          <SplitText text="as the people carrying it." as="div" delay={0.5} />
+        </h1>
+        <motion.p
+          className="t-lineup__sub"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 1.05, ease: EASE }}
         >
-          {content}
-        </motion.div>
+          Hover over the bench to meet them. Seventy-five-plus years of courtroom
+          experience across eleven advocates — and one senior advocate&rsquo;s
+          signature on every file that leaves the office.
+        </motion.p>
+      </div>
 
-        <motion.span className="t-arrival__cue" style={{ opacity: cueOpacity }} aria-hidden="true">
-          Scroll
-        </motion.span>
-      </section>
-    </div>
+      {/* Laid out as the reference lays it out: a 1200px rail with the row in
+          the middle and a button either side of it, rather than buttons
+          floating over the photograph. */}
+      <motion.div
+        className="t-lineup__rail"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, ease: EASE }}
+      >
+        <button
+          type="button"
+          className="t-lineup__nav t-lineup__nav--prev"
+          onClick={() => nudge(-1)}
+          disabled={edges.start}
+          aria-label="Previous advocates"
+        >
+          {/* Lucide chevron-left, the same icon and geometry the reference
+              uses, at its md size. */}
+          <svg
+            className="t-lineup__chev"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+
+        <div
+          className={`t-lineup__stage${active !== null ? ' is-picking' : ''}`}
+          onMouseLeave={() => setActive(null)}
+        >
+          <div className="t-lineup__viewport" ref={viewportRef} onScroll={syncEdges}>
+            <div className="t-lineup__track">
+              {row(false)}
+              {row(true)}
+
+              {/* Names and hit targets ride above both passes so a plate is
+                  never occluded by the next advocate along. */}
+              <div className="t-lineup__row t-lineup__row--hit">
+                {BENCH.map((a, i) => (
+                  <div
+                    className={`t-lineup__slot${active === i ? ' is-active' : ''}`}
+                    key={a.slug}
+                    style={figureVars(a.slug)}
+                  >
+                    <button
+                      type="button"
+                      className="t-lineup__hit"
+                      onMouseEnter={() => setActive(i)}
+                      onFocus={() => setActive(i)}
+                      onClick={() => choose(i)}
+                    >
+                      <span className="t-lineup__label">{a.name} — {a.role}</span>
+                    </button>
+                    <span className="t-lineup__plate">
+                      <span className="t-lineup__name">{a.name}</span>
+                      <span className="t-lineup__role">{a.role}</span>
+                      <span className="t-lineup__go">View profile</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <span className="t-lineup__edge t-lineup__edge--left" aria-hidden="true" />
+          <span className="t-lineup__edge t-lineup__edge--right" aria-hidden="true" />
+        </div>
+
+        <button
+          type="button"
+          className="t-lineup__nav t-lineup__nav--next"
+          onClick={() => nudge(1)}
+          disabled={edges.end}
+          aria-label="More advocates"
+        >
+          <svg
+            className="t-lineup__chev"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+      </motion.div>
+
+      <div className="container">
+        <motion.blockquote
+          className="t-lineup__quote"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.9, ease: EASE }}
+        >
+          <p>&ldquo;{philosophy.statement}&rdquo;</p>
+        </motion.blockquote>
+      </div>
+    </section>
   );
 }

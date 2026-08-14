@@ -1,0 +1,57 @@
+/* ============================================================
+   CONTACT FORM (shared — CTA bands + Contact page)
+   ============================================================ */
+.cform { display: flex; flex-direction: column; }
+.cform__fields { display: flex; flex-direction: column; gap: 1.5rem; }
+.cform__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.cform label { display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.cform input, .cform select, .cform textarea {
+  font-family: var(--font-sans); font-size: 0.95rem; padding: 0.85rem 1rem;
+  border: 1px solid var(--line-light); border-radius: var(--radius); resize: vertical;
+  transition: border-color 0.3s var(--ease);
+}
+.cform input:focus, .cform select:focus, .cform textarea:focus { outline: none; border-color: var(--gold); }
+.cform__submit { width: 100%; }
+.cform__head { margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--line-light); }
+.cform__heading { display: block; font-family: var(--font-serif); font-size: clamp(1.5rem, 2.6vw, 1.9rem); line-height: 1; }
+.cform__note { margin-top: 0.6rem; font-size: 0.85rem; line-height: 1.5; }
+.cform__alt { margin-top: 1.5rem; font-size: 0.82rem; text-align: center; }
+.cform__alt a { border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+
+/* — light: on cream page sections — */
+.cform--light { background: var(--cream-soft); border: 1px solid var(--line-light); padding: clamp(2rem, 4vw, 2.75rem); }
+.cform--light label { color: var(--muted-light); }
+.cform--light input, .cform--light select, .cform--light textarea { background: var(--white); color: var(--ink); }
+.cform--light .cform__heading { color: var(--ink); }
+.cform--light .cform__note, .cform--light .cform__alt { color: var(--muted-light); }
+.cform--light .cform__alt a { color: var(--ink); border-bottom-color: var(--line-light); }
+.cform--light .cform__alt a:hover { border-bottom-color: var(--ink); }
+
+/* — dark: inside the CTA bands — */
+.cform--dark {
+  position: relative; background: var(--black-card); border: 1px solid var(--line-dark);
+  padding: clamp(2rem, 3.5vw, 2.75rem); overflow: hidden; text-align: left;
+}
+.cform--dark::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold-soft) 50%, var(--gold-dim));
+}
+.cform--dark .cform__head { border-bottom-color: var(--line-darker); }
+.cform--dark .cform__heading { color: var(--cream); }
+.cform--dark .cform__note { color: var(--muted-dark); }
+.cform--dark label { color: var(--gold-soft); }
+.cform--dark input, .cform--dark select, .cform--dark textarea {
+  background: rgba(247, 244, 236, 0.04); border-color: var(--line-darker);
+  color: var(--cream); color-scheme: dark;
+}
+.cform--dark input::placeholder, .cform--dark textarea::placeholder { color: rgba(247, 244, 236, 0.32); }
+.cform--dark .cform__alt { color: var(--muted-dark); }
+.cform--dark .cform__alt a { color: var(--gold-soft); }
+.cform--dark .cform__alt a:hover { border-bottom-color: var(--gold-soft); }
+
+@media (max-width: 720px) {
+  .cform__row { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cform input, .cform select, .cform textarea, .cform__alt a { transition: none; }
+}

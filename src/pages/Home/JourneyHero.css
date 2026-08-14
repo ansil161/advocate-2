@@ -68,7 +68,7 @@
   margin: 1.1rem 0 1.2rem;
   max-width: 14em;
 }
-.jhero__title em { font-style: italic; color: var(--gold-soft); display: block; }
+.jhero__title em { color: var(--gold-soft); display: block; }
 .jhero__intro-sub {
   max-width: 460px;
   font-size: 1.04rem;
@@ -122,7 +122,7 @@
   pointer-events: none;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
 }
-.jhero__caption span { color: var(--gold-soft); font-style: italic; }
+.jhero__caption span { color: var(--gold-soft); }
 
 /* ---- shared dark-room ground ---- */
 .jhero__ground { position: absolute; inset: 0; }
@@ -250,7 +250,7 @@
   color: var(--cream);
   margin: 1.1rem 0 1.9rem;
 }
-.jhero__final-title em { font-style: italic; color: var(--gold-soft); }
+.jhero__final-title em { color: var(--gold-soft); }
 .jhero__final-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
 .jhero__btn-line { border-color: var(--line-dark); color: var(--cream); }
 .jhero__btn-line::before { background: var(--gold); }

@@ -8,7 +8,6 @@ import { milestones } from '../../../data/awards.js';
 // dates reads as a sequence of filed pages rather than a ladder.
 export default function Milestones() {
   const rootRef = useRef(null);
-  const total = String(milestones.length).padStart(2, '0');
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -25,7 +24,7 @@ export default function Milestones() {
             scrollTrigger: { trigger: entry, start: 'top 86%', once: true },
           });
           settle(entry.querySelector('.awm__year'), { trigger: entry, start: 'top 78%' });
-          rise(entry.querySelectorAll('.awm__index, .awm__entry-title, .awm__entry-body'), {
+          rise(entry.querySelectorAll('.awm__entry-title, .awm__entry-body'), {
             trigger: entry,
             start: 'top 78%',
             y: 26,
@@ -54,9 +53,6 @@ export default function Milestones() {
           {milestones.map((m, i) => (
             <li className={`awm__entry awm__entry--${i % 2 === 0 ? 'a' : 'b'}`} key={m.year}>
               <span className="awm__entry-rule" aria-hidden="true" />
-              <span className="awm__index">
-                {String(i + 1).padStart(2, '0')} / {total}
-              </span>
               {/* Ranged years ("2012–2015") are set smaller so no entry can
                   overflow its column at the largest display sizes. */}
               <span className={`awm__year${m.year.length > 5 ? ' awm__year--long' : ''}`}>{m.year}</span>

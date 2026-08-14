@@ -13,7 +13,7 @@
 
 .pa-card { display: block; background: var(--cream-soft); padding: 2.5rem 2.1rem; transition: background 0.35s var(--ease), transform 0.35s var(--ease); }
 .pa-card:hover { background: var(--white); transform: translateY(-3px); }
-.pa-card__num { font-family: var(--font-serif); font-size: 0.9rem; color: var(--gold); display: block; margin-bottom: 1.5rem; }
+.pa-card__num { font-size: 1.7rem; color: var(--gold); display: block; margin-bottom: 1.5rem; }
 .pa-card__title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; margin-bottom: 0.9rem; }
 .pa-card__desc { font-size: 0.9rem; color: var(--muted-light); line-height: 1.6; margin-bottom: 1.5rem; }
 .pa-card__link { font-size: 0.8rem; font-weight: 600; color: var(--ink); display: inline-flex; gap: 0.4rem; }
@@ -45,10 +45,10 @@
    ------------------------------------------------------------
    One sticky stage inside one tall track. The track's height is the length of
    the camera move; nothing here is a section boundary. Layer order, back to
-   front: the institution, the chamber in plan, the case file, the sheet
+   front: the institution, the case file, the sheet
    furniture, the typography, and the daylight that ends the take.
    ============================================================ */
-.pcin { position: relative; height: 480vh; background: var(--black); z-index: 2; }
+.pcin { position: relative; height: 620vh; background: var(--black); z-index: 2; }
 /* Not laid out — these only tell the chapter spine where each chapter holds.
    `top` and `height` are set per anchor from the component. */
 .pcin__anchor { position: absolute; left: 0; width: 1px; pointer-events: none; }
@@ -71,34 +71,6 @@
   background:
     radial-gradient(ellipse 86% 74% at 52% 40%, rgba(10,10,10,0) 0%, rgba(10,10,10,0.2) 62%, rgba(10,10,10,0.66) 100%),
     linear-gradient(180deg, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0) 24%, rgba(10,10,10,0.34) 56%, rgba(10,10,10,0.88) 100%);
-}
-
-/* ---- the chamber, in plan ----------------------------------------------- */
-/* Centred by inset + `margin: auto`, never by a translate. The timeline owns
-   `transform` on this element, and GSAP folds a standalone `translate` into its
-   own matrix on the first tween — which silently drops half of the centring.
-   Same reasoning on every plate and label below. */
-.pcin__plan {
-  position: absolute; inset: 0 0 30% 0; margin: auto;
-  width: min(58vw, 40vh * 200 / 142, 820px); height: min(41vw, 40vh, 582px);
-  z-index: 1; overflow: visible; will-change: transform, opacity;
-}
-.pcin__plan-svg { width: 100%; height: 100%; overflow: visible; }
-/* Struck a little harder than a background texture would be. Between four bays
-   only about a third of the drawing is ever unobscured, and at the old weights
-   that third read as noise on the plate rather than as a room. */
-.pcin__plan-path { fill: none; stroke: var(--cream); vector-effect: non-scaling-stroke; }
-.pcin__plan-path--room { stroke-width: 1; opacity: 0.4; }
-.pcin__plan-path--key { stroke-width: 1.5; stroke: var(--gold-soft); opacity: 0.78; }
-.pcin__plan-path--thin { stroke-width: 1; opacity: 0.32; }
-.pcin__plan-path--axis { stroke-width: 1; opacity: 0.4; stroke-dasharray: 5 4; stroke: var(--gold-dim); }
-/* Below the drawing, in the empty band between the feet of the bays and the top
-   of the chapter type — the one place on the stage nothing else crosses. */
-.pcin__plan-cap {
-  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-  margin-top: 0.75rem; white-space: nowrap;
-  font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(247,244,236,0.42);
 }
 
 /* ---- the datum the colonnade stands on ---------------------------------- */
@@ -146,7 +118,8 @@
   display: flex; align-items: center; gap: 0.7rem;
   will-change: transform, opacity;
 }
-.pcin__head b { color: var(--gold); font-weight: 400; }
+/* The mark that replaced the head's index numeral — a filed tick, not a count. */
+.pcin__head b { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex: none; }
 
 .pcin__plate--cover { display: flex; flex-direction: column; padding: 1.5rem 1.35rem; }
 .pcin__plate-mark { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(22,21,15,0.5); }
@@ -199,13 +172,14 @@
   color: var(--gold-soft);
 }
 .pcin__cue::before { content: ''; width: clamp(1.5rem, 3vw, 2.6rem); height: 1px; background: var(--gold-dim); }
+.pcin__cue .icon { font-size: 1.15rem; }
 
 .pcin__title {
   font-family: var(--font-serif); font-weight: 400;
   font-size: clamp(2.6rem, 6.6vw, 5.8rem); line-height: 0.94; letter-spacing: -0.015em;
   color: var(--cream);
 }
-.pcin__title i { font-style: italic; color: var(--gold-soft); }
+.pcin__title i { color: var(--gold-soft); }
 
 /* The plain-language gloss under each chapter title. Quiet enough that the
    serif still leads, loud enough that it is never skipped. */
@@ -256,12 +230,12 @@
 }
 .pcin__forum-index { display: flex; flex-direction: column; gap: 0.15rem; }
 .pcin__forum-index li {
-  display: flex; align-items: baseline; gap: 0.85rem;
+  display: flex; align-items: center; gap: 0.85rem;
   padding: 0.55rem 0; border-top: 1px solid rgba(247,244,236,0.18);
   font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em;
   color: rgba(247,244,236,0.92); will-change: transform, opacity;
 }
-.pcin__forum-index b { font-weight: 400; color: var(--gold-soft); }
+.pcin__forum-index .icon { font-size: 1.1rem; color: var(--gold-soft); }
 
 /* ---- the take ends ------------------------------------------------------ */
 /* A ground that rises rather than a veil that fades: at the last frame the
@@ -273,11 +247,11 @@
 }
 
 /* ---- tablet / phone ----------------------------------------------------- */
-/* Not the desktop sequence made smaller. The colonnade never assembles, the
-   plan is never drawn, and the beat is carried by one photograph and the type. */
+/* Not the desktop sequence made smaller. The colonnade never assembles; the
+   beat is carried by one photograph and the type. */
 @media (max-width: 860px) {
-  .pcin { height: 320vh; }
-  .pcin__plate--leaf, .pcin__head, .pcin__plan, .pcin__datum { display: none; }
+  .pcin { height: 400vh; }
+  .pcin__plate--leaf, .pcin__head, .pcin__datum { display: none; }
   .pcin__margin-note--tr, .pcin__margin-note--br { display: none; }
   .pcin__plate { inset: 0 0 22% 0; width: min(58vw, 15rem); height: min(76vw, 20rem); }
   .pcin__type { height: 62%; }
@@ -306,7 +280,7 @@
 @media (prefers-reduced-motion: reduce) {
   .pcin { height: auto; }
   .pcin__stage { position: static; height: auto; overflow: visible; perspective: none; padding: clamp(3.5rem, 9vw, 6rem) 0 clamp(4rem, 10vw, 7rem); }
-  .pcin__file, .pcin__plan, .pcin__datum, .pcin__margin, .pcin__daylight { display: none; }
+  .pcin__file, .pcin__datum, .pcin__margin, .pcin__daylight { display: none; }
   .pcin__chamber { position: relative; height: min(52vh, 26rem); margin-bottom: clamp(2.5rem, 7vw, 4.5rem); }
   .pcin__focus { inset: 0; filter: none; }
   .pcin__photo { filter: grayscale(1) brightness(1.16) contrast(1.06); }
@@ -334,9 +308,14 @@
   }
 }
 
-.pd-counsel { display: grid; grid-template-columns: 220px 1fr; gap: clamp(2rem, 4vw, 4rem); }
-.pd-counsel__card { max-width: 480px; }
-.pd-counsel__card .card-adv { min-height: 260px; margin-bottom: 1.5rem; }
+/* The label sits above the plate, not in a gutter beside it, as it does in
+   every other block on this page. The card needs the full measure: the figure
+   is anchored to the plate's bottom and taller than the plate, so it is wide,
+   and a 220px gutter pushed it into the copy. */
+.pd-counsel { display: block; }
+/* The plate runs the full width of the column — the portrait needs the room,
+   and the head-room above it so it can break its own top edge. */
+.pd-counsel__card { max-width: none; padding-top: clamp(4rem, 8vw, 7rem); }
 
 .pd-related__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-light); border: 1px solid var(--line-light); margin-top: 1.5rem; }
 

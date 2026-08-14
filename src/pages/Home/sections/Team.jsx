@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import CounselCard from '../../../components/ui/CounselCard.jsx';
 import Reveal from '../../../components/ui/Reveal.jsx';
 import SplitText from '../../../components/ui/SplitText.jsx';
 import { team } from '../../../data/team.js';
@@ -16,14 +17,14 @@ export default function Team() {
           </h2>
         </div>
 
-        <div className="team-preview__grid">
+        {/* Both plates keep the figure on the right. Mirroring one of them would
+            stand the two men back to back down the centre of the spread. */}
+        <div className="team-preview__stack">
           {featured.map((a, i) => (
-            <Reveal as="div" className="card-adv" key={a.slug} data-initials={a.initials} delay={i * 0.1}>
-              <div className="card-adv__exp">{a.exp}</div>
-              <div className="card-adv__name" style={{ fontSize: '2rem' }}>{a.name}</div>
-              <div className="card-adv__role">{a.role}</div>
-              <p className="card-adv__bio">{a.bio}</p>
-              <div className="card-adv__meta"><span>{a.qualification}</span><span>{a.cases}</span></div>
+            <Reveal key={a.slug} delay={i * 0.08} amount={0.15}>
+              <Link to={`/team#${a.slug}`} className="team-preview__link">
+                <CounselCard advocate={a} />
+              </Link>
             </Reveal>
           ))}
         </div>
