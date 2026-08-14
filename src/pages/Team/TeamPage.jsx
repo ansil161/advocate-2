@@ -14,7 +14,6 @@ import ExpertiseScroller from './sections/ExpertiseScroller.jsx';
 import { team } from '../../data/team.js';
 import { philosophy } from '../../data/firm.js';
 import { practiceAreas } from '../../data/practiceAreas.js';
-import { scrollToHash } from '../../lib/useLenis.js';
 import cultureImg from '../../assets/img/bench-corridor.webp';
 import './Team.css';
 
@@ -35,18 +34,10 @@ export default function TeamPage() {
     setOpenSlug(cur => (cur === slug ? null : slug));
   }, []);
 
-  // Picking someone out of the hero lineup opens their card on the bench and
-  // takes the page there. Lenis owns the scroll position, so this has to go
-  // through it — a bare scrollIntoView is written over on the next frame.
-  const openFromLineup = useCallback(slug => {
-    setOpenSlug(slug);
-    scrollToHash('#t-bench');
-  }, []);
-
   return (
     <Layout navTheme="dark">
       <div className="t-stackRoot">
-        <TeamArrival onSelect={openFromLineup} />
+        <TeamArrival />
 
         <StackSection id="t-bench" className="t-panel t-panel--cream" depth={1}>
           <div className="container t-bench">

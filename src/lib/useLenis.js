@@ -74,7 +74,13 @@ export function scrollToHash(hash) {
   const el = document.querySelector(hash);
   if (!el) return;
   if (sharedLenis) {
-    sharedLenis.scrollTo(el, { offset: -84, duration: 1.3 });
+    // Resolved here rather than handed to Lenis as an element. Lenis measures a
+    // target by walking `offsetTop` up the offsetParent chain, and every panel
+    // on the team page is `position: sticky` inside its own wrapper — which
+    // reports `offsetTop: 0` and lands the scroll back at the top of the
+    // document. A rect against the current scroll position has no such hole.
+    const top = el.getBoundingClientRect().top + window.scrollY - 84;
+    sharedLenis.scrollTo(Math.max(0, top), { duration: 1.3 });
   } else {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
