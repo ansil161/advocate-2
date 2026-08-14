@@ -498,9 +498,15 @@ body.ahero-dark .nav-bar.is-light .menu-toggle span { background: var(--cream); 
   border-radius: var(--plate-radius);
 }
 /* The shadow belongs to the plate, not the window: an empty window would
-   otherwise sit in the frame, lit and waiting, before the first chapter. */
+   otherwise sit in the frame, lit and waiting, before the first chapter.
+   No background here, and that is load-bearing: the six plates are siblings at
+   `inset: 0` with no z-index, so they paint in DOM order and the last one is
+   permanently on top. Given an opaque ground, that plate covered the whole
+   stack for the entire journey — every chapter but the closing one showed its
+   cream instead of a photograph, which is not a slow image, it is a lid. The
+   leaf carries the cream, so the plate only has to be a clipping window. */
 .lroad__plate {
-  position: absolute; inset: 0; overflow: hidden; background: var(--cream-deep);
+  position: absolute; inset: 0; overflow: hidden;
   border-radius: var(--plate-radius);
   /* Two shadows: a wide soft one that seats the plate on the page, and a
      short tight one directly beneath it so the corner reads as a real edge
@@ -509,6 +515,12 @@ body.ahero-dark .nav-bar.is-light .menu-toggle span { background: var(--cream); 
     0 34px 70px -26px rgba(22, 21, 15, 0.34),
     0 6px 16px -8px rgba(22, 21, 15, 0.2);
 }
+/* The shut window. The bottom plate is the one thing behind the whole stack,
+   so it — and only it — carries the ground the frame opens onto, in the beat
+   before the first photograph rises into it. It is covered by its own leaf a
+   moment later and never seen again; and because it is dealt out at the close
+   with its photograph in it, nothing is left standing empty on the map. */
+.lroad__plate:first-child { background: var(--cream-deep); }
 
 /* THE LEAF — the element the timeline actually moves.
    It has to be a positioned block, and that is not a detail: a transform has
