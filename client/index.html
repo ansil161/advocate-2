@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Per-route metadata is owned by components/shell/PageMeta.jsx. React 19
+         hoists the tags it renders into this head, and inserts its <title>
+         *before* the one below — so this stays only as the pre-mount tab label
+         and is superseded the moment the app mounts.
+
+         There is deliberately no <meta name="description"> here: React appends
+         its own after this point in the head rather than replacing it, so a
+         static one would sit first and hand every route the home page's
+         description. -->
+    <title>SLA Advocates — Full-Service Litigation, Hyderabad</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

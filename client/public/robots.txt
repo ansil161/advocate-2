@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Stub routes carry a noindex meta tag of their own; they are left crawlable so
+# the tag is actually read rather than blocked behind a disallow.
+
+Sitemap: /sitemap.xml

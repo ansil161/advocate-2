@@ -1,0 +1,107 @@
+import { useEffect, useRef } from 'react';
+import Lenis from 'lenis';
+// Required, not cosmetic. It carries `html.lenis, html.lenis body { height: auto }`,
+// which undoes the `html, body { height: 100% }` in the reset. Without it Lenis
+// measures the content as one viewport tall, so its scroll limit computes to 0 and
+// it silently stops driving the page — native scrolling still works, so the failure
+// is invisible, but every scrubbed ScrollTrigger loses its smoothed input.
+import 'lenis/dist/lenis.css';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+let sharedLenis = null;
+
+// Single Lenis instance shared across the whole app (route changes don't recreate it).
+// Driven by gsap.ticker (instead of a raw rAF loop) and wired to ScrollTrigger.update
+// so GSAP's pinned/scrubbed timelines (e.g. the About page's cinematic Story section)
+// stay in perfect sync with Lenis's smoothed scroll position — see gsap.com/resources/Lenis.
+export function useLenis() {
+  const ref = useRef(sharedLenis);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    // Only create the Lenis instance once (it's a singleton), but the ticker
+    // callback must restart on every mount — React 18 StrictMode mounts this effect
+    // twice in dev, and a loop that only starts when sharedLenis is falsy
+    // would never restart after StrictMode's mount→unmount→mount cycle,
+    // leaving Lenis in control of scroll but never actually driving it.
+    if (!sharedLenis) {
+      sharedLenis = new Lenis({ duration: 1.1, smoothWheel: true, syncTouch: false });
+      sharedLenis.on('scroll', ScrollTrigger.update);
+      // Dev-only handle: scroll-driven sequences can't be inspected by setting
+      // window.scrollY (Lenis owns the position and would snap back on the next
+      // frame), so expose the instance for stepping through a timeline by hand.
+      if (import.meta.env.DEV) window.__lenis = sharedLenis;
+    }
+    const lenis = sharedLenis;
+    ref.current = lenis;
+
+    const onTick = (time) => lenis.raf(time * 1000);
+    gsap.ticker.add(onTick);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(onTick);
+    };
+  }, []);
+
+  return ref;
+}
+
+export function getLenis() {
+  return sharedLenis;
+}
+
+// Send the page to the top *through* Lenis, synchronously.
+//
+// A bare window.scrollTo(0, 0) does not survive here: Lenis owns the scroll
+// position and writes its own value back on the next frame, so the reset is
+// undone before it is ever seen. Route changes must use this instead — and must
+// use it in a layout effect, because a scroll-driven page mounting underneath
+// will read the scroll position in its own layout effect and build its
+// ScrollTriggers around whatever it finds there.
+export function resetScroll() {
+  if (sharedLenis) sharedLenis.scrollTo(0, { immediate: true, force: true });
+  window.scrollTo(0, 0);
+}
+
+// `immediate` is for *arriving* at a hash rather than travelling to one. A
+// deep link (/team#sridhar-lendalay) has no journey to show: the visitor asked
+// for a position, and the 1.3s glide would start them at the top of a page they
+// never asked to see and then run away from them. The jump is masked by
+// PageReveal's curtain on a route change, and by the preloader on a cold load.
+// In-page hash clicks keep the default glide, which is what they have always had.
+export function scrollToHash(hash, { immediate = false } = {}) {
+  if (!hash) return;
+  const el = document.querySelector(hash);
+  if (!el) return;
+  if (sharedLenis) {
+    // Resolved here rather than handed to Lenis as an element. Lenis measures a
+    // target by walking `offsetTop` up the offsetParent chain, and every panel
+    // on the team page is `position: sticky` inside its own wrapper — which
+    // reports `offsetTop: 0` and lands the scroll back at the top of the
+    // document. A rect against the current scroll position has no such hole.
+    const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY - 84);
+    if (immediate) {
+      // Both, for the same reason resetScroll does both. Lenis applies even an
+      // `immediate` scroll from inside its own rAF loop, and that loop is driven
+      // by gsap.ticker — so on a tab that is throttled or in the background, no
+      // frame is serviced and the jump silently never happens. Telling Lenis
+      // keeps its internal position in sync; the native call is what actually
+      // lands. When frames are running the two agree, so nothing fights.
+      sharedLenis.scrollTo(top, { immediate: true, force: true });
+      window.scrollTo(0, top);
+    } else {
+      sharedLenis.scrollTo(top, { duration: 1.3 });
+    }
+  } else {
+    // Reduced motion: Lenis is never constructed, so this is the only path, and
+    // 'auto' keeps the arrival instant rather than reintroducing a glide the
+    // visitor has asked not to have.
+    el.scrollIntoView({ behavior: immediate ? 'auto' : 'smooth', block: 'start' });
+  }
+}

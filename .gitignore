@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Real environment files never get committed — only .env.example does, which
+# documents the keys. VITE_* values are inlined into the client bundle at build
+# time, and the Django settings in server/ read secrets from here too.
+.env
+.env.*
+!.env.example
+
+# Python bytecode from server/
+__pycache__/
+*.py[cod]
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
