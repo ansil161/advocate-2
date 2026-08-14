@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import Icon, { industryIcon } from '../../../components/ui/Icon.jsx';
 import Reveal, { RevealGroup, RevealItem } from '../../../components/ui/Reveal.jsx';
 import SplitText from '../../../components/ui/SplitText.jsx';
@@ -61,9 +60,8 @@ export default function Industries() {
           <RevealGroup className="industries__grid" stagger={0.07} amount={0.1}>
             {industries.map(ind => (
               <RevealItem
-                as={Link}
+                as="article"
                 key={ind.slug}
-                to={`/industries/${ind.slug}`}
                 className="ind-card"
                 onPointerMove={trackPointer}
               >
@@ -72,10 +70,6 @@ export default function Industries() {
                 <span className="ind-card__idx"><Icon name={industryIcon(ind.slug)} /></span>
                 <h3 className="ind-card__name">{ind.name}</h3>
                 <p className="ind-card__note">{ind.note}</p>
-                <span className="ind-card__go">
-                  <i>View sector</i>
-                  <b aria-hidden="true">→</b>
-                </span>
               </RevealItem>
             ))}
           </RevealGroup>

@@ -63,390 +63,509 @@
 }
 
 /* ============================================================
-   MOVEMENT I — THE LINEUP (hero)
-   The whole bench standing in one row on a black stage, heads on
-   a common line, reflected in the floor. Pointing at an advocate
-   lights them, sinks the rest, and names them.
+   MOVEMENT I — THE BENCH (hero group portrait)
+
+   A photograph that does not exist. The firm has never been in
+   one frame, so the hero stages the picture instead: a panelled
+   library wall, a warm key from above, and eleven cut-outs stood
+   in a wedge in front of it — the founder front and centre, the
+   bench fanning back either side of him in five ranks.
+
+   `--head` is the only size in here. Every figure's width, its
+   drop below the crown line, its brightness, its blur and how far
+   it travels on scroll are all derived from it and from that
+   figure's own `--d` (depth), so the whole group rescales from
+   one clamp() and a resize costs no JavaScript.
    ============================================================ */
-.t-lineup {
+.t-bp {
+  /* Front-rank head width, and with it the size of everything else in here.
+     Tied to the viewport's height as well as its width: sized off width alone,
+     a laptop in a short window gets a group so tall that the founder's chest is
+     already below the fold. The svh term is what keeps the whole composition —
+     title card and group — inside one screen down to about 600px of it. */
+  --head: clamp(30px, min(5vw, 7.8svh), 76px);
+  --crown0: calc(var(--head) * 0.42); /* headroom over the founder */
+  --rake: calc(var(--head) * 0.26); /* how far each rank's crown drops back */
+  --stage-h: calc(var(--head) * 6.7); /* the group's own box */
+  --ease-cine: cubic-bezier(0.16, 1, 0.3, 1);
+
   position: relative;
-  background: var(--black);
-  overflow: hidden;
-  /* Top padding clears the fixed nav, which wraps to two lines on narrow
-     desktops — hence the generous floor. */
-  padding: clamp(7rem, 13vh, 9.5rem) 0 clamp(3.5rem, 7vw, 5.5rem);
-  isolation: isolate;
-}
-
-.t-lineup__stars {
-  position: absolute;
-  inset: -12% -8%;
-  z-index: 0;
-  pointer-events: none;
-  /* Plain white specks, as in the reference — a gold starfield reads as glitter
-     rather than as depth behind the group. */
-  background-image:
-    radial-gradient(1.6px 1.6px at 24px 38px, rgba(228, 226, 227, 0.55), transparent 100%),
-    radial-gradient(1.2px 1.2px at 152px 96px, rgba(228, 226, 227, 0.34), transparent 100%),
-    radial-gradient(1.1px 1.1px at 88px 214px, rgba(228, 226, 227, 0.22), transparent 100%),
-    radial-gradient(1.4px 1.4px at 268px 158px, rgba(228, 226, 227, 0.4), transparent 100%);
-  background-size: 230px 260px, 310px 290px, 370px 340px, 470px 430px;
-  /* `alternate` rather than a looping translate: the four layers tile at
-     different sizes, so no single offset would seam them all back up. */
-  animation: t-lineup-drift 150s ease-in-out infinite alternate;
-}
-@keyframes t-lineup-drift {
-  to { transform: translate3d(-46px, -30px, 0); }
-}
-
-/* A pool of warm light for the row to stand in, so the figures read as lit
-   rather than pasted onto the black. */
-.t-lineup__glow {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  z-index: 0;
-  width: min(130vw, 1600px);
-  aspect-ratio: 2 / 1;
-  transform: translate(-50%, -34%);
-  pointer-events: none;
-  /* Very low: the reference's stage is flat #0a0a0a and this only has to stop
-     the figures reading as cut out and pasted on. */
-  background: radial-gradient(
-    ellipse at center,
-    rgba(169, 131, 79, 0.07),
-    rgba(169, 131, 79, 0.02) 45%,
-    transparent 70%
-  );
-}
-
-.t-lineup__head { position: relative; z-index: 2; }
-.t-lineup__rule {
-  display: block;
-  width: clamp(64px, 8vw, 116px);
-  height: 1px;
-  margin: 0.9rem 0 clamp(1.4rem, 2.6vw, 2.1rem);
-  background: linear-gradient(90deg, var(--gold-soft), transparent);
-  transform-origin: left;
-}
-/* Wide enough that "as the people carrying it." stays on one line — at a
-   narrower measure it drops an orphaned "it." onto a third line. */
-.t-lineup__headline {
-  max-width: 26ch;
-  font-size: clamp(2.2rem, 5vw, 4.4rem);
-  text-shadow: 0 6px 50px rgba(10, 10, 10, 0.6);
-}
-.t-lineup__sub {
-  margin-top: clamp(1.4rem, 2.6vw, 2.1rem);
-  max-width: 52ch;
-  color: rgba(247, 244, 236, 0.74);
-  font-size: clamp(0.95rem, 1.15vw, 1.08rem);
-  line-height: 1.7;
-}
-
-/* The reference's rail: max-w-[1200px] mx-auto px-8 gap-8, the row in the
-   middle and a button either side of it. The row therefore stops short of the
-   viewport edge and the starfield shows past both ends of it, which is what
-   gives the group its stage. */
-.t-lineup__rail {
-  /* Declared here rather than on the stage so the buttons can line themselves
-     up against the figures too. How tightly shoulders overlap; below ~0.8 the
-     faces start colliding. */
-  --pack: 0.84;
-  /* Scaled to stand tall rather than to fit: on the reference the figures
-     carry most of the viewport's height and the row runs off both sides, with
-     the arrows paging through it. */
-  --head: clamp(40px, 5.6vw, 86px);
-  --crown: calc(var(--head) * 0.75);
-  --floor: calc(var(--head) * 4.5);
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: clamp(0.5rem, 2vw, 2rem);
-  width: 100%;
-  max-width: 1200px;
-  margin: clamp(2.25rem, 4.5vw, 3.5rem) auto 0;
-  padding-inline: clamp(0.5rem, 2vw, 2rem);
-}
-
-/* --- the stage ------------------------------------------------------------
-   Every figure is sized off `--head`, so this one value rescales the whole row
-   without disturbing the alignment. `--crown` is where every skull starts and
-   `--floor` is the waterline the reflection hinges on. */
-.t-lineup__stage {
-  flex: 1;
-  /* Without this the flex item refuses to shrink below the row's width and
-     the buttons get pushed off the rail. */
-  min-width: 0;
-  position: relative;
-  /* Just past where the reflection has faded out — any taller and the row
-     floats above a band of dead black. */
-  height: calc(var(--floor) * 1.42);
-}
-
-/* Eleven advocates never fit a viewport at a size where a face is legible, so
-   the row scrolls. A real scroll container (rather than a transformed track)
-   is what gives this trackpad swipes and keyboard-focus scrolling for free. */
-.t-lineup__viewport {
-  position: absolute;
-  inset: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  /* On the container, not the track: the absolutely-positioned rows resolve
-     against the track's border box, so padding there would offset them from
-     the in-flow row and break the reflection's registration.
-     A head-width of lead-in either end, because a figure whose body sits well
-     to one side of their face overhangs the slot they were packed into — at
-     the ends of the row that overhang would otherwise start off-stage. */
-  padding-inline: calc(var(--head) * 1.15);
-}
-.t-lineup__viewport::-webkit-scrollbar { display: none; }
-
-.t-lineup__track { position: relative; width: max-content; height: 100%; }
-
-.t-lineup__row { display: flex; align-items: flex-start; height: var(--floor); }
-
-.t-lineup__row--figures {
-  position: relative;
-  z-index: 1;
-  /* Doubles as the clip: with `no-repeat` the mask covers only the row's own
-     box, so everything hanging below the waterline is masked away rather than
-     ending on a cut edge. */
-  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
-  mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-}
-
-/* The reflection is the same row again, flipped inside a box of identical
-   height sitting directly below — which mirrors it about the waterline
-   exactly, and keeps it in register for free. Its mask runs bottom-up because
-   the flip has already inverted the element's own axis. */
-.t-lineup__row--mirror {
-  position: absolute;
-  top: var(--floor);
-  left: 0;
-  right: 0;
-  z-index: 0;
-  transform: scaleY(-1);
-  opacity: 0.17;
-  filter: blur(0.6px);
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.45) 20%, transparent 46%);
-  mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.45) 20%, transparent 46%);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-}
-
-/* Names and hit targets ride above both passes, so a plate is never occluded
-   by the next advocate along. */
-.t-lineup__row--hit { position: absolute; top: 0; left: 0; right: 0; z-index: 3; }
-
-/* Each advocate claims exactly their own shoulder width, so the row packs by
-   body rather than by head and closes up with no holes. */
-.t-lineup__slot {
-  position: relative;
-  flex: 0 0 calc(var(--head) * (var(--fig-l) + var(--fig-r)) * var(--pack));
-  height: 100%;
-}
-
-.t-lineup__fig {
-  position: absolute;
-  /* Puts the head `l` in from the slot's leading edge — not at its centre.
-     The sources frame their subject anywhere from hard left to hard right, so
-     a head-centred figure would stand beside a void on one side. */
-  left: calc(var(--head) * (var(--fig-l) * var(--pack) - var(--fig-cx)));
-  top: calc(var(--crown) - var(--head) * var(--fig-crown));
-  width: calc(var(--head) * var(--fig-w));
-  height: calc(var(--head) * var(--fig-h));
-  max-width: none;
-  transform-origin: 50% 100%;
-  /* The reference carries no filter at all — its group is fully lit at rest,
-     and hovering swaps in a second photograph of the same group waving rather
-     than grading anything. There is no waving variant of this bench, and the
-     eleven cut-outs come from eleven different shoots, so this is the one
-     liberty taken: a light common grade so they read as one photograph
-     instead of a collage. It is deliberately gentle — nothing goes dark. */
-  filter: saturate(0.88) brightness(0.94) contrast(1.03);
-  transition: filter 0.3s ease, transform 0.3s ease;
-}
-.t-lineup__slot.is-active .t-lineup__fig {
-  filter: none;
-  transform: translateY(-4px) scale(1.01);
-}
-
-.t-lineup__hit {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  padding: 0;
-  border: 0;
-  border-radius: 14px;
-  background: none;
-  cursor: pointer;
-}
-.t-lineup__hit:focus-visible { outline: 1px solid var(--gold-soft); outline-offset: -6px; }
-
-.t-lineup__label {
-  position: absolute;
-  width: 1px; height: 1px; margin: -1px; padding: 0;
-  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
-}
-
-/* Everything below is the reference's own plate, transcribed off its computed
-   styles: bg-[#0f0f0f]/95, backdrop-blur-xl, rounded-2xl, shadow-2xl,
-   border-[#d8b068]/30, px-4 py-3, min-w-[220px], and a scale-95 → 100 lift.
-   The name is deliberately sans, not the page's Playfair — this plate is UI
-   riding over the photograph, not editorial text. */
-.t-lineup__plate {
-  position: absolute;
-  /* Centred on the face, not on the slot — the two are not the same point. */
-  left: calc(var(--head) * var(--fig-l) * var(--pack));
-  top: calc(var(--crown) + var(--head) * 2.6);
-  z-index: 4;
+  min-height: 100svh;
+  /* The title card is centred in whatever the group leaves it rather than
+     pinned under the nav: the two padding values below reserve the nav and the
+     group, and on a tall screen the free space between them is split evenly
+     instead of pooling as dead room over the founder's head. */
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  width: max-content;
-  min-width: 220px;
-  max-width: min(20rem, 78vw);
-  padding: 12px 16px;
-  border: 1px solid rgba(216, 176, 104, 0.3);
-  border-radius: 16px;
-  background: rgba(15, 15, 15, 0.95);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  opacity: 0;
-  /* Both axes, as the reference does it — the plate is centred on its anchor
-     point rather than hanging below it. */
-  transform: translate(-50%, -50%) scale(0.95);
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.t-lineup__slot.is-active .t-lineup__plate {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  background: #060605;
+  overflow: hidden;
+  isolation: isolate;
+  /* Top clears the fixed nav; the floor is the group's own height, so the
+     title card can never come down onto the faces on a short viewport. */
+  /* The floor reserve is a shade under the group's full height on purpose: the
+     top of that box is headroom over the founder, not his head, so the last
+     line of type can sit inside it. Much below 0.88 and it lands on his brow. */
+  padding: clamp(6rem, 12vh, 9rem) 0 calc(var(--stage-h) * 0.88);
 }
 
-.t-lineup__name {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 1.125rem;
-  line-height: 1.25;
-  color: #d8b068;
-  white-space: nowrap;
-}
-.t-lineup__role {
-  margin-top: 0.25rem;
-  font-family: var(--font-sans);
-  font-weight: 500;
-  font-size: 0.875rem;
-  line-height: 1.25;
-  color: #d1d5db;
-}
-.t-lineup__go {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-}
-.t-lineup__go::before {
-  content: '';
-  width: 0; height: 0;
-  border-left: 8px solid #d8b068;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-}
-
-/* The row runs past both sides of the stage; these dissolve it into the black
-   instead of letting it stop against a hard edge. */
-.t-lineup__edge {
+/* --- the room ------------------------------------------------------------
+   Inset past the edges on every side: the scroll pushes the wall down and in,
+   and an exactly-fitting image would show its own edge doing it. */
+.t-bp__room {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 5;
-  /* Matched to the track's lead-in, so the row dissolves exactly where it
-     runs out of stage rather than over the nearest face. */
-  width: calc(var(--head) * 1.15);
-  pointer-events: none;
+  inset: -7% -5%;
+  z-index: 0;
+  transform-origin: 50% 44%;
 }
-.t-lineup__edge--left { left: 0; background: linear-gradient(90deg, var(--black) 10%, transparent); }
-.t-lineup__edge--right { right: 0; background: linear-gradient(270deg, var(--black) 10%, transparent); }
+.t-bp__room img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+  /* Graded down to a set rather than a photograph — the wall is depth behind
+     the group, and the blur is the lens being open on the faces in front of
+     it, not a decorative softening. It has to go this far: that wall is a run
+     of glazed cabinets in a grid of mullions, and at a gentler blur the panels
+     behind the bench read as flat rectangles rather than as a room. */
+  filter: grayscale(0.4) saturate(0.85) brightness(0.46) contrast(1.1) blur(7px);
+  /* Parallax. `--sp` is the section's scroll progress, written once per frame
+     by the component; everything that moves with the scroll reads it from
+     here, so eleven figures and the wall cost one style write between them. */
+  transform: translate3d(0, calc(var(--sp, 0) * 5%), 0) scale(calc(1 + var(--sp, 0) * 0.09));
+}
 
-/* The reference's own button: w-16 h-32, bg-black/40 → /80 on hover,
-   backdrop-blur-md, rounded-2xl, border-white/10, gold chevron. */
-.t-lineup__nav {
+/* Falls off to black at every edge, and hard at top and bottom — the room has
+   to end somewhere, and a vignette ends it the way a lens would.
+   It sits behind the group rather than over it, which is what lets the bottom
+   stops go almost solid: the lower third of that wall is recessed panelling,
+   and left lit it reads as a row of boxes stood behind the bench. Down there
+   the room is meant to be nothing but dark for the group to stand out of. */
+.t-bp__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(124% 88% at 50% 28%, transparent 24%, rgba(6, 6, 5, 0.56) 62%, rgba(6, 6, 5, 0.96) 100%),
+    linear-gradient(
+      180deg,
+      rgba(6, 6, 5, 0.88) 0%,
+      rgba(6, 6, 5, 0.22) 22%,
+      rgba(6, 6, 5, 0.2) 44%,
+      rgba(6, 6, 5, 0.78) 68%,
+      rgba(6, 6, 5, 0.97) 86%,
+      #060605 100%
+    );
+}
+
+/* The key light, hung above the centre of the group where the founder stands.
+   It breathes, very slowly — a room lit by candle sconces is never quite
+   still, and it is the only thing on the page moving at rest. */
+.t-bp__key {
+  position: absolute;
+  left: 50%;
+  top: -16%;
+  z-index: 1;
+  width: min(155vw, 1560px);
+  aspect-ratio: 1.9 / 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(211, 177, 127, 0.22),
+    rgba(169, 131, 79, 0.075) 42%,
+    transparent 72%
+  );
+  animation: t-bp-breathe 13s ease-in-out infinite alternate;
+}
+@keyframes t-bp-breathe {
+  to {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1.07);
+  }
+}
+
+/* The shaft the key throws down the centre line. Blurred hard, because a beam
+   with an edge on it reads as a graphic rather than as light. */
+.t-bp__shaft {
+  position: absolute;
+  left: 50%;
+  top: -8%;
+  z-index: 1;
+  width: clamp(240px, 36vw, 620px);
+  height: 94%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(211, 177, 127, 0.17),
+    rgba(211, 177, 127, 0.045) 46%,
+    transparent 78%
+  );
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  filter: blur(28px);
+  animation: t-bp-shaft 17s ease-in-out infinite alternate;
+}
+@keyframes t-bp-shaft {
+  to {
+    opacity: 0.58;
+    transform: translateX(-50%) scaleX(1.12);
+  }
+}
+
+/* Dust in the beam. Warm, not white — these are motes lit by the same lamp,
+   not stars. `alternate` rather than a loop: four layers tiling at four sizes
+   have no single offset that seams them all back up. */
+.t-bp__motes {
+  position: absolute;
+  inset: -10% -6%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1.7px 1.7px at 30px 44px, rgba(224, 200, 158, 0.5), transparent 100%),
+    radial-gradient(1.3px 1.3px at 168px 104px, rgba(224, 200, 158, 0.3), transparent 100%),
+    radial-gradient(1.1px 1.1px at 96px 232px, rgba(224, 200, 158, 0.2), transparent 100%),
+    radial-gradient(1.5px 1.5px at 286px 172px, rgba(224, 200, 158, 0.36), transparent 100%);
+  background-size: 240px 270px, 320px 300px, 380px 350px, 490px 440px;
+  animation: t-bp-drift 170s ease-in-out infinite alternate;
+}
+@keyframes t-bp-drift {
+  to {
+    transform: translate3d(-52px, -34px, 0);
+  }
+}
+
+/* --- the title card ------------------------------------------------------
+   Centred, unlike the rest of the site: the wall behind it is symmetrical and
+   the founder stands on its centre line, so the type is hung on the same axis
+   the photograph is composed on. */
+.t-bp__head {
   position: relative;
   z-index: 6;
   display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 40px;
-  height: 80px;
-  /* The rail centres on the stage, but the stage's lower third is reflection.
-     This lifts the buttons back onto the middle of the figures themselves. */
-  transform: translateY(calc(var(--floor) * -0.21));
-  color: #d8b068;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  backdrop-filter: blur(12px);
-  cursor: pointer;
-  /* Held back until the row is pointed at, as on the reference — at rest the
-     photograph carries the section on its own. Touch has no hover, so there
-     the buttons simply stay put. */
-  opacity: 0;
-  transition: background 0.3s ease, opacity 0.3s ease;
-}
-.t-lineup__rail:hover .t-lineup__nav,
-.t-lineup__nav:focus-visible { opacity: 1; }
-.t-lineup__nav:hover { background: rgba(0, 0, 0, 0.8); }
-.t-lineup__nav:disabled { opacity: 0 !important; pointer-events: none; }
-
-.t-lineup__chev { width: 24px; height: 24px; }
-
-@media (min-width: 768px) {
-  .t-lineup__nav { width: 64px; height: 128px; border-radius: 16px; }
-  .t-lineup__chev { width: 40px; height: 40px; }
-}
-@media (hover: none) {
-  .t-lineup__nav { opacity: 1; }
-}
-
-.t-lineup__quote {
-  position: relative;
-  z-index: 2;
-  max-width: 60rem;
-  margin: clamp(1.5rem, 3vw, 2.5rem) auto 0;
-  padding: clamp(1.4rem, 3vw, 2.1rem) clamp(1.5rem, 3.5vw, 2.6rem);
-  border: 1px solid var(--line-dark);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.022);
-}
-.t-lineup__quote p {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: clamp(1rem, 1.5vw, 1.3rem);
-  line-height: 1.6;
+  justify-items: center;
   text-align: center;
-  color: rgba(247, 244, 236, 0.92);
 }
+.t-bp__eyebrow {
+  color: rgba(211, 177, 127, 0.86);
+}
+.t-bp__rule {
+  display: block;
+  width: clamp(72px, 9vw, 140px);
+  height: 1px;
+  margin: 1rem 0 clamp(1.3rem, 2.4vw, 2rem);
+  background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+}
+.t-bp__headline {
+  max-width: 18ch;
+  /* Height-aware for the same reason `--head` is: on a short window the type
+     gives way to the photograph rather than pushing it under the fold. */
+  font-size: clamp(1.9rem, min(5vw, 7.4svh), 4.4rem);
+  line-height: 1.06;
+  /* The headline sits over the lit part of the wall; this is what keeps it off
+     the bookcases rather than a scrim across the whole photograph. */
+  text-shadow: 0 4px 44px rgba(6, 6, 5, 0.92), 0 1px 3px rgba(6, 6, 5, 0.6);
+}
+.t-bp__sub {
+  margin-top: clamp(1.2rem, 2.2vw, 1.8rem);
+  max-width: 44ch;
+  color: rgba(247, 244, 236, 0.72);
+  font-size: clamp(0.92rem, 1.1vw, 1.05rem);
+  line-height: 1.72;
+  text-shadow: 0 2px 24px rgba(6, 6, 5, 0.85);
+}
+
+/* --- the group ----------------------------------------------------------- */
+.t-bp__group {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 3;
+  width: calc(var(--head) * var(--span));
+  height: var(--stage-h);
+  transform: translateX(-50%);
+  /* Only the torso-sized hit targets take the pointer. Every figure's box is a
+     rectangle of mostly transparent pixels, and letting those take it would
+     mean the nearest advocate's empty corner beats the face behind it. */
+  pointer-events: none;
+}
+
+/* Where one advocate stands. `left` puts their head — not their image — on the
+   wedge's line, because the sources frame their subject anywhere from hard
+   left to hard right; `top` drops them a rank's worth below the crown line and
+   lifts the crown back off their own measured headroom. */
+.t-bp__slot {
+  position: absolute;
+  left: calc(50% + var(--fx) * var(--head) - var(--d) * var(--head) * var(--fig-cx));
+  top: calc(
+    var(--crown0) + var(--rank) * var(--rake) + var(--dy) * var(--head) - var(--d) * var(--head) *
+      var(--fig-crown)
+  );
+  width: calc(var(--d) * var(--head) * var(--fig-w));
+  height: calc(var(--d) * var(--head) * var(--fig-h));
+  /* Nearer ranks in front, and enough room between them that a figure never
+     ties with the one behind. */
+  z-index: calc(60 - var(--rank) * 8);
+}
+
+/* Scroll only. The near ranks travel further than the far ones, so the wedge
+   opens out as the page moves under it — the one thing a composite can do that
+   a real group photograph cannot. */
+.t-bp__par {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform: translate3d(0, calc(var(--sp, 0) * var(--d) * var(--head) * -2), 0);
+}
+
+/* Hover only, and the only one of the three transforms that is transitioned —
+   a transition on the scroll transform would smear the parallax. */
+.t-bp__lift {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  /* So the wash blends with its own figure and not with the room behind it. */
+  isolation: isolate;
+  /* The cut-outs are cropped at wildly different heights — a full standing
+     figure next to a head-and-shoulders. Rather than hide that, each one
+     dissolves downward into the dark the room is already in. Carried here, on
+     the wrapper, so the figure and its wash fade as one thing: masking both
+     separately means each needs two mask layers, and two layers composite as a
+     union unless `mask-composite` lands — which paints the whole rectangle. */
+  -webkit-mask-image: linear-gradient(180deg, #000 var(--fade), transparent 100%);
+  mask-image: linear-gradient(180deg, #000 var(--fade), transparent 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  /* Air. A figure five ranks back is looking through five ranks' worth of an
+     unlit room, and letting the wall come through them is the cue that sells
+     distance better than size or blur can on their own. */
+  opacity: calc(0.6 + var(--d) * 0.4);
+  /* Reads the figure's alpha, so this is a shadow cast by the person onto the
+     rank behind them — not a box under their bounding rectangle. It is what
+     stops eleven cut-outs looking stuck to the wall. */
+  filter: drop-shadow(calc(var(--fx) * -1.4px) 12px 22px rgba(0, 0, 0, 0.62));
+  transition: transform 0.55s var(--ease-cine), filter 0.45s ease, opacity 0.45s ease;
+}
+.t-bp__slot.is-active .t-bp__lift {
+  transform: translateY(calc(var(--head) * -0.1)) scale(1.022);
+  opacity: 1;
+  /* The same alpha read, warm — a rim around the person rather than a halo
+     around their bounding box. */
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 30px rgba(211, 177, 127, 0.4));
+}
+
+.t-bp__fig {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  /* The slot box is already the source's own aspect ratio. */
+  object-fit: fill;
+  /* Eleven shoots onto one film stock: pull most of the colour out, sink the
+     far ranks, and open the lens on the front one. Every term is driven by the
+     same `--d`, so depth is one number rather than five hand-tuned grades.
+     The brightness ramp is steep on purpose — three of the bench wear pale
+     suits, and a gentler one leaves a cream jacket at rank five reading nearer
+     than the founder. */
+  filter:
+    saturate(calc(0.28 + var(--d) * 0.16))
+    contrast(1.06)
+    brightness(calc(0.16 + var(--d) * 0.76))
+    blur(calc((1 - var(--d)) * 4.4px));
+  transition: filter 0.45s ease;
+}
+
+/* The lamp, painted in each figure's own silhouette — warm on the crown and
+   shoulders, dark under the chest. This is what makes a blue suit, a red sari
+   and eleven different white balances read as one lit group. */
+.t-bp__wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: calc(0.46 + (1 - var(--d)) * 0.62);
+  background: linear-gradient(
+    180deg,
+    rgba(224, 200, 158, 0.34) 0%,
+    rgba(169, 131, 79, 0.12) 34%,
+    rgba(6, 6, 5, 0.44) 76%,
+    rgba(6, 6, 5, 0.74) 100%
+  );
+  /* One layer, the figure's own alpha — the bottom fade is the wrapper's job.
+     A second mask layer here would need `mask-composite: intersect` to mean
+     "and", and without it the two composite as a union: the wash spills out to
+     fill the figure's whole rectangle and every advocate stands in a box. */
+  -webkit-mask-image: var(--src);
+  mask-image: var(--src);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  transition: opacity 0.45s ease;
+}
+
+/* Picking someone out of the group: the rest of the bench falls back into the
+   room and the one pointed at gets the lamp. */
+.t-bp.is-picking .t-bp__fig {
+  filter:
+    saturate(0.16)
+    contrast(1.04)
+    brightness(calc(0.12 + var(--d) * 0.42))
+    blur(calc((1 - var(--d)) * 4.4px + 0.6px));
+}
+/* Not just darker — further away. Dropping the whole figure's opacity puts the
+   room back through the rest of the bench, so they step into the wall rather
+   than turning grey where they stand. */
+.t-bp.is-picking .t-bp__lift {
+  opacity: calc(0.4 + var(--d) * 0.3);
+}
+/* Restated at this weight because the rule above matches the picked advocate
+   too, and it is written later in the file than the `.is-active` lift. */
+.t-bp.is-picking .t-bp__slot.is-active .t-bp__lift {
+  opacity: 1;
+}
+.t-bp.is-picking .t-bp__slot.is-active .t-bp__fig {
+  filter: saturate(0.66) contrast(1.09) brightness(1.04) blur(0);
+}
+.t-bp.is-picking .t-bp__slot.is-active .t-bp__wash {
+  opacity: 0.34;
+}
+
+/* Torso-sized, hung off the crown and centred on the face — not the figure's
+   whole rectangle, which for a wide source is mostly the person beside them. */
+.t-bp__hit {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--d) * var(--head) * (var(--fig-cx) - 0.85));
+  top: calc(var(--d) * var(--head) * var(--fig-crown));
+  width: calc(var(--d) * var(--head) * 1.7);
+  height: calc(var(--d) * var(--head) * 3.1);
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.t-bp__hit:focus-visible {
+  outline: 1px solid var(--gold-soft);
+  outline-offset: 3px;
+}
+.t-bp__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The dark the group stands in. It rides *above* the figures, so a full
+   standing shot and a tight crop sink into the same shadow at the same
+   waterline instead of each ending on its own edge. */
+.t-bp__floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  height: calc(var(--stage-h) * 0.66);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(6, 6, 5, 0.26) 32%,
+    rgba(6, 6, 5, 0.68) 62%,
+    rgba(6, 6, 5, 0.93) 84%,
+    #060605 100%
+  );
+}
+
+/* --- the lower third -----------------------------------------------------
+   One plate at the foot of the frame rather than a card over each advocate:
+   at rank five a figure is a third the founder's size, and a plate big enough
+   to read would cover the two people either side of them. */
+.t-bp__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(1.1rem, 3.2vh, 2.4rem);
+  z-index: 9;
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+  pointer-events: none;
+}
+/* Always in the layout, only ever faded — so the cue beneath it does not jump
+   every time the pointer crosses a face. */
+.t-bp__plate {
+  display: grid;
+  justify-items: center;
+  gap: 0.28rem;
+  min-width: min(19rem, 84vw);
+  padding: 0.8rem 1.6rem;
+  border: 1px solid rgba(211, 177, 127, 0.26);
+  border-radius: 14px;
+  background: rgba(6, 6, 5, 0.62);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+  text-align: center;
+}
+.t-bp__plate-name {
+  font-family: var(--font-serif);
+  font-size: clamp(1.02rem, 1.5vw, 1.25rem);
+  line-height: 1.2;
+  color: var(--gold-soft);
+}
+.t-bp__plate-role {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: rgba(247, 244, 236, 0.62);
+}
+.t-bp__plate-go {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.42);
+}
+.t-bp__plate-go::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--gold-soft);
+  border-top: 4.5px solid transparent;
+  border-bottom: 4.5px solid transparent;
+}
+.t-bp__cue {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(247, 244, 236, 0.34);
+}
+
+@media (hover: none) {
+  /* No hover to lead with, so the plate has to say what a tap does. */
+  .t-bp__cue::after {
+    content: ' — tap twice to open';
+  }
+}
+
 
 /* ============================================================
    MOVEMENT II — FULL PROFILE CARDS
@@ -891,11 +1010,20 @@
   .t-stack + .t-stack { margin-top: 0; }
   .t-panel { border-radius: 0; box-shadow: none; }
 
-  .t-lineup__headline { max-width: 14ch; }
-  /* Nothing to point with: the row is swiped instead, and the plate is opened
-     by tapping a figure. */
-  .t-lineup__nav { display: none; }
-  .t-lineup__edge { width: 32px; }
+  /* The wedge is thirteen head-widths wide whatever size the heads are, so on
+     a phone it is width — not height — that decides how big the bench can be.
+     Sized off vw it runs a little past both sides of the viewport rather than
+     shrinking eleven faces to nothing; only the outermost shoulder is lost. */
+  .t-bp {
+    --head: clamp(30px, min(8.6vw, 6.4svh), 60px);
+    padding-bottom: calc(var(--stage-h) * 0.8);
+  }
+  .t-bp__headline { max-width: 13ch; }
+  .t-bp__sub { max-width: 34ch; }
+  /* Sconce-lit wood at phone width is just texture, and it is competing with
+     the type. Sink it and let the group carry the frame. */
+  .t-bp__room img { filter: grayscale(0.5) saturate(0.8) brightness(0.3) contrast(1.14) blur(4px); }
+  .t-bp__shaft { display: none; }
 
   .adv-card__creds { grid-template-columns: 1fr; gap: 1rem; }
 
@@ -923,10 +1051,13 @@
   .t-stack__panel { position: relative; top: auto !important; min-height: 0; }
   .t-stack + .t-stack { margin-top: 0; }
 
-  /* The lineup keeps its hover states — they carry the names — but loses the
-     drifting starfield and the lift under the pointer. */
-  .t-lineup__stars { animation: none; }
-  .t-lineup__fig { transition: filter 0.2s linear; }
-  .t-lineup__slot.is-active .t-lineup__fig { transform: none; }
-  .t-lineup__plate { transition: opacity 0.2s linear; transform: translate(-50%, 0); }
+  /* The group portrait keeps everything that carries meaning — the depth, the
+     grade, and the hover that names an advocate. What goes is the camera: the
+     breathing lamp, the drifting dust, the scroll dolly and the lift under the
+     pointer. The photograph is simply already taken. */
+  .t-bp__key, .t-bp__shaft, .t-bp__motes { animation: none; }
+  .t-bp__room img, .t-bp__par { transform: none; }
+  .t-bp__fig { transition: filter 0.2s linear; }
+  .t-bp__lift { transition: filter 0.2s linear; }
+  .t-bp__slot.is-active .t-bp__lift { transform: none; }
 }

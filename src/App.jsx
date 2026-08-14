@@ -4,6 +4,7 @@ import Preloader from './components/shell/Preloader.jsx';
 import Cursor from './components/shell/Cursor.jsx';
 import PageReveal from './components/shell/PageReveal.jsx';
 import { useLenis } from './lib/useLenis.js';
+import { AppReadyContext } from './lib/appReady.js';
 
 import Home from './pages/Home/Home.jsx';
 
@@ -27,6 +28,10 @@ export default function App() {
       <Preloader onDone={() => setLoaded(true)} />
       <Cursor />
       <PageReveal />
+      {/* The site is rendered but hidden until the preloader lifts, so anything
+          whose entrance is the point has to be told when it is actually on
+          screen — see lib/appReady.js. */}
+      <AppReadyContext.Provider value={loaded}>
       <div style={{ visibility: loaded ? 'visible' : 'hidden' }}>
         <Suspense fallback={null}>
           <Routes>
@@ -42,6 +47,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </div>
+      </AppReadyContext.Provider>
     </>
   );
 }

@@ -184,10 +184,10 @@
 }
 
 /* ---- the figure and what it is ------------------------------------------ */
-/* One instance of the number, never a repeat and never cropped: it is the one
-   thing on this page the firm is standing on. Its label sits directly under it
-   across a hairline — figure and name in the same block, not a number on one
-   panel and a caption on another. */
+/* On the stage the number is set enormous and repeated across the face, and it
+   walks sideways as the bar turns — the reference's marquee. In the flat
+   layout below 901px there is no marquee: one instance of the number with its
+   label under it across a hairline. */
 .awr__seq {
   display: inline-flex; align-items: center; gap: 0.7rem;
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
@@ -262,9 +262,43 @@
      against, so start/end and the pin can never disagree. */
   .awr__track {
     display: block;
-    height: calc((var(--awr-count, 4) * 0.72 + 0.3) * 100svh);
+    height: calc((var(--awr-count, 4) * 0.85 + 0.35) * 100svh);
   }
+
+  /* ── the camera ───────────────────────────────────────────────
+     Measured off the reference across all 75 frames of it, by tracking the
+     slab's silhouette turn by turn.
+
+     THE CAMERA. A cube's silhouette is tallest as it passes 45°, and how much
+     taller than at rest depends only on how near the camera is: far away it
+     tends to √2, close in it is much less, because at rest the front face is
+     half a depth NEARER the lens and is already magnified. The reference goes
+     from 176px at rest to 221px at the peak — a ratio of 1.256 — and solving
+     that against the projection puts the camera at 4.46 box-heights. The first
+     build guessed 5.6 off a single blurred mid-turn frame, and before that it
+     was 3200px against a full-width bar, which is nearly orthographic: the
+     turn read as two flat cards flipping, not a block going end over end.
+
+     THE SIZE. The front face sits half a depth in front of the box's centre,
+     so at this camera it is painted 1.126× its own layout size. The bar has to
+     PAINT at 46% of the viewport and 2.4 : 1, which is what the reference
+     measures — so it is LAID OUT at 46 / 1.126 = 40.8vh. Setting 46vh here
+     directly, as the first build did, renders the bar about an eighth too big.
+
+     The vw cap is the same sum from the other side: the bar paints at 70% of
+     the viewport at most, so it is laid out at 62vw, and 62 / 2.4 = 26vw. */
   .awr__stage {
+    /* The third term is the one that matters above about 2200px of viewport.
+       The bar is sized off the viewport HEIGHT, but it is laid inside the
+       page's 1360px container, so past that width the container clamps the
+       bar's width while the height carries on — and the 2.4 : 1 the reference
+       is built on collapses towards 2 : 1. Capping the height at the widest
+       the container can ever be, over that same 2.4, keeps the proportion
+       exact at every size; the bar simply stops growing on very large screens
+       instead of going out of shape. (1360 − 9rem: the container less its two
+       4.5rem gutters, which is where --gutter tops out.) */
+    --awr-h: min(40.8vh, 26vw, calc((var(--container) - 9rem) / 2.4));
+    --awr-w: calc(var(--awr-h) * 2.4);
     display: flex; flex-direction: column; justify-content: center;
     position: sticky; top: 0; height: 100svh; overflow: hidden;
   }
@@ -272,12 +306,17 @@
      on the cross axis stops a flex item stretching — without this the frame
      collapses to the width of its own content. */
   .awr__frame { width: 100%; }
+  /* The two rules run to the bar's own edges, not the container's, so the
+     field closes around the solid instead of framing a wider empty grid. */
+  .awr__meta, .awr__foot { width: min(var(--awr-w), 100%); margin-inline: auto; }
 
   .awr__scene {
-    --awr-h: clamp(250px, 34vh, 360px);
     position: relative;
-    display: flex; align-items: center; gap: 0;
-    perspective: 3200px; perspective-origin: 50% 50%;
+    width: min(var(--awr-w), 100%);
+    height: var(--awr-h);
+    margin-inline: auto;
+    display: flex; align-items: stretch; gap: 0;
+    perspective: calc(var(--awr-h) * 4.46); perspective-origin: 50% 50%;
   }
   /* The shadow the bar drops on the sheet — what stops the pair reading as two
      flat cards that happen to be rotating. */
@@ -295,13 +334,16 @@
      translateZ on this wrapper makes Chrome stop painting the photographs
      inside the plates, leaving black rectangles, with or without the GPU. The
      scale-up is corrected with a longer perspective instead. */
+  /* Two equal halves, flush, forming one bar — the reference splits it exactly
+     down the middle. The previous build made the plate 1.18× taller and nudged
+     it up out of line; against a single vanishing point that step reads as a
+     bad join rather than as a deliberate break in the bar's line. */
   .awr__box {
+    --h: var(--awr-h);
     flex: 1 1 0; min-width: 0;
     height: var(--h);
     transform-style: preserve-3d;
   }
-  .awr__box--type { --h: var(--awr-h); flex-grow: 1.08; }
-  .awr__box--plate { --h: calc(var(--awr-h) * 1.18); margin-top: calc(var(--awr-h) * -0.09); }
 
   .awr__solid {
     position: relative; height: 100%;
@@ -317,17 +359,74 @@
     transform: rotateX(calc(var(--i) * 90deg)) translateZ(calc(var(--h) / 2));
   }
 
+  /* — the end walls — */
+  /* Four faces of a rotateX cube leave the two ends of the box open, and at
+     this camera an open end is in view for most of every turn: without a wall
+     the solid reads as a folded strip of card. Depth equals the face height,
+     so each wall is a square, set half a box-width out and turned to face
+     along X. Only the outer wall of each half is built — the inner pair meet
+     at the seam and are never seen. */
+  .awr__wall {
+    position: absolute; top: 0;
+    width: var(--h); height: var(--h);
+  }
+  .awr__box--type .awr__wall {
+    left: 0; transform: translateX(calc(var(--h) / -2)) rotateY(-90deg);
+    background: var(--cream-deep);
+  }
+  .awr__box--plate .awr__wall {
+    right: 0; transform: translateX(calc(var(--h) / 2)) rotateY(90deg);
+    background: #0e0d09;
+  }
+
   /* — the type slab — */
+  /* The figure is the only thing set large on the slab, and it repeats across
+     the face and walks sideways as the bar turns: the reference's marquee. The
+     index, the name and the note sit small in the corners, so the composition
+     stays the reference's — one enormous mark on a pale ground — without
+     losing what the number actually counts. */
   .awr__face--type {
-    display: flex; flex-direction: column; align-items: flex-start;
-    justify-content: center; gap: clamp(0.8rem, 1.4vh, 1.2rem);
-    padding: clamp(1.5rem, 2.6vw, 2.4rem) clamp(1.75rem, 3.2vw, 3rem);
+    display: block; padding: 0;
     background: var(--cream-soft);
     box-shadow: inset 0 0 0 1px var(--line-light);
   }
-  .awr__face--type .awr__figure { font-size: min(calc(var(--h) * 0.34), 7rem); }
-  .awr__face--type .awr__hair { width: min(78%, 380px); }
-  .awr__face--type figcaption { display: flex; flex-direction: column; gap: 0.45rem; }
+  /* Centred with the `translate` property, not with `transform`: GSAP owns the
+     element's `transform` for the sideways walk, and the two compose — the
+     individual property is applied first, the `transform` on top of it. */
+  /* Centred by the flex box itself, NOT by a -50% translate on the row. GSAP
+     owns this element's transform for the walk, and `xPercent` is written into
+     that same transform — a translate-based centring is simply replaced by the
+     first tween, and the row lands half a slab off to one side.
+
+     The gap is set so the neighbouring copy sits just outside the slab at rest
+     and is grazed by its edge at the two ends of the walk: the marquee reads
+     as a marquee without ever cutting the centre figure in half. The slab is
+     1.2h wide, the widest figure runs 0.65h, the walk is 0.2h either way — so
+     the copy beside it has to start 0.44h clear. */
+  .awr__figure-row {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: calc(var(--h) * 0.44);
+    white-space: nowrap;
+  }
+  /* 0.26h puts the cap height of the figure at 0.18 of the box — the same
+     ratio the reference sets its wordmark at — while keeping the longest of
+     the four, 2,000+, inside the slab for the whole of the walk. A figure
+     cropped mid-digit is the one thing on this page that cannot happen. */
+  /* `flex: none` because the row overflows the slab on both sides by design:
+     without it the three copies are squeezed to fit and the figure is set at
+     whatever width is left over. */
+  .awr__face--type .awr__figure { font-size: calc(var(--h) * 0.26); flex: none; }
+  .awr__face--type .awr__seq {
+    position: absolute; z-index: 2;
+    top: clamp(1.1rem, 2vw, 1.9rem); left: clamp(1.25rem, 2.4vw, 2.2rem);
+  }
+  .awr__face--type figcaption {
+    position: absolute; z-index: 2;
+    left: clamp(1.25rem, 2.4vw, 2.2rem); right: clamp(1.25rem, 2.4vw, 2.2rem);
+    bottom: clamp(1.1rem, 2vw, 1.9rem);
+    display: flex; flex-direction: column; gap: 0.3rem;
+  }
 
   /* — the plate panel — */
   /* One tint on every face. Four different tints is a decoration the reference
@@ -339,7 +438,10 @@
      is a filter on the image box, and a filter applies to the whole subtree —
      nested inside, the warm gold wash would be desaturated along with the
      photograph it is there to warm. */
-  .awr__plate { position: absolute; inset: clamp(0.55rem, 0.85vw, 0.85rem); overflow: hidden; }
+  /* Inset well in from the panel edge and sitting low in it, as the reference
+     has it: the tint is a mount the plate is laid on, not a hairline border
+     around a photograph that fills the box. */
+  .awr__plate { position: absolute; inset: 13% 8% 8%; overflow: hidden; }
   .awr__plate-inner {
     position: relative; width: 100%; height: 100%;
     background-size: cover; background-position: center;

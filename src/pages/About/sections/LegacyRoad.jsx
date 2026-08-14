@@ -140,7 +140,6 @@ const CUE = {
   plateOutAt: 0.86,
   plateOut: 0.24,
 };
-const pad = (n) => String(n).padStart(2, '0');
 
 // A supporting line, not a claim: both halves of it are already in the data
 // above — the 1996 enrolment, and a bench that reached eleven by 2024.
@@ -695,11 +694,21 @@ function RoadStage() {
                       behind. Two elements so the reveal can be a transform. */}
                   <span className="lroad__leaf" ref={push(leaves, i)}>
                     {c.plate ? (
+                      // Never `loading="lazy"` here. All six leaves are parked
+                      // off the window and only slide in on their cue, so a lazy
+                      // image does not become eligible to load until the exact
+                      // moment its chapter arrives — which is far too late to be
+                      // decoded for that beat. Every chapter reached its cue
+                      // with an empty frame, and only the closing one, held long
+                      // enough at the end, ever filled in.
+                      // They must be loaded before the road reaches them, so
+                      // they load with the page: eager, at normal priority.
+                      // The mobile list below keeps `lazy` — those rows are in
+                      // normal flow and scroll into view honestly.
                       <img
                         src={c.plate.img}
                         alt={c.plate.alt}
                         style={{ objectPosition: c.plate.pos, filter: c.plate.grade }}
-                        loading="lazy"
                         decoding="async"
                       />
                     ) : (
@@ -721,9 +730,6 @@ function RoadStage() {
                 key={c.year}
                 ref={push(chapters, i)}
               >
-                <span className="lroad__chapter-index">
-                  {pad(i + 1)} <i /> {pad(N)}
-                </span>
                 <span className="lroad__chapter-year">{c.year}</span>
                 <h3 className="lroad__chapter-title">{c.title}</h3>
                 <p className="lroad__chapter-body">{c.body}</p>
@@ -914,9 +920,6 @@ function RoadColumn({ still }) {
           {CHAPTERS.map((c, i) => (
             <article className="lroad__row" key={c.year} ref={push(rows, i)}>
               <i className="lroad__row-dot" ref={push(dots, i)} aria-hidden="true" />
-              <span className="lroad__chapter-index">
-                {pad(i + 1)} <i /> {pad(N)}
-              </span>
               <span className="lroad__chapter-year">{c.year}</span>
               <h3 className="lroad__chapter-title">{c.title}</h3>
               <p className="lroad__chapter-body">{c.body}</p>

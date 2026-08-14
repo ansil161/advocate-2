@@ -210,7 +210,13 @@ export default function StorySection() {
                 <div className="story__beat" key={i} ref={(el) => (beatRefs.current[i] = el)}>
                   <div className="story__card">
                     <div className="story__card-media">
-                      <img src={b.img} alt="" loading="lazy" />
+                      {/* Never `loading="lazy"`. Every beat but the first sits
+                          at `visibility: hidden` until the scrub fades it in,
+                          and a lazy image inside a hidden subtree is not
+                          eligible to load — so all but one card arrived at its
+                          cue with nothing in the window. They load with the
+                          page instead. */}
+                      <img src={b.img} alt="" decoding="async" />
                     </div>
                     <div className="story__card-text">
                       <span className="story__year">{b.year}</span>

@@ -94,7 +94,7 @@ export default function AboutHero() {
         gsap.set([r.datumH, r.datumV], { scaleX: 1, scaleY: 1, autoAlpha: 0.2, backgroundColor: NOTE_INK });
         gsap.set(r.accent, { scaleX: 1, autoAlpha: 0.5 });
         gsap.fromTo(
-          [r.title, r.metaTop, r.metaRow],
+          [r.title, r.metaRow],
           { autoAlpha: 0, y: 16 },
           { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }
         );
@@ -157,7 +157,7 @@ export default function AboutHero() {
         gsap.set(r.datumH, { scaleX: 0 });
         gsap.set(r.datumV, { scaleY: 0 });
         gsap.set(r.accent, { scaleX: 0, autoAlpha: 0 });
-        gsap.set([r.title, r.metaTop, r.metaRow], { autoAlpha: 0 });
+        gsap.set([r.title, r.metaRow], { autoAlpha: 0 });
         gsap.set(r.mark, { autoAlpha: 0 });
 
         // The fixed chrome sits above all of this and has to be told which way
@@ -264,12 +264,6 @@ export default function AboutHero() {
 
         // ---- 07 · the title emerges as the architecture settles ----
         tl.fromTo(
-          r.metaTop,
-          { autoAlpha: 0, y: 14 },
-          { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' },
-          CUE.title - 0.03
-        );
-        tl.fromTo(
           r.title,
           { autoAlpha: 0, yPercent: 14, scale: 1.045, letterSpacing: '0.16em' },
           { autoAlpha: 1, yPercent: 0, scale: 1, letterSpacing: '0.005em', duration: 0.15, ease: 'power2.out' },
@@ -284,7 +278,7 @@ export default function AboutHero() {
 
         // ---- 08 · the camera withdraws into the story ----
         tl.to([r.camPhoto, r.camDraw], { scale: 0.975, yPercent: -1.6, duration: 1 - CUE.withdraw }, CUE.withdraw);
-        tl.to([r.title, r.metaTop, r.metaRow], { y: -10, duration: 1 - CUE.withdraw }, CUE.withdraw);
+        tl.to([r.title, r.metaRow], { y: -10, duration: 1 - CUE.withdraw }, CUE.withdraw);
 
         tl.to(paper, { v: 0, duration: 0.16, onUpdate: () => setGround(paper.v > 0.5) }, CUE.ink);
 
@@ -414,23 +408,14 @@ export default function AboutHero() {
 
         <div className="ahero__ink" ref={ref('ink')} aria-hidden="true" />
 
-        {/* Sheet furniture: datum lines, dimension callouts, a survey reference.
+        {/* Sheet furniture: datum lines and a single section callout.
             None of it is meant to be read at a glance. */}
         <div className="ahero__datum ahero__datum--h" ref={ref('datumH')} aria-hidden="true" />
         <div className="ahero__datum ahero__datum--v" ref={ref('datumV')} aria-hidden="true" />
         <div className="ahero__accent" ref={ref('accent')} aria-hidden="true" />
 
         <div className="ahero__notation" ref={ref('notation')} aria-hidden="true">
-          <span className="ahero__note ahero__note--tl">Plate — Elevation</span>
           <span className="ahero__note ahero__note--tr">Sec. A–A</span>
-          <span className="ahero__note ahero__note--ml">
-            17.3850° N
-            <i />
-            78.4867° E
-          </span>
-          <span className="ahero__note ahero__note--mr">Scale 1 : 200</span>
-          <span className="ahero__note ahero__note--bl">SLA / About</span>
-          <span className="ahero__note ahero__note--br">Glazed curtain wall</span>
         </div>
 
         <div className="ahero__grain" aria-hidden="true" />
@@ -444,10 +429,6 @@ export default function AboutHero() {
             these to the 1360px measure leaves them visibly adrift from the
             title's edges on wide displays. */}
         <div className="ahero__type">
-          <span className="ahero__meta-top" ref={ref('metaTop')}>
-            <i />
-            About the firm
-          </span>
           <h1 className="ahero__title" ref={ref('title')}>
             SLA Advocates
           </h1>
