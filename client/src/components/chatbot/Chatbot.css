@@ -1,0 +1,667 @@
+/* ============================================================
+   SLA ASSISTANT — PANEL
+   ------------------------------------------------------------
+   Imported by ChatPanel.jsx, so this sheet is emitted as part of
+   the assistant's lazy chunk and is never downloaded by a visitor
+   who does not open it. The launcher's own styling, and the shared
+   custom properties both sheets use, live in ChatLauncher.css,
+   which does ship on first paint.
+
+   This panel is built to a supplied reference design rather than
+   to the site's cream/gold system, so it carries its own palette:
+   the neutral light-UI tokens that design assumes. They are
+   declared on `.chat-panel` rather than on `:root` so nothing here
+   can reach the rest of the site — the token names deliberately
+   shadow shadcn's (--background, --muted-foreground, --border)
+   and would collide with the site's own if they were global.
+
+   Sizes are the reference's Tailwind values converted once:
+   text-xs .75rem · text-sm .875rem · text-lg 1.125rem
+   text-xl 1.25rem · size-4 1rem · size-3.5 .875rem · h-7 1.75rem
+   ============================================================ */
+.chat-panel {
+  /* ── premium law firm dark glassmorphic palette ────────────────── */
+  --background: rgba(10, 10, 10, 0.88);
+  --foreground: var(--cream);
+  --muted: rgba(247, 244, 236, 0.05);
+  --muted-foreground: rgba(247, 244, 236, 0.58);
+  --border: rgba(247, 244, 236, 0.1);
+  --secondary: rgba(247, 244, 236, 0.08);
+  --secondary-foreground: #ffffff;
+  --accent: rgba(169, 131, 79, 0.15); /* Gold glow */
+  --radius-lg: 1.25rem;
+  --radius-md: 0.75rem;
+
+  position: fixed;
+  right: var(--chat-gap);
+  bottom: calc(var(--chat-gap) + var(--chat-launcher-h) + 1rem + env(safe-area-inset-bottom, 0px));
+  z-index: var(--chat-z);
+
+  width: min(440px, calc(100vw - (var(--chat-gap) * 2)));
+  height: min(760px, calc(100dvh - 9rem));
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  overflow: hidden;
+
+  /* Glassmorphism setup */
+  background: var(--background);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  color: var(--foreground);
+  
+  /* Gradient border effect */
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  
+  /* Glowing shadow */
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6), 
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+              0 10px 40px -10px rgba(169, 131, 79, 0.1);
+}
+
+/* ============================================================
+   HEADER
+   Two ghost icon buttons, right-aligned, exactly as drawn.
+   ============================================================ */
+.chat-head {
+  flex: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+}
+.chat-head__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.chat-head__btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+.chat-head__btn:hover {
+  background: var(--accent);
+  color: var(--secondary-foreground);
+}
+.chat-head__btn:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: 2px;
+}
+.chat-head__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ============================================================
+   BODY — the reference's CardContent: flex-1, no padding, the
+   composer pushed to the bottom with mt-auto.
+   ============================================================ */
+.chat-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* ── transcript ───────────────────────────────────────────── */
+.chat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* Stops a flick that reaches the end of this list from continuing into the
+     page behind it. */
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.25rem;
+}
+/* Empty, the greeting block is centred in the space above the composer —
+   the reference's `items-center justify-center`. `safe` keeps a tall
+   greeting on a short viewport from being centred into a clipped top;
+   browsers without it fall back to the flex-start above, which is the
+   failure `safe` exists to prevent. */
+.chat-scroll.is-empty {
+  justify-content: safe center;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+.chat-scroll:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: -2px;
+}
+.chat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* ============================================================
+   WELCOME — the reference's centred stack: mark, greeting pair,
+   lede, chips.
+   ============================================================ */
+.chat-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.chat-welcome__mark {
+  width: 48px;
+  height: 48px;
+  flex: none;
+}
+.chat-welcome__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  text-align: center;
+}
+.chat-welcome__greeting {
+  display: flex;
+  flex-direction: column;
+}
+.chat-welcome__hi {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+}
+.chat-welcome__title {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--gold-soft);
+}
+.chat-welcome__lede {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+.chat-welcome__fine {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+.chat-welcome__fine a,
+.chat-open__fine a {
+  color: var(--gold-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The same caveat, reduced to a footnote once the conversation has started. */
+.chat-open__fine {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+/* ============================================================
+   CHIPS
+   ============================================================ */
+.chat-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.chat-suggest--hero {
+  align-items: center;
+}
+.chat-suggest__label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.chat-suggest--hero .chat-suggest__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.chat-suggest__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.chat-suggest--hero .chat-suggest__list {
+  justify-content: center;
+}
+.chat-suggest__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.75rem;
+  min-width: 1.75rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chat-suggest__chip:hover:not(:disabled) {
+  background: rgba(169, 131, 79, 0.15);
+  border-color: rgba(169, 131, 79, 0.4);
+  box-shadow: 0 4px 15px rgba(169, 131, 79, 0.2);
+  transform: translateY(-1px);
+}
+.chat-suggest__chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.chat-suggest__chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.chat-suggest__glyph {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: none;
+  margin-left: -1px;
+}
+/* A unified professional monochrome/gold palette instead of bright colors. */
+.chat-suggest__glyph--blue { color: var(--gold-soft); }
+.chat-suggest__glyph--orange { color: var(--gold-soft); }
+.chat-suggest__glyph--green { color: var(--gold-soft); }
+.chat-suggest__glyph--pink { color: var(--gold-soft); }
+.chat-suggest__glyph--yellow { color: var(--gold-soft); }
+.chat-suggest__glyph--purple { color: var(--gold-soft); }
+
+/* ============================================================
+   MESSAGES - Modern Bubbles
+   ============================================================ */
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+  animation: messageSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+@keyframes messageSlideIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-msg__who {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  margin-bottom: 0.375rem;
+}
+
+.chat-msg__body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
+  max-width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.chat-msg__body p + p {
+  margin-top: 0.7rem;
+}
+
+/* User Bubble (Right Aligned, Gradient) */
+.chat-msg--visitor {
+  align-items: flex-end;
+}
+.chat-msg--visitor .chat-msg__who {
+  display: none; /* Hide "You" label for cleaner UI */
+}
+.chat-msg--visitor .chat-msg__body {
+  background: rgba(169, 131, 79, 0.15);
+  border: 1px solid rgba(169, 131, 79, 0.3);
+  color: var(--cream);
+  border-bottom-right-radius: 0.25rem;
+}
+
+/* Assistant Bubble (Left Aligned, Glass) */
+.chat-msg--assistant {
+  align-items: flex-start;
+}
+.chat-msg--assistant .chat-msg__who {
+  margin-left: 0.5rem;
+  color: var(--accent);
+}
+.chat-msg--assistant .chat-msg__body {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+  border-bottom-left-radius: 0.25rem;
+}
+
+.chat-msg__note {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-left: 0.5rem;
+}
+.chat-msg__sources {
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+.chat-msg__sources-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-bottom: 0.375rem;
+}
+.chat-msg__sources li + li {
+  margin-top: 0.2rem;
+}
+.chat-msg__sources a {
+  display: inline-block;
+  font-size: 0.8125rem;
+  color: var(--gold-soft);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.chat-msg__sources a:hover {
+  color: var(--gold);
+  text-decoration: underline;
+}
+.chat-msg__sources i {
+  color: var(--muted-foreground);
+}
+.chat-msg__sources a:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: 2px;
+}
+
+/* ── typing ───────────────────────────────────────────────── */
+.chat-typing {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.chat-typing__label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.chat-typing__marks {
+  display: inline-flex;
+  gap: 4px;
+}
+.chat-typing__marks i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+  opacity: 0.3;
+  animation: chatTyping 1.25s ease-in-out infinite;
+}
+.chat-typing__marks i:nth-child(2) { animation-delay: 0.16s; }
+.chat-typing__marks i:nth-child(3) { animation-delay: 0.32s; }
+@keyframes chatTyping {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  45% { opacity: 1; transform: translateY(-2px); }
+}
+
+/* ── error ────────────────────────────────────────────────── */
+.chat-error {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--muted);
+}
+.chat-error p {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--foreground);
+}
+.chat-error__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.625rem;
+}
+.chat-error__retry {
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  border-radius: var(--radius-md);
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.chat-error__retry:hover {
+  background: #262626;
+}
+.chat-error__dismiss {
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.chat-error__dismiss:hover {
+  background: var(--accent);
+  color: var(--secondary-foreground);
+}
+.chat-error__retry:focus-visible,
+.chat-error__dismiss:focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   COMPOSER
+   Modern pill-shaped input with glowing focus state
+   ============================================================ */
+.chat-composer {
+  position: relative;
+  margin-top: auto;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.chat-composer:focus-within {
+  border-color: rgba(169, 131, 79, 0.5);
+  box-shadow: 0 0 0 1px rgba(169, 131, 79, 0.5), 0 0 15px rgba(169, 131, 79, 0.15);
+}
+
+.chat-composer__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.chat-composer__row {
+  position: relative;
+}
+.chat-composer__field {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  max-height: 150px;
+  resize: none;
+  padding: 1rem 3.5rem 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+.chat-composer__field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.chat-composer__field:focus {
+  outline: none;
+}
+.chat-composer__field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-composer__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+}
+
+/* The send control */
+.chat-composer__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(22, 21, 15, 0.8);
+  border: 1px solid var(--border);
+  color: var(--gold-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.chat-composer__send svg {
+  width: 1rem;
+  height: 1rem;
+}
+.chat-composer__send:hover:not(:disabled) {
+  transform: scale(1.05);
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+  box-shadow: 0 4px 15px rgba(169, 131, 79, 0.3);
+}
+.chat-composer__send:disabled {
+  opacity: 0.3;
+  cursor: default;
+  box-shadow: none;
+}
+.chat-composer__send:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chat-composer__count {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+/* ============================================================
+   COMPACT LAYOUT
+   The panel becomes the screen. 720px matches the breakpoint the
+   rest of the site collapses at — see the media queries in
+   index.css and the page stylesheets.
+   ============================================================ */
+@media (max-width: 720px) {
+  .chat-panel {
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.75rem;
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    gap: 1rem;
+  }
+  .chat-composer__field {
+    /* 16px, below which iOS Safari zooms the viewport on focus. */
+    font-size: 1rem;
+  }
+}
+
+/* Short viewports. The reference card is min-h-[800px] and lays its empty
+   state out with room to spare; floating over a page on a laptop screen there
+   is far less, and the chip row is the first thing to fall below the fold.
+   Tightening the stack and the field's floor keeps the whole empty state —
+   mark, greeting, lede, chips — visible without scrolling. */
+@media (max-height: 820px) {
+  .chat-scroll.is-empty {
+    gap: 1.25rem;
+    padding: 0.25rem;
+  }
+  .chat-welcome {
+    gap: 1.125rem;
+  }
+  .chat-composer__field {
+    min-height: 72px;
+  }
+}
+@media (max-height: 660px) {
+  .chat-welcome__mark {
+    width: 40px;
+    height: 40px;
+  }
+  .chat-welcome__hi {
+    font-size: 1.125rem;
+  }
+  .chat-composer__field {
+    min-height: 56px;
+  }
+}
+
+/* Very short viewports — a landscape phone. */
+@media (max-height: 560px) and (min-width: 721px) {
+  .chat-panel {
+    height: calc(100dvh - 6rem);
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   The panel's own entrance is handled in ChatPanel.jsx via
+   framer-motion's useReducedMotion. What remains here are the CSS
+   transitions and the one keyframe animation.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .chat-head__btn,
+  .chat-suggest__chip,
+  .chat-msg__sources a,
+  .chat-composer__send {
+    transition: none;
+  }
+  .chat-typing__marks i {
+    animation: none;
+    opacity: 0.55;
+  }
+}

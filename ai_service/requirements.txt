@@ -1,0 +1,32 @@
+# SLA Advocates — AI service dependencies.
+#
+# Pinned to the versions this service was built and tested against on
+# Python 3.14 (the only interpreter installed on the target machine). Every
+# entry below resolves to a cp314 wheel; none of them build from source.
+#
+# Deliberately absent: any local embedding/inference stack (torch,
+# sentence-transformers). Embeddings and generation are both served by the
+# Hugging Face Inference API, which keeps this service small enough to deploy
+# anywhere and keeps model weights out of the image.
+
+fastapi==0.141.1
+uvicorn[standard]==0.52.3
+pydantic==2.13.4
+pydantic-settings==2.15.0
+httpx==0.28.1
+qdrant-client==1.19.0
+
+# Shared state across workers: rate-limit counters, conversation memory and the
+# metrics window. Optional at runtime — the service falls back to per-process
+# state when REDIS_URL is unset — but always installed, because the Docker
+# deployment always has Redis and an ImportError there would be a silent
+# downgrade rather than a clear failure.
+redis==6.4.0
+
+# Test-only. Kept in the same file rather than a split requirements-dev.txt
+# because this service has one environment and the suite must be runnable in it.
+pytest==9.0.1
+pytest-asyncio==1.3.0
+# Exercises the Redis code paths without needing a server, which is what keeps
+# the suite runnable on a bare checkout.
+fakeredis==2.37.0

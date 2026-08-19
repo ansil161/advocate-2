@@ -10,22 +10,71 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
+def _load_env_file() -> None:
+    """Read ``server/.env`` into the environment if it exists.
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4vi3b@f&o6qscp*ursr-i0b*sfp1ck-vaau$69l1-s+s8mw(=+'
+    Deliberately hand-rolled rather than pulling in python-dotenv: it is a
+    dozen lines, this project pins its dependencies tightly, and a settings
+    file should not acquire a third-party import to read six variables.
+    Real environment variables always win, so a container that injects them
+    properly is unaffected by a stale file on disk.
+    """
+    env_file = BASE_DIR.parent / ".env"
+    if not env_file.exists():
+        return
+    for line in env_file.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+_load_env_file()
+
+
+def _flag(name: str, default: bool) -> bool:
+    return os.environ.get(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _list(name: str) -> list[str]:
+    return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
+
+
+# SECURITY WARNING: keep the secret key used in production secret.
+#
+# The development default is generated per-process rather than hardcoded. A
+# committed key is a signing key for sessions and password-reset tokens, so
+# anyone with the repository can forge a session for any user — including the
+# admin account this project is about to put in front of the knowledge base.
+# A per-process key means dev sessions do not survive a restart, which is a
+# small annoyance and the correct trade.
+DEBUG = _flag("DJANGO_DEBUG", True)
+
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise RuntimeError(
+            "DJANGO_SECRET_KEY must be set when DEBUG is off. "
+            "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
+        )
+    from django.core.management.utils import get_random_secret_key
+
+    SECRET_KEY = get_random_secret_key()
+
+# Empty in production is refused rather than defaulted: Django would answer any
+# Host header, which enables cache poisoning and password-reset links pointing
+# at an attacker's domain.
+ALLOWED_HOSTS = _list("DJANGO_ALLOWED_HOSTS") or (["localhost", "127.0.0.1"] if DEBUG else [])
+if not DEBUG and not ALLOWED_HOSTS:
+    raise RuntimeError("DJANGO_ALLOWED_HOSTS must list the site's hostnames when DEBUG is off.")
 
 
 # Application definition
@@ -39,9 +88,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sla',
     'account',
+    'knowledge',
 ]
 
 MIDDLEWARE = [
+    # First, so a preflight is answered before anything else can reject it —
+    # and so CORS headers are present even on an error response, which is
+    # what makes a 401 legible to the SPA instead of an opaque CORS failure.
+    'sla.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,13 +131,22 @@ WSGI_APPLICATION = 'sla.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "sla_advocate",
-        "USER": "postgres",
-        "PASSWORD": "12345",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.environ.get("POSTGRES_DB", "sla_advocate"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
+        # No default in production. A committed password is a credential
+        # published to everyone with repository access, and the previous
+        # hardcoded "12345" would also have been the value used on any server
+        # that forgot to override it.
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "" if not DEBUG else "postgres"),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
+        # Reuse connections rather than opening one per request. Each admin
+        # page view otherwise costs a fresh TCP + auth round trip to Postgres.
+        "CONN_MAX_AGE": int(os.environ.get("POSTGRES_CONN_MAX_AGE", "60")),
     }
 }
+if not DEBUG and not DATABASES["default"]["PASSWORD"]:
+    raise RuntimeError("POSTGRES_PASSWORD must be set when DEBUG is off.")
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -125,22 +188,148 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Django reads EMAIL_BACKEND, not MAILERS — the previous dict was not a Django
+# setting and configured nothing, so mail silently used the default SMTP
+# backend and would have failed on the first send.
+EMAIL_BACKEND = os.environ.get(
+    "DJANGO_EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend",
+)
 
-# Session and Cookie Settings (Production Level)
-# Using 'Lax' allows cookies to be sent on top-level navigations (e.g., following a link). 
-# If the frontend is on a different domain, you might need 'None' and SECURE=True.
-SESSION_COOKIE_SAMESITE = 'Lax' 
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_HTTPONLY = True # Prevent JS access to session cookie
-CSRF_COOKIE_HTTPONLY = False # Often needs to be false if JS needs to read CSRF token
+# ── Session and CSRF cookies ─────────────────────────────────────────────────
+# 'Lax' allows the cookie on top-level navigations while still blocking it on
+# cross-site POSTs, which is the CSRF case that matters. If the admin frontend
+# is ever served from a different origin this must become 'None' *with*
+# SECURE=True — 'None' without Secure is rejected by every current browser.
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_HTTPONLY = True  # Keeps the session cookie out of reach of XSS.
+CSRF_COOKIE_HTTPONLY = False  # The SPA must read this one to echo it back.
+
+# Origins allowed to send authenticated unsafe requests. Django 4+ requires the
+# scheme, and an admin SPA on a different port is cross-origin for CSRF even
+# though it is the same host.
+# Origins allowed to make credentialed cross-origin requests. Defaults to the
+# CSRF list below, so one setting governs both and they cannot disagree about
+# which front end is trusted.
+CORS_ALLOWED_ORIGINS = _list("DJANGO_CORS_ALLOWED_ORIGINS")
+
+CSRF_TRUSTED_ORIGINS = _list("DJANGO_CSRF_TRUSTED_ORIGINS") or (
+    ["http://localhost:5173", "http://127.0.0.1:5173"] if DEBUG else []
+)
+
+# ── Transport security ───────────────────────────────────────────────────────
+# All off in development, because a redirect to https on localhost makes the
+# site unreachable rather than secure. All on otherwise: a session cookie sent
+# once over http is a session that can be stolen in transit, and the admin
+# session here authorises editing the firm's published knowledge base.
+if not DEBUG:
+    SECURE_SSL_REDIRECT = _flag("DJANGO_SECURE_SSL_REDIRECT", True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_REFERRER_POLICY = "same-origin"
+    # Only trust this header behind a proxy that sets it itself. With it on and
+    # no such proxy, any caller can claim https by sending the header and
+    # defeat both the redirect and the Secure cookie flag.
+    if _flag("DJANGO_TRUST_PROXY_SSL_HEADER", False):
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.CustomUser'
 
+
+
+# ── AI service bridge ────────────────────────────────────────────────────────
+# Django owns the authoritative document state; the AI service owns the vectors.
+# Publishing calls its internal API rather than opening a second Qdrant
+# connection here — one embedding pipeline, one set of chunking rules, one place
+# for the vector dimension to be defined.
+AI_SERVICE_URL = os.environ.get("AI_SERVICE_URL", "http://127.0.0.1:8001")
+
+# Shared secret for that internal API. Unset means publishing fails loudly with
+# a clear message rather than silently doing nothing.
+AI_INTERNAL_API_KEY = os.environ.get("AI_INTERNAL_API_KEY", "")
+
+
+# ── Redis, cache and Celery ──────────────────────────────────────────────────
+# One URL for both roles. Redis is used as a cache and a broker here, never as a
+# store of record: everything authoritative is in PostgreSQL, so a flushed Redis
+# costs a queued job and nothing else.
+#
+# Optional by design. Unset, and the cache falls back to local memory while
+# indexing runs on an in-process thread pool — which is what makes
+# `manage.py runserver` and the test suite work with no infrastructure. The
+# trade-off is stated where it bites: without a broker, background work dies with
+# the process that started it.
+REDIS_URL = os.environ.get("REDIS_URL", "")
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            # A cache outage must not become a site outage. Django's Redis
+            # backend raises by default; this makes a miss out of a failure.
+            "OPTIONS": {"IGNORE_EXCEPTIONS": True},
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "sla-local",
+        }
+    }
+
+# Separate logical databases so a cache flush cannot discard queued jobs, and a
+# broker backlog cannot evict cached values.
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", f"{REDIS_URL}/1" if REDIS_URL else "")
+CELERY_RESULT_BACKEND = os.environ.get(
+    "CELERY_RESULT_BACKEND", f"{REDIS_URL}/2" if REDIS_URL else ""
+)
+
+# JSON only. Celery's default pickle serialiser executes arbitrary objects from
+# the broker, which turns "someone reached Redis" into "someone runs code as the
+# worker" — and the only thing these tasks ever carry is a document id.
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = TIME_ZONE
+# Indexing is upstream-bound — every task waits on the embedding API — so a task
+# that outlives this is stuck, not slow.
+CELERY_TASK_SOFT_TIME_LIMIT = 240
+CELERY_TASK_TIME_LIMIT = 300
+
+# Acknowledge after the work, not on receipt: a worker killed mid-index leaves
+# the task to be redelivered. Safe because indexing is idempotent — chunk ids are
+# a deterministic hash of document and version, so a repeat overwrites the same
+# points rather than duplicating them.
+CELERY_TASK_ACKS_LATE = True
+# One task at a time per worker. More concurrency here means more parallel load
+# on a rate-limited embedding provider, not more throughput.
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_CONCURRENCY = int(os.environ.get("CELERY_WORKER_CONCURRENCY", "2"))
+# Results are a polling convenience, not a record. The IngestionJob table is the
+# audit trail, so results are not worth keeping for long.
+CELERY_RESULT_EXPIRES = 3600
+
+# Recover jobs abandoned by a restart, so the one-active-job-per-document
+# constraint can never permanently block a document. Only scheduled when a
+# broker exists; harmless to run often because it only touches stale rows.
+if CELERY_BROKER_URL:
+    CELERY_BEAT_SCHEDULE = {
+        "recover-stale-indexing-jobs": {
+            "task": "knowledge.recover_stale_jobs",
+            "schedule": 600.0,
+        }
+    }

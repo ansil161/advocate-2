@@ -1,0 +1,179 @@
+# SLA Advocates — full backend stack.
+#
+#   docker compose up --build
+#
+# Five services: PostgreSQL (authoritative document state), Redis (shared rate
+# limiting, conversation memory, metrics, and the Celery broker), the FastAPI
+# RAG service, Django, and a Celery worker.
+#
+# Qdrant is deliberately NOT here. The deployment uses Qdrant Cloud, and the
+# cluster is shared with another project — running a second, empty local Qdrant
+# beside it would give two places for the collection to exist and one of them
+# would silently be the wrong one. QDRANT_URL points at the real cluster.
+#
+# Secrets come from the two .env files, which are gitignored. Nothing in this
+# file contains a credential.
+
+name: sla-advocates
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sla_advocate}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Not published to the host by default. The only things that need the
+    # database are on this network; exposing 5432 publicly is how a dev database
+    # ends up on the internet.
+    expose:
+      - "5432"
+    healthcheck:
+      # -d and -U so the check fails when the database exists but the role
+      # cannot reach it, rather than passing on the postgres superuser.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-sla_advocate}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Redis holds only disposable state here — counters, hour-long conversations,
+    # a metrics window and a job queue — so it is configured as a cache:
+    # bounded memory, LRU eviction, no persistence to lose.
+    #
+    # allkeys-lru rather than volatile-lru: every key this stack writes has a
+    # TTL except queued Celery messages, and evicting the oldest cache entry
+    # under pressure is better than refusing writes.
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  ai_service:
+    build:
+      context: ./ai_service
+    restart: unless-stopped
+    # Credentials for Gemini, Groq, Hugging Face and Qdrant Cloud, plus the
+    # internal shared secret. Read from the file rather than listed here so no
+    # secret is ever in a committed YAML.
+    env_file:
+      - ./ai_service/.env
+    environment:
+      # Overrides whatever the .env says, because inside Compose the hostname is
+      # the service name, not localhost.
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: production
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8001:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8001/api/health', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 25s
+
+  django:
+    build:
+      context: ./server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-sla_advocate}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      REDIS_URL: redis://redis:6379/3
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      # Django reaches the AI service by service name over the compose network.
+      AI_SERVICE_URL: http://ai_service:8001
+      DJANGO_DEBUG: "false"
+      DJANGO_SECURE_SSL_REDIRECT: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # Gated on the AI service being able to answer, not merely running:
+      # publishing a document calls its internal API, and a Django that starts
+      # first would fail every publish until the other side warmed up.
+      ai_service:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    # Migrations run here rather than in an entrypoint script so that the
+    # command is visible in this file. Safe to repeat: migrate is idempotent.
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+      gunicorn sla.wsgi:application --bind 0.0.0.0:8000
+      --workers 3 --threads 2 --timeout 120
+      --access-logfile - --error-logfile -"
+
+  celery_worker:
+    build:
+      context: ./server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-sla_advocate}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      REDIS_URL: redis://redis:6379/3
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      AI_SERVICE_URL: http://ai_service:8001
+      DJANGO_DEBUG: "false"
+      DJANGO_SECURE_SSL_REDIRECT: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai_service:
+        condition: service_healthy
+    # --beat runs the periodic stale-job recovery in the same process. Correct
+    # only because there is exactly one worker replica: two beats would schedule
+    # every periodic task twice. Split into its own service before scaling this.
+    #
+    # Concurrency 2 matches CELERY_WORKER_CONCURRENCY. Indexing waits on the
+    # embedding API, so more workers here means more parallel load on a
+    # rate-limited provider, not more throughput.
+    command: >
+      celery -A sla worker
+      --beat
+      --loglevel INFO
+      --concurrency 2
+    healthcheck:
+      # Asks the worker itself, over the broker. A worker whose process is alive
+      # but not consuming would pass a PID check and fail this one.
+      test: ["CMD-SHELL", "celery -A sla inspect ping -d celery@$$HOSTNAME || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres-data:

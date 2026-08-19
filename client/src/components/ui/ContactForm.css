@@ -73,35 +73,53 @@
 .cform--light .cform__done-text a:hover { border-bottom-color: var(--ink); }
 .cform--light .cform__again { color: var(--ink); }
 
-/* — dark: inside the CTA bands — */
+/* — dark: inside the CTA bands — PREMIUM REDESIGN — */
 .cform--dark {
   --err: #e79b8f;
-  position: relative; background: var(--black-card); border: 1px solid var(--line-dark);
-  padding: clamp(2rem, 3.5vw, 2.75rem); overflow: hidden; text-align: left;
+  position: relative; 
+  background: rgba(15, 15, 15, 0.45); 
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: clamp(2rem, 3.5vw, 3rem); 
+  overflow: hidden; 
+  text-align: left;
 }
+/* Enhanced hairline using animated gradient */
 .cform--dark::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold-soft) 50%, var(--gold-dim));
+  background: linear-gradient(90deg, transparent, var(--gold-soft) 20%, var(--white) 50%, var(--gold-soft) 80%, transparent);
+  opacity: 0.8;
 }
-.cform--dark .cform__head { border-bottom-color: var(--line-darker); }
-.cform--dark .cform__heading { color: var(--cream); }
-.cform--dark .cform__note { color: var(--muted-dark); }
-.cform--dark label { color: var(--gold-soft); }
+.cform--dark .cform__head { border-bottom-color: rgba(255, 255, 255, 0.1); margin-bottom: 2rem; padding-bottom: 2rem; }
+.cform--dark .cform__heading { color: var(--white); font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+.cform--dark .cform__note { color: rgba(255,255,255,0.7); }
+.cform--dark label { color: var(--gold-soft); font-weight: 600; opacity: 0.95; }
 .cform--dark input, .cform--dark select, .cform--dark textarea {
-  background: rgba(247, 244, 236, 0.04); border-color: var(--line-darker);
-  color: var(--cream); color-scheme: dark;
+  background: rgba(255, 255, 255, 0.03); 
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--white); color-scheme: dark;
+  transition: all 0.3s var(--ease);
 }
-.cform--dark input::placeholder, .cform--dark textarea::placeholder { color: rgba(247, 244, 236, 0.32); }
-.cform--dark .cform__alt { color: var(--muted-dark); }
+.cform--dark input:focus, .cform--dark select:focus, .cform--dark textarea:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 0 4px rgba(211, 177, 127, 0.1);
+}
+.cform--dark input::placeholder, .cform--dark textarea::placeholder { color: rgba(255, 255, 255, 0.35); }
+.cform--dark .cform__alt { color: rgba(255, 255, 255, 0.5); }
 .cform--dark .cform__alt a { color: var(--gold-soft); }
-.cform--dark .cform__alt a:hover { border-bottom-color: var(--gold-soft); }
+.cform--dark .cform__alt a:hover { border-bottom-color: var(--gold-soft); color: var(--white); }
 /* Sits below the gold hairline so the card keeps its edge while resolved. */
-.cform--dark .cform__done { top: 2px; background: var(--black-card); }
+.cform--dark .cform__done { top: 2px; background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(12px); border-radius: inherit; }
 .cform--dark .cform__done-label { color: var(--gold-soft); }
-.cform--dark .cform__done-text { color: var(--muted-dark); }
-.cform--dark .cform__done-text a { color: var(--gold-soft); border-bottom-color: var(--line-dark); }
-.cform--dark .cform__done-text a:hover { border-bottom-color: var(--gold-soft); }
-.cform--dark .cform__again { color: var(--cream); }
+.cform--dark .cform__done-text { color: rgba(255,255,255,0.8); }
+.cform--dark .cform__done-text a { color: var(--gold-soft); border-bottom-color: rgba(255, 255, 255, 0.2); }
+.cform--dark .cform__done-text a:hover { border-bottom-color: var(--gold-soft); color: var(--white); }
+.cform--dark .cform__again { color: var(--white); }
 .cform--dark .cform__again::after { background: var(--gold-soft); }
 
 @media (max-width: 720px) {

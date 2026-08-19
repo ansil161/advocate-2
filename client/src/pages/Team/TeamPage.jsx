@@ -50,22 +50,29 @@ export default function TeamPage() {
       <div className="t-stackRoot">
         <TeamArrival />
 
-        <StackSection id="t-bench" className="t-panel t-panel--cream" depth={1}>
-          <div className="container t-bench">
-            <div className="t-bench__head">
-              <span className="eyebrow eyebrow--num">Eleven Advocates</span>
-              <h2 className="h2"><SplitText text="Who you will actually be sitting across from." /></h2>
-            </div>
-            <div className="t-bench__featured">
-              {featured.map(a => (
+        <StackSection id="t-founders" className="t-panel t-panel--dark" depth={1}>
+          <div className="container">
+            <span className="chapter-label"><Icon name="scale" /> <b>The Founders</b></span>
+            <div className="t-founders__grid">
+              {featured.map((a, i) => (
                 <AdvocateCard
                   advocate={a}
                   large
+                  align={i % 2 === 0 ? 'left' : 'right'}
                   key={a.slug}
                   open={openSlug === a.slug}
                   onToggle={toggleCard}
                 />
               ))}
+            </div>
+          </div>
+        </StackSection>
+
+        <StackSection id="t-bench" className="t-panel t-panel--cream" depth={2}>
+          <div className="container t-bench">
+            <div className="t-bench__head">
+              <span className="eyebrow eyebrow--num">Eleven Advocates</span>
+              <h2 className="h2"><SplitText text="Who you will actually be sitting across from." /></h2>
             </div>
             <div className="t-bench__grid">
               {rest.map((a, i) => (

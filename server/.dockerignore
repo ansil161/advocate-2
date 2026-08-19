@@ -1,0 +1,12 @@
+.env
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# The local development virtualenv — hundreds of megabytes, and built for a
+# different platform than the image.
+venv/
+
+db.sqlite3
+*.log

@@ -9,7 +9,7 @@ import StackSection from '../../components/ui/StackSection.jsx';
 import AboutHero from './sections/AboutHero.jsx';
 import StorySection from './sections/StorySection.jsx';
 import LegacyRoad from './sections/LegacyRoad.jsx';
-import AboutCTA from './sections/AboutCTA.jsx';
+import Consult from '../../components/shell/Consult.jsx';
 import { stats, philosophy, principles, office, communityService } from '../../data/firm.js';
 import { landmarkCases } from '../../data/landmarkCases.js';
 import libraryImg from '../../assets/img/library-moody.webp';
@@ -183,7 +183,7 @@ export default function About() {
         </div>
       </section>
 
-      <AboutCTA />
+      <Consult />
     </Layout>
   );
 }

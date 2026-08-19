@@ -120,341 +120,110 @@
 @keyframes awhCue { 0% { top: -100%; } 55% { top: 0; } 100% { top: 100%; } }
 
 /* ============================================================
-   02 — THE RECORD
-   Four figures on the four faces of one solid. The bar turns a quarter at a
-   time as the section is read — every rule that builds the solid is held in
-   the 3D block further down, so below 900px (and under reduced motion) the
-   same markup is four plain blocks down the page.
+   02 — THE RECORD (Cinematic Sticky Dossier)
+   A premium law firm aesthetic: large cinematic photographs on
+   the left, massive numbers that scroll and fade on the right.
    ============================================================ */
 .awr {
   position: relative; z-index: 2;
-  background: var(--cream);
+  background: var(--black-soft);
+  color: var(--cream);
   padding: clamp(6rem, 14vw, 11rem) 0 clamp(4.5rem, 9vw, 7.5rem);
 }
 .awr__head { margin-bottom: clamp(3.5rem, 8vw, 6rem); }
 .awr__title {
   font-family: var(--font-serif); font-weight: 400;
   font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.12; letter-spacing: -0.012em;
-  margin-top: 1.4rem; max-width: 15ch;
+  margin-top: 1.4rem; max-width: 15ch; color: var(--cream);
 }
 .awr__intro {
   margin-top: 1.6rem; max-width: 48ch;
-  font-size: 1rem; line-height: 1.75; color: var(--muted-light);
+  font-size: 1rem; line-height: 1.75; color: rgba(247, 244, 236, 0.7);
 }
 
-/* ---- the field ---------------------------------------------------------- */
-/* Two layouts, never both: the stage carries the solids and exists only where
-   the 3D is built; `.awr__flat` carries the same four figures as plain blocks
-   everywhere else. Each is display:none in the other's case, so nothing is
-   announced twice — and both point at the same four image files, so the
-   duplication costs no extra bytes over the wire. */
-.awr__track { display: none; }
-.awr__stage { position: relative; }
-.awr__frame { position: relative; z-index: 2; }
-
-/* The bar is set in a ruled field rather than floated in the middle of the
-   sheet: a hairline above it carrying the section's own label and the count,
-   a hairline below carrying the index and the run's progress. */
-.awr__meta {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 1.5rem;
-  padding-bottom: clamp(0.9rem, 1.6vw, 1.3rem);
-  border-bottom: 1px solid var(--line-light);
-  margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
-  font-family: var(--font-mono); font-size: 0.63rem; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--muted-light);
-}
-.awr__count b { font-weight: 400; color: var(--ink); }
-
-.awr__foot {
-  display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem);
-  margin-top: clamp(1.75rem, 3.5vw, 3rem);
-  padding-top: clamp(0.9rem, 1.6vw, 1.3rem);
-  border-top: 1px solid var(--line-light);
-}
-.awr__ticks {
-  display: flex; gap: 0.85rem; flex: none;
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.16em;
-}
-.awr__tick { color: rgba(22, 21, 15, 0.25); transition: color 0.5s var(--ease), transform 0.5s var(--ease); }
-.awr__tick.is-active { color: var(--gold-dim); transform: translateY(-2px); }
-.awr__progress { position: relative; flex: 1 1 auto; height: 1px; background: rgba(22, 21, 15, 0.12); }
-.awr__progress-fill {
-  position: absolute; inset: 0; display: block;
-  background: var(--gold-dim); transform-origin: left; transform: scaleX(0);
+.awr__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(3rem, 6vw, 6rem);
+  margin-top: clamp(2rem, 5vw, 4rem);
 }
 
-/* ---- the figure and what it is ------------------------------------------ */
-/* On the stage the number is set enormous and repeated across the face, and it
-   walks sideways as the bar turns — the reference's marquee. In the flat
-   layout below 901px there is no marquee: one instance of the number with its
-   label under it across a hairline. */
-.awr__seq {
-  display: inline-flex; align-items: center; gap: 0.7rem;
-  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.2em;
-  color: var(--gold-dim);
+/* ── left: the sticky plate ──────────────────────────── */
+.awr__left {
+  position: relative;
 }
-.awr__seq .icon { font-size: 1.25rem; }
-.awr__figure {
-  display: flex; align-items: flex-start; gap: 0.04em;
-  font-family: var(--font-serif); font-weight: 400;
-  line-height: 0.88; letter-spacing: -0.045em; color: var(--ink);
-  padding-bottom: 0.06em;
+.awr__left-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
 }
-.awr__figure i {
-  font-style: normal; font-size: 0.3em; line-height: 1;
-  margin-top: 0.28em; color: var(--muted-light);
+.awr__plate-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--black);
+  overflow: hidden;
 }
-.awr__hair { display: block; height: 1px; background: rgba(22, 21, 15, 0.22); }
-.awr__label {
-  font-family: var(--font-mono); font-size: clamp(0.72rem, 1vw, 0.82rem);
-  letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink);
+.awr__plate {
+  position: absolute; inset: 0;
+  opacity: 0; /* Animated by GSAP */
+  will-change: opacity, transform;
 }
-.awr__note {
-  display: block;
-  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em;
-  color: var(--muted-light); opacity: 0.85;
+.awr__plate-inner {
+  width: 100%; height: 100%;
+  background-size: cover; background-position: center;
+  filter: grayscale(0.5) contrast(1.1) brightness(0.85);
+  transform: scale(1.05); /* GSAP will animate scale down */
 }
-
-/* ---- the plate ---------------------------------------------------------- */
-/* Read at close to its own tonality. The old treatment — near-total grayscale
-   under a brightness cut — turned three of the four photographs into black
-   rectangles; the point of a plate is that you can see it. */
 .awr__plate-wash {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(10,10,10,0.06) 0%, rgba(10,10,10,0) 42%, rgba(10,10,10,0.42) 100%),
-    radial-gradient(88% 68% at 78% 12%, rgba(169,131,79,0.2) 0%, rgba(169,131,79,0) 62%);
+    linear-gradient(180deg, rgba(10,10,10,0.06) 0%, rgba(10,10,10,0) 42%, rgba(10,10,10,0.52) 100%),
+    radial-gradient(88% 68% at 78% 12%, rgba(169,131,79,0.15) 0%, rgba(169,131,79,0) 62%);
 }
 
-/* ---- the flat layout ---------------------------------------------------- */
-.awr__flat { display: grid; gap: clamp(2.5rem, 7vw, 4.5rem); }
-.awr__pair {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 5vw, 3rem); align-items: center;
+/* ── right: the scrolling records ────────────────────── */
+.awr__right {
+  padding: 20vh 0 50vh;
 }
-.awr__flat-media { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: var(--black); }
-.awr__flat-media img {
-  width: 100%; height: 100%; object-fit: cover;
-  filter: grayscale(0.72) contrast(1.04) brightness(0.96);
+.awr__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 50vh;
+  margin-bottom: 10vh;
+  opacity: 0.15; /* GSAP animates this */
 }
-.awr__flat-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; }
-.awr__flat-copy .awr__figure { font-size: clamp(3rem, 11vw, 5.5rem); }
-.awr__flat-copy .awr__hair { width: min(320px, 100%); }
-
-/* ============================================================
-   THE SOLIDS
-   ------------------------------------------------------------
-   One wide bar split in two boxes that turn as one. Each box carries four
-   faces of a cube: every face is pushed out by half of ITS OWN box depth and
-   turned a quarter more than the last, so each set closes into a solid. The
-   rotation itself is GSAP's — it runs negative, which tips the top face down
-   toward the reader and brings the next figure in from above.
-
-   The plate box is a step taller than the type slab and nudged up, so its
-   faces swing further forward and break the bar's line — and because the two
-   boxes sit at different heights against one perspective origin, a turn shows
-   the underside of one and the top of the other at the same moment.
-   ============================================================ */
-@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
-  .awr { padding-bottom: 0; }
-  .awr__flat { display: none; }
-  /* The track IS the sticky range: its height is what the timeline is measured
-     against, so start/end and the pin can never disagree. */
-  .awr__track {
-    display: block;
-    height: calc((var(--awr-count, 4) * 0.85 + 0.35) * 100svh);
-  }
-
-  /* ── the camera ───────────────────────────────────────────────
-     Measured off the reference across all 75 frames of it, by tracking the
-     slab's silhouette turn by turn.
-
-     THE CAMERA. A cube's silhouette is tallest as it passes 45°, and how much
-     taller than at rest depends only on how near the camera is: far away it
-     tends to √2, close in it is much less, because at rest the front face is
-     half a depth NEARER the lens and is already magnified. The reference goes
-     from 176px at rest to 221px at the peak — a ratio of 1.256 — and solving
-     that against the projection puts the camera at 4.46 box-heights. The first
-     build guessed 5.6 off a single blurred mid-turn frame, and before that it
-     was 3200px against a full-width bar, which is nearly orthographic: the
-     turn read as two flat cards flipping, not a block going end over end.
-
-     THE SIZE. The front face sits half a depth in front of the box's centre,
-     so at this camera it is painted 1.126× its own layout size. The bar has to
-     PAINT at 46% of the viewport and 2.4 : 1, which is what the reference
-     measures — so it is LAID OUT at 46 / 1.126 = 40.8vh. Setting 46vh here
-     directly, as the first build did, renders the bar about an eighth too big.
-
-     The vw cap is the same sum from the other side: the bar paints at 70% of
-     the viewport at most, so it is laid out at 62vw, and 62 / 2.4 = 26vw. */
-  .awr__stage {
-    /* The third term is the one that matters above about 2200px of viewport.
-       The bar is sized off the viewport HEIGHT, but it is laid inside the
-       page's 1360px container, so past that width the container clamps the
-       bar's width while the height carries on — and the 2.4 : 1 the reference
-       is built on collapses towards 2 : 1. Capping the height at the widest
-       the container can ever be, over that same 2.4, keeps the proportion
-       exact at every size; the bar simply stops growing on very large screens
-       instead of going out of shape. (1360 − 9rem: the container less its two
-       4.5rem gutters, which is where --gutter tops out.) */
-    --awr-h: min(40.8vh, 26vw, calc((var(--container) - 9rem) / 2.4));
-    --awr-w: calc(var(--awr-h) * 2.4);
-    display: flex; flex-direction: column; justify-content: center;
-    position: sticky; top: 0; height: 100svh; overflow: hidden;
-  }
-  /* `.container` centres itself with `margin-inline: auto`, and an auto margin
-     on the cross axis stops a flex item stretching — without this the frame
-     collapses to the width of its own content. */
-  .awr__frame { width: 100%; }
-  /* The two rules run to the bar's own edges, not the container's, so the
-     field closes around the solid instead of framing a wider empty grid. */
-  .awr__meta, .awr__foot { width: min(var(--awr-w), 100%); margin-inline: auto; }
-
-  .awr__scene {
-    position: relative;
-    width: min(var(--awr-w), 100%);
-    height: var(--awr-h);
-    margin-inline: auto;
-    display: flex; align-items: stretch; gap: 0;
-    perspective: calc(var(--awr-h) * 4.46); perspective-origin: 50% 50%;
-  }
-  /* The shadow the bar drops on the sheet — what stops the pair reading as two
-     flat cards that happen to be rotating. */
-  .awr__scene::after {
-    content: ''; position: absolute; left: 3%; right: 3%; bottom: -30px; height: 44px;
-    background: radial-gradient(58% 50% at 50% 50%, rgba(22,21,15,0.18), rgba(22,21,15,0) 70%);
-    pointer-events: none; z-index: -1;
-  }
-
-  /* The box holds the position, the solid inside it holds the rotation —
-     separate elements so the layout is never overwritten by the tween.
-     The box deliberately carries NO transform. The tidy way to stop the front
-     face being scaled up (it sits half a depth nearer the camera than the
-     scene's own plane) is a matching `translateZ` push-back here — but a
-     translateZ on this wrapper makes Chrome stop painting the photographs
-     inside the plates, leaving black rectangles, with or without the GPU. The
-     scale-up is corrected with a longer perspective instead. */
-  /* Two equal halves, flush, forming one bar — the reference splits it exactly
-     down the middle. The previous build made the plate 1.18× taller and nudged
-     it up out of line; against a single vanishing point that step reads as a
-     bad join rather than as a deliberate break in the bar's line. */
-  .awr__box {
-    --h: var(--awr-h);
-    flex: 1 1 0; min-width: 0;
-    height: var(--h);
-    transform-style: preserve-3d;
-  }
-
-  .awr__solid {
-    position: relative; height: 100%;
-    transform-style: preserve-3d;
-  }
-
-  /* No `backface-visibility: hidden` here on purpose. It is the obvious thing
-     to reach for on a cube, it is not needed — four faces of a closed solid
-     already occlude each other by depth — and in Chrome it drops the painting
-     of the photograph inside the plate entirely, leaving a black rectangle. */
-  .awr__face {
-    position: absolute; inset: 0; margin: 0; overflow: hidden;
-    transform: rotateX(calc(var(--i) * 90deg)) translateZ(calc(var(--h) / 2));
-  }
-
-  /* — the end walls — */
-  /* Four faces of a rotateX cube leave the two ends of the box open, and at
-     this camera an open end is in view for most of every turn: without a wall
-     the solid reads as a folded strip of card. Depth equals the face height,
-     so each wall is a square, set half a box-width out and turned to face
-     along X. Only the outer wall of each half is built — the inner pair meet
-     at the seam and are never seen. */
-  .awr__wall {
-    position: absolute; top: 0;
-    width: var(--h); height: var(--h);
-  }
-  .awr__box--type .awr__wall {
-    left: 0; transform: translateX(calc(var(--h) / -2)) rotateY(-90deg);
-    background: var(--cream-deep);
-  }
-  .awr__box--plate .awr__wall {
-    right: 0; transform: translateX(calc(var(--h) / 2)) rotateY(90deg);
-    background: #0e0d09;
-  }
-
-  /* — the type slab — */
-  /* The figure is the only thing set large on the slab, and it repeats across
-     the face and walks sideways as the bar turns: the reference's marquee. The
-     index, the name and the note sit small in the corners, so the composition
-     stays the reference's — one enormous mark on a pale ground — without
-     losing what the number actually counts. */
-  .awr__face--type {
-    display: block; padding: 0;
-    background: var(--cream-soft);
-    box-shadow: inset 0 0 0 1px var(--line-light);
-  }
-  /* Centred with the `translate` property, not with `transform`: GSAP owns the
-     element's `transform` for the sideways walk, and the two compose — the
-     individual property is applied first, the `transform` on top of it. */
-  /* Centred by the flex box itself, NOT by a -50% translate on the row. GSAP
-     owns this element's transform for the walk, and `xPercent` is written into
-     that same transform — a translate-based centring is simply replaced by the
-     first tween, and the row lands half a slab off to one side.
-
-     The gap is set so the neighbouring copy sits just outside the slab at rest
-     and is grazed by its edge at the two ends of the walk: the marquee reads
-     as a marquee without ever cutting the centre figure in half. The slab is
-     1.2h wide, the widest figure runs 0.65h, the walk is 0.2h either way — so
-     the copy beside it has to start 0.44h clear. */
-  .awr__figure-row {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    gap: calc(var(--h) * 0.44);
-    white-space: nowrap;
-  }
-  /* 0.26h puts the cap height of the figure at 0.18 of the box — the same
-     ratio the reference sets its wordmark at — while keeping the longest of
-     the four, 2,000+, inside the slab for the whole of the walk. A figure
-     cropped mid-digit is the one thing on this page that cannot happen. */
-  /* `flex: none` because the row overflows the slab on both sides by design:
-     without it the three copies are squeezed to fit and the figure is set at
-     whatever width is left over. */
-  .awr__face--type .awr__figure { font-size: calc(var(--h) * 0.26); flex: none; }
-  .awr__face--type .awr__seq {
-    position: absolute; z-index: 2;
-    top: clamp(1.1rem, 2vw, 1.9rem); left: clamp(1.25rem, 2.4vw, 2.2rem);
-  }
-  .awr__face--type figcaption {
-    position: absolute; z-index: 2;
-    left: clamp(1.25rem, 2.4vw, 2.2rem); right: clamp(1.25rem, 2.4vw, 2.2rem);
-    bottom: clamp(1.1rem, 2vw, 1.9rem);
-    display: flex; flex-direction: column; gap: 0.3rem;
-  }
-
-  /* — the plate panel — */
-  /* One tint on every face. Four different tints is a decoration the reference
-     could afford because its faces were four different projects; here they are
-     four figures from one record, and varying the colour makes the set look
-     unrelated rather than sequential. */
-  .awr__face--plate { background: #16150f; }
-  /* The wash is a SIBLING of the image box, not a child: the tonal treatment
-     is a filter on the image box, and a filter applies to the whole subtree —
-     nested inside, the warm gold wash would be desaturated along with the
-     photograph it is there to warm. */
-  /* Inset well in from the panel edge and sitting low in it, as the reference
-     has it: the tint is a mount the plate is laid on, not a hairline border
-     around a photograph that fills the box. */
-  .awr__plate { position: absolute; inset: 13% 8% 8%; overflow: hidden; }
-  .awr__plate-inner {
-    position: relative; width: 100%; height: 100%;
-    background-size: cover; background-position: center;
-    filter: grayscale(0.72) contrast(1.04) brightness(0.96);
-  }
+.awr__item:last-child {
+  margin-bottom: 0;
 }
-
-/* Under 900px and with reduced motion no solid is built, so the stage is not
-   rendered at all — `.awr__flat` is the whole section. Matched to `FLAT` in
-   RecordSection.jsx. */
-@media (max-width: 720px) {
-  .awr__pair { grid-template-columns: 1fr; gap: 1.25rem; }
-  .awr__flat-media { order: -1; }
+.awr__seq {
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.2em;
+  color: var(--gold-dim); margin-bottom: 1rem;
+}
+.awr__seq .icon { font-size: 1.4rem; }
+.awr__figure {
+  display: flex; align-items: flex-start; gap: 0.04em;
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(3.5rem, 6vw, 6rem);
+  line-height: 0.9; letter-spacing: -0.04em; color: var(--cream);
+  padding-bottom: 0.06em;
+}
+.awr__figure i {
+  font-style: normal; font-size: 0.4em; line-height: 1;
+  margin-top: 0.28em; color: rgba(247, 244, 236, 0.4);
+}
+.awr__hair { display: block; height: 1px; background: rgba(247, 244, 236, 0.15); margin: 1.5rem 0; width: 100%; }
+.awr__label {
+  font-family: var(--font-mono); font-size: 0.85rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream);
+}
+.awr__note {
+  display: block; margin-top: 1rem;
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em;
+  color: rgba(247, 244, 236, 0.5); line-height: 1.6; max-width: 40ch;
 }
 
 /* ============================================================
@@ -729,6 +498,15 @@
   .awb__entry { grid-template-columns: 3rem minmax(0, 1.2fr) minmax(0, 1fr); }
   .awb__since { grid-column: 2 / -1; text-align: left; display: flex; align-items: baseline; gap: 0.75rem; }
   .awb__since .awb__key { margin-bottom: 0; }
+}
+
+@media (max-width: 1023px) {
+  .awr__grid { grid-template-columns: 1fr; gap: 3rem; }
+  .awr__left { height: auto; margin-bottom: 2rem; }
+  .awr__left-inner { height: auto; justify-content: flex-start; }
+  .awr__plate-container { aspect-ratio: 16 / 10; max-height: 400px; border-radius: 4px; }
+  .awr__right { padding: 0; }
+  .awr__item { min-height: 0; margin-bottom: 4rem; opacity: 1 !important; transform: none !important; }
 }
 
 @media (max-width: 860px) {

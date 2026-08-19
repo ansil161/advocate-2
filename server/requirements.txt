@@ -1,0 +1,26 @@
+# SLA Advocates — Django backend dependencies.
+#
+# Direct dependencies only; the rest of `pip freeze` is their transitive closure
+# and pinning it here would mean editing this file every time one of them
+# updates a sub-dependency.
+#
+# Note what is absent: no Django REST Framework in the admin API. The knowledge
+# endpoints hand-build a handful of flat dicts through explicit allow-lists,
+# which is both less code than serializers and the reason a field added to a
+# model cannot silently start appearing in a response.
+
+Django==6.1
+psycopg2-binary==2.9.12
+
+# Cache and Celery broker. Optional at runtime — with REDIS_URL unset the cache
+# falls back to local memory and indexing runs on an in-process thread pool —
+# but installed here because the Docker deployment always has Redis.
+redis==6.4.0
+celery==5.6.0
+
+# WSGI server for the container. Not used by `manage.py runserver` in dev.
+gunicorn==23.0.0
+
+# Document parsing for admin upload
+pypdf==4.0.0
+python-docx==1.1.0

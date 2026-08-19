@@ -1,0 +1,130 @@
+/* ============================================================
+   SLA ASSISTANT — LAUNCHER
+   ------------------------------------------------------------
+   Split from Chatbot.css deliberately. This file is the only part
+   of the assistant's styling that ships on first paint, because
+   the launcher is the only part of it a visitor sees before they
+   ask for the rest. The panel's stylesheet is imported by
+   ChatPanel.jsx and therefore arrives with its lazy chunk — most
+   visitors never open the assistant and should never pay for it.
+
+   The shared custom properties live here rather than in the panel
+   sheet, because this file is guaranteed to have loaded by the
+   time the panel's has.
+
+   Built entirely from the tokens in index.css. Structure comes
+   from hairlines and typography — no pill, no bubble, no glow.
+
+   Stacking: the nav sits at 200, the route-change curtain at 500
+   and the drawn cursor at 999. The assistant sits at 300 — above
+   the nav it must cover, below the curtain that should sweep over
+   it on a route change, and below the cursor.
+   ============================================================ */
+
+:root {
+  --chat-z: 300;
+  --chat-width: 412px;
+  --chat-gap: clamp(1rem, 2.4vw, 1.75rem);
+  /* Real estate the launcher occupies, used to offset the panel above it. */
+  --chat-launcher-h: 46px;
+}
+
+.chat-launcher {
+  position: fixed;
+  right: var(--chat-gap);
+  bottom: calc(var(--chat-gap) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--chat-z);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  height: var(--chat-launcher-h);
+
+  /* Premium dark glassmorphism */
+  background: rgba(15, 15, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #f9fafb;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease;
+  
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+              0 0 15px rgba(99, 102, 241, 0.2);
+              
+  animation: launcherPulse 3s infinite ease-in-out;
+}
+
+@keyframes launcherPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 15px rgba(99, 102, 241, 0.1); }
+  50% { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15) inset, 0 0 25px rgba(99, 102, 241, 0.4); transform: scale(1.02); }
+}
+
+.chat-launcher:hover {
+  transform: translateY(-4px) scale(1.02);
+  background: rgba(25, 25, 30, 0.95);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 
+              0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+              0 0 30px rgba(99, 102, 241, 0.5);
+  animation: none; /* Stop pulse on hover */
+}
+.chat-launcher:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.8);
+  outline-offset: 3px;
+}
+.chat-launcher__mark {
+  display: flex;
+  font-size: 1.15rem;
+  color: #fff;
+}
+.chat-launcher__seal {
+  width: 1em;
+  height: 1em;
+  display: block;
+}
+.chat-launcher__label {
+  white-space: nowrap;
+}
+
+/* Open state: circular close button */
+.chat-launcher.is-open {
+  padding: 0;
+  width: var(--chat-launcher-h);
+  justify-content: center;
+}
+.chat-launcher.is-open .chat-launcher__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  /* The panel's own header carries the close control at this size, so a
+     launcher floating over a full-screen panel would be a second control
+     for the same job. */
+  .chat-launcher.is-open {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-launcher {
+    transition: none;
+  }
+}

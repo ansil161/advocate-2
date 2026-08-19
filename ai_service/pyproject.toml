@@ -1,0 +1,42 @@
+[project]
+name = "sla-ai-service"
+version = "1.0.0"
+description = "SLA Advocates — grounded RAG assistant"
+requires-python = ">=3.12"
+
+# Kept in step with requirements.txt, which stays as the file the deployment
+# actually installs from. Both are listed because the pins were chosen for a
+# specific interpreter (Python 3.14, the only one on the target machine) where
+# every entry resolves to a prebuilt wheel; a resolver given looser ranges here
+# could pick a version that builds from source and turns a deploy into a
+# compile.
+dependencies = [
+    "fastapi==0.141.1",
+    "uvicorn[standard]==0.52.3",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.15.0",
+    "httpx==0.28.1",
+    "qdrant-client==1.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.1",
+    "pytest-asyncio==1.3.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+# Mirrors pytest.ini, which remains the file pytest actually reads. Duplicated
+# rather than removed because moving the configuration here would change how
+# the suite is discovered, and this refactor does not change behaviour.
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

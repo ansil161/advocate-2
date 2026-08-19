@@ -1,0 +1,13 @@
+# Never bake secrets into an image layer. The .env is supplied at run time via
+# compose's env_file, which keeps it out of the build context entirely.
+.env
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# The suite is not shipped. It needs fakeredis and pytest, which the runtime
+# image does not install.
+tests/

@@ -1,9 +1,10 @@
 import { Suspense, lazy, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Preloader from './components/shell/Preloader.jsx';
 import Cursor from './components/shell/Cursor.jsx';
 import PageReveal from './components/shell/PageReveal.jsx';
 import ErrorBoundary from './components/shell/ErrorBoundary.jsx';
+import ChatbotWidget from './components/chatbot/ChatbotWidget.jsx';
 import { useLenis } from './lib/useLenis.js';
 import { AppReadyContext } from './lib/appReady.js';
 
@@ -21,7 +22,41 @@ const LandmarkCases = lazy(() => import('./pages/LandmarkCases/LandmarkCases.jsx
 const Contact = lazy(() => import('./pages/Contact/Contact.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound.jsx'));
 
+// The admin panel, and everything it pulls in — the Django API client, its own
+// stylesheet, its screens — is a separate chunk that a visitor never downloads.
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
+
+/**
+ * Splits the two applications that share this origin.
+ *
+ * The split is here, above everything, rather than as another <Route> because
+ * the public shell is not neutral: useLenis() installs smooth scrolling and
+ * drives ScrollTrigger, and the Preloader, Cursor and PageReveal all mount
+ * unconditionally. All of that is right for the site and wrong for an admin
+ * table — smooth-scrolling a data grid is worse than native scrolling, and a
+ * drawn cursor over a form is a liability.
+ *
+ * Returning early also means the admin panel cannot touch the site's animation
+ * system at all: on /admin those hooks never run, so there is no Lenis
+ * instance and no ScrollTrigger registration to interfere with.
+ *
+ * PublicApp below is the original App, unchanged.
+ */
 export default function App() {
+  const { pathname } = useLocation();
+
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return (
+      <Suspense fallback={null}>
+        <AdminApp />
+      </Suspense>
+    );
+  }
+
+  return <PublicApp />;
+}
+
+function PublicApp() {
   const [loaded, setLoaded] = useState(false);
   useLenis();
 
@@ -53,6 +88,17 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+        </ErrorBoundary>
+
+        {/* Outside the Routes, so a conversation survives a page change — and
+            inside the visibility wrapper, so it appears with the site rather
+            than floating over the preloader.
+
+            Its own boundary, with a null fallback: the assistant is an addition
+            to the site, and if it breaks it should simply be absent rather than
+            replacing the page someone came to read. */}
+        <ErrorBoundary fallback={null}>
+          <ChatbotWidget />
         </ErrorBoundary>
       </div>
       </AppReadyContext.Provider>

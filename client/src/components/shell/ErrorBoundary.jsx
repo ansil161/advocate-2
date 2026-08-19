@@ -12,6 +12,11 @@ import { Component } from 'react';
 // plain markup on global utility classes: it must not depend on a route CSS
 // chunk that may never have loaded, nor on any component that could itself be
 // the thing that threw.
+//
+// `fallback` overrides that page-shaped default for subtrees where a full-page
+// apology would be wrong. The assistant widget passes `null`: if the chatbot
+// fails it should simply not be there, and the article the visitor was reading
+// should be entirely unaffected.
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -32,6 +37,9 @@ export default class ErrorBoundary extends Component {
 
   render() {
     if (!this.state.failed) return this.props.children;
+    // `undefined` means no fallback was given and the page-shaped default
+    // applies; `null` is a deliberate "render nothing" and must be honoured.
+    if (this.props.fallback !== undefined) return this.props.fallback;
 
     return (
       <main className="stub">

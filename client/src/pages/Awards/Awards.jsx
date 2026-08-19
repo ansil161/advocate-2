@@ -5,7 +5,6 @@ import RecordSection from './sections/RecordSection.jsx';
 import RecognitionStatement from './sections/RecognitionStatement.jsx';
 import BarCouncilRecord from './sections/BarCouncilRecord.jsx';
 import CourtsAndTribunals from './sections/CourtsAndTribunals.jsx';
-import Milestones from './sections/Milestones.jsx';
 import AwardsClosing from './sections/AwardsClosing.jsx';
 import './Awards.css';
 
@@ -27,7 +26,6 @@ export default function Awards() {
       <RecognitionStatement />
       <BarCouncilRecord />
       <CourtsAndTribunals />
-      <Milestones />
       <AwardsClosing />
     </Layout>
   );

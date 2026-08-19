@@ -6,8 +6,7 @@ import Reveal from '../../components/ui/Reveal.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import { consult } from '../../data/consult.js';
 import { process } from '../../data/firm.js';
-import bgImg from '../../assets/img/colonnade-diagonal.webp';
-import bgImg760 from '../../assets/img/colonnade-diagonal-760.webp';
+import heroImg from '../../assets/img/contact-hero.jpg';
 import './Contact.css';
 
 export default function Contact() {
@@ -18,15 +17,15 @@ export default function Contact() {
         description="Speak to SLA Advocates before you file. Four online consultation slots daily and three in-person slots at the firm's Hyderabad office."
         path="/contact"
       />
+      
+      {/* 1. Cinematic Hero */}
       <section className="c-hero" id="c-hero">
-        {/* Full-bleed decorative layer; the original stays the widest candidate. */}
         <div className="c-hero__bg" aria-hidden="true">
           <img
-            src={bgImg}
-            srcSet={`${bgImg760} 760w, ${bgImg} 1600w`}
-            sizes="100vw"
-            alt=""
+            src={heroImg}
+            alt="Law firm office interior"
           />
+          <div className="c-hero__overlay" />
         </div>
         <div className="container c-hero__content">
           <span className="chapter-label chapter-label--light"><b>Contact</b></span>
@@ -37,15 +36,26 @@ export default function Contact() {
         </div>
       </section>
 
+      {/* 2. High-Contrast Form & Reach Section */}
       <section className="c-reach" id="c-reach">
         <div className="container c-reach__grid">
+          
           <div className="c-reach__info">
-            <span className="eyebrow"><SplitText text="Reach Us" /></span>
-            <h2 className="h2"><SplitText text="Hyderabad, Telangana." /></h2>
+            <span className="c-reach__sub">Direct Access</span>
+            <h2 className="c-reach__title">Hyderabad, Telangana.</h2>
             <Reveal as="div" className="c-reach__list">
-              <a href={`tel:${consult.phoneHref}`}>{consult.phone}</a>
-              <a href={`mailto:${consult.email}`}>{consult.email}</a>
-              <a href={consult.instagramHref} target="_blank" rel="noopener">{consult.instagram}</a>
+              <div className="c-reach__link-group">
+                <span className="c-reach__link-label">Phone</span>
+                <a href={`tel:${consult.phoneHref}`}>{consult.phone}</a>
+              </div>
+              <div className="c-reach__link-group">
+                <span className="c-reach__link-label">Email</span>
+                <a href={`mailto:${consult.email}`}>{consult.email}</a>
+              </div>
+              <div className="c-reach__link-group">
+                <span className="c-reach__link-label">Social</span>
+                <a href={consult.instagramHref} target="_blank" rel="noopener">{consult.instagram}</a>
+              </div>
             </Reveal>
             <Reveal as="p" className="c-reach__note" delay={0.1}>
               Four online consultation slots daily (two morning, two evening) and
@@ -54,20 +64,28 @@ export default function Contact() {
           </div>
 
           <Reveal className="c-form-wrap">
-            <ContactForm variant="light" />
+            <ContactForm variant="dark" heading="Request a Consultation" note="Tell us briefly about your matter. All details are kept strictly confidential." />
           </Reveal>
+          
         </div>
       </section>
 
+      {/* 3. Sleek Editorial Process */}
       <section className="c-process" id="c-process">
         <div className="container">
-          <span className="eyebrow eyebrow--light"><SplitText text="What Happens Next" /></span>
-          <div className="c-process__grid">
+          <header className="c-process__head">
+            <span className="eyebrow"><SplitText text="The Process" /></span>
+            <h2 className="h2"><SplitText text="What happens next." /></h2>
+          </header>
+          
+          <div className="c-process__list">
             {process.map((p, i) => (
               <Reveal as="div" className="c-process__item" key={p.title} delay={i * 0.08}>
-                <Icon name={PROCESS_ICONS[i]} />
-                <h4>{p.title}</h4>
-                <p>{p.desc}</p>
+                <div className="c-process__num">{String(i + 1).padStart(2, '0')}</div>
+                <div className="c-process__content">
+                  <h4>{p.title}</h4>
+                  <p>{p.desc}</p>
+                </div>
               </Reveal>
             ))}
           </div>
