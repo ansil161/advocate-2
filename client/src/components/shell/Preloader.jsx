@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SlaLogo from '../ui/SlaLogo.jsx';
 
 export default function Preloader({ onDone }) {
   const [phase, setPhase] = useState('letters'); // letters -> bar -> exit -> gone
@@ -22,18 +23,16 @@ export default function Preloader({ onDone }) {
           exit={{ y: '-100%' }}
           transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
         >
-          <div className="preloader__mark">
-            {['S', 'L', 'A'].map((l, i) => (
-              <motion.span
-                key={l}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {l}
-              </motion.span>
-            ))}
+          <div className="preloader__mark" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <SlaLogo size="xl" />
+            </motion.div>
           </div>
+
           <div className="preloader__bar">
             <motion.span
               initial={{ width: '0%' }}

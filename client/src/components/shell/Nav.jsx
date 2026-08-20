@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { consult } from '../../data/consult.js';
+import SlaLogo from '../ui/SlaLogo.jsx';
+
 
 const LINKS = [
   { to: '/about', label: 'About' },
@@ -31,10 +33,11 @@ export default function Nav({ theme = 'dark' }) {
     <>
       <header className={`nav-bar ${scrolled ? 'is-scrolled' : ''} ${barTheme === 'light' ? 'is-light' : ''}`}>
         <div className="nav-bar__inner">
-          <Link to="/" className="brand">
-            <span className="brand__mark">SLA</span>
-            <span className="brand__full">Advocates</span>
+          <Link to="/" className="brand" aria-label="SLA Advocates Home">
+            <SlaLogo size="md" variant={barTheme === 'light' ? 'light' : 'gold'} />
           </Link>
+
+
 
           <nav className="nav-links">
             {LINKS.map(l => (

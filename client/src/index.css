@@ -249,11 +249,22 @@ p + p { margin-top: 1rem; }
 .nav-bar.is-scrolled { padding: 1rem 0; background: rgba(10,10,10,0.72); backdrop-filter: blur(14px) saturate(140%); border-bottom: 1px solid var(--line-darker); }
 .nav-bar.is-light { background: rgba(247,244,236,0.82); border-bottom: 1px solid var(--line-lighter); }
 .nav-bar__inner { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
-.brand { display: flex; align-items: baseline; gap: 0.55rem; }
-.brand__mark { font-family: var(--font-serif); font-size: 1.5rem; letter-spacing: 0.05em; color: var(--cream); }
-.brand__full { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-dark); }
-.nav-bar.is-light .brand__mark { color: var(--ink); }
-.nav-bar.is-light .brand__full { color: var(--muted-light); }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+.brand:hover {
+  transform: scale(1.03);
+  filter: drop-shadow(0 0 14px rgba(211, 177, 127, 0.35));
+}
+.sla-logo-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 .nav-links { display: flex; gap: 2.1rem; }
 .nav-links a { position: relative; font-size: 0.85rem; font-weight: 500; color: rgba(247,244,236,0.82); padding-bottom: 4px; }

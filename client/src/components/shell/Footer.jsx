@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import SplitText from '../ui/SplitText.jsx';
+import SlaLogo from '../ui/SlaLogo.jsx';
 import { consult } from '../../data/consult.js';
 
 export default function Footer() {
@@ -14,9 +15,12 @@ export default function Footer() {
 
       <div className="container site-footer__top">
         <div className="site-footer__brand">
-          <span className="brand__mark" style={{ fontSize: '2rem', display: 'block' }}>SLA</span>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <SlaLogo size="lg" />
+          </div>
           <p>SLA Advocates — a Hyderabad-based full-service litigation and advisory firm, personally supervised by Senior Advocate Sridhar Lendalay.</p>
         </div>
+
 
         <div className="site-footer__col">
           <h4>Practice Areas</h4>
