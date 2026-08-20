@@ -45,11 +45,14 @@
   left: -5%;
   width: 650px;
   height: 650px;
+  max-width: 100vw;
+  max-height: 100vw;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.035) 0%, transparent 70%);
   pointer-events: none;
   animation: richMeshFloat 18s infinite alternate ease-in-out;
 }
+
 
 @keyframes richMeshFloat {
   0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
@@ -674,11 +677,14 @@
   transform: translate(-50%, -50%);
   width: 850px;
   height: 850px;
+  max-width: 100vw;
+  max-height: 100vw;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.045) 0%, transparent 70%);
   pointer-events: none;
   animation: radialMeshGlow 18s infinite alternate ease-in-out;
 }
+
 
 @keyframes radialMeshGlow {
   0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }

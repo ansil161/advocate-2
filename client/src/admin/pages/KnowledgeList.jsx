@@ -11,8 +11,9 @@ import { Alert, Empty, StatusPill, formatDate } from '../components/Primitives.j
 import { listDocuments } from '../lib/adminApi.js';
 
 const CATEGORIES = ['', 'firm', 'practice-area', 'faq', 'team', 'recognition', 'contact', 'policy', 'all-sections'];
-const STATUSES = ['', 'draft', 'published', 'archived'];
-const INDEX_STATUSES = ['', 'never', 'queued', 'processing', 'indexed', 'failed'];
+const STATUSES = ['', 'draft', 'published'];
+const INDEX_STATUSES = ['', 'never', 'queued', 'processing', 'indexed'];
+
 
 export default function KnowledgeList() {
   const [filters, setFilters] = useState({

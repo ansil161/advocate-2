@@ -54,7 +54,8 @@ API_PREFIX = "/api"
 
 # Rejected before a body is read. The schema caps the message at a few thousand
 # characters, so anything approaching this is not a chat message.
-MAX_BODY_BYTES = 16_384
+MAX_BODY_BYTES = 50 * 1024 * 1024  # 50 MB to allow large document indexing
+
 
 
 @asynccontextmanager
@@ -193,13 +194,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         started = time.perf_counter()
         try:
             declared = request.headers.get("content-length")
-            if declared and declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+            # Cap public chat questions at 64KB, and internal admin document indexing at 50MB
+            max_bytes = 50 * 1024 * 1024 if request.url.path.startswith("/internal") else 64 * 1024
+            if declared and declared.isdigit() and int(declared) > max_bytes:
                 return JSONResponse(
                     status_code=413,
                     content=ErrorResponse(
-                        error=ErrorBody(code="payload_too_large", message="That message is too long to send.")
+                        error=ErrorBody(code="payload_too_large", message="Document or message payload is too large.")
                     ).model_dump(),
                 )
+
 
             response = await call_next(request)
             # Echoed so a visitor reporting a problem can be matched to a log

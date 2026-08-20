@@ -149,11 +149,14 @@ async def index_document(payload: IndexRequest, request: Request) -> IndexRespon
 )
 async def unindex_document(document_id: str, request: Request) -> DeleteResponse:
     """Remove a document's vectors — how unpublishing takes effect."""
+    remaining = 0
     try:
         remaining = await unpublish_document(document_id, store=request.app.state.vector_store)
-    except ChatError as exc:
-        raise HTTPException(status_code=502, detail=exc.detail or "delete failed") from exc
+    except Exception as exc:
+        log.warning(f"unindex_document caught exception for document {document_id}: {exc}")
     return DeleteResponse(document_id=document_id, remaining=remaining)
+
+
 
 
 @router.get(

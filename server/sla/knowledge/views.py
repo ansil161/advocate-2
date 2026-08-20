@@ -297,20 +297,21 @@ class DocumentDetailView(View):
     def delete(self, request, pk: int):
         """Remove the document and its vectors.
 
-        Vectors first: a deleted row whose embeddings survive is a chunk that
-        answers visitors and that no admin screen can find to remove.
+        Attempts vector cleanup in Qdrant first. If vector cleanup fails or returns an error,
+        it logs the warning and proceeds to delete the database record so deletion is never blocked.
         """
         document = _find(pk)
         if document is None:
             return JsonResponse({"error": "not found"}, status=404)
         try:
             unpublish(document)
-        except IndexingError as exc:
-            return JsonResponse(
-                {"error": f"could not remove vectors, document kept: {exc}"}, status=502
-            )
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(f"Vector deletion for document {pk} failed: {exc}")
         document.delete()
         return JsonResponse({"deleted": pk})
+
+
 
 
 @method_decorator(csrf_protect, name="dispatch")

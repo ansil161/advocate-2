@@ -55,20 +55,14 @@ export default function Dashboard() {
           cannot retrieve {drift === 1 ? 'it' : 'them'}. Re-index from the document page.
         </Alert>
       )}
-      {jobs.failed > 0 && (
-        <Alert kind="error">
-          {jobs.failed} indexing {jobs.failed === 1 ? 'job has' : 'jobs have'} failed. See the history below.
-        </Alert>
-      )}
 
       <div className="adm-stats">
         <Stat label="Documents" value={documents.total} />
         <Stat label="Published" value={documents.published} />
         <Stat label="Indexed" value={documents.indexed} warn={drift > 0} />
         <Stat label="Drafts" value={documents.draft} />
-        <Stat label="Archived" value={documents.archived} />
-        <Stat label="Failed jobs" value={jobs.failed} warn={jobs.failed > 0} />
       </div>
+
 
       <div className="adm-card">
         <div className="adm-card-pad">

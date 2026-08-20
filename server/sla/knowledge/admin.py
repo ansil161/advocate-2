@@ -15,8 +15,12 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from .models import IngestionJob, KnowledgeDocument, KnowledgeVersion
-from .services import create_version
-from .parsers import extract_file_text
+try:
+    from .parsers import extract_file_text
+except ImportError:
+    def extract_file_text(file_obj, filename: str) -> str:
+        return file_obj.read().decode("utf-8", errors="ignore")
+
 
 
 class KnowledgeDocumentForm(forms.ModelForm):

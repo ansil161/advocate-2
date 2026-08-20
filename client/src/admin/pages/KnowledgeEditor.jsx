@@ -180,7 +180,16 @@ export default function KnowledgeEditor() {
 
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      // Auto-populate title from filename if title is empty
+      if (!form.title.trim()) {
+        const cleanName = file.name
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[-_]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        set('title', cleanName);
+      }
     } else {
       setSelectedFile(null);
     }
@@ -191,7 +200,7 @@ export default function KnowledgeEditor() {
     run('extract', async () => {
       const result = await extractText(selectedFile);
       set('content', result.text);
-      setNotice('Text extracted from file. Review the content below before saving.');
+      setNotice(`Extracted text from "${selectedFile.name}". Review the document title, category, and extracted content below.`);
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -212,13 +221,15 @@ export default function KnowledgeEditor() {
     <>
       <div className="adm-head">
         <div>
-          <h1 className="adm-title">{isNew ? 'New document' : doc?.title || 'Document'}</h1>
-          {doc && (
+          <h1 className="adm-title">{isNew ? 'Upload Knowledge Document' : doc?.title || 'Document'}</h1>
+          {doc ? (
             <p className="adm-sub">
               <StatusPill status={doc.status} /> &nbsp;v{doc.version}
               {doc.published_version && ` · v${doc.published_version} live`}
               {doc.published_at && ` · published ${formatDate(doc.published_at)}`}
             </p>
+          ) : (
+            <p className="adm-sub">Upload a PDF, Word (DOCX), or Text file to import knowledge into the AI assistant.</p>
           )}
         </div>
         <button className="adm-btn" onClick={() => navigate('/admin/knowledge')}>
@@ -246,23 +257,51 @@ export default function KnowledgeEditor() {
           You can leave this page; the work continues on the worker.
         </Alert>
       )}
-      {/* Suppressed while a new attempt is in flight: showing the previous
-          failure beside "Indexing in progress" reads as the current one. */}
       {!pending && doc?.last_job?.status === 'failed' && (
         <Alert kind="error">Last indexing job failed: {doc.last_job.error}</Alert>
       )}
 
-      <div className="adm-card adm-card-pad">
-        <Field label="Title">
+      {/* EXCLUSIVE METHOD: DOCUMENT FILE UPLOAD & AI PROCESSING */}
+      <div className="adm-card adm-card-pad" style={{ border: '1px solid var(--adm-line-gold)', background: 'linear-gradient(158deg, rgba(20, 22, 32, 0.95) 0%, rgba(10, 11, 17, 0.98) 100%)' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
+          <strong style={{ fontSize: '1.15rem', color: 'var(--adm-gold-soft)', display: 'block', marginBottom: '0.35rem' }}>
+            📁 Knowledge Document Importer (PDF / DOCX / TXT / MD)
+          </strong>
+          <span className="adm-cell-muted">
+            Upload your legal reference document, FAQ list, practice domain file, or firm policy. The system extracts text automatically and prepares it for AI chatbot retrieval.
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+          <input 
+            type="file" 
+            className="adm-input" 
+            style={{ flex: 1, minWidth: '280px', padding: '0.75rem 1rem' }}
+            onChange={handleFileSelect}
+            accept=".pdf,.docx,.txt,.md"
+            ref={fileInputRef}
+          />
+          <button 
+            className="adm-btn is-primary" 
+            onClick={handleExtract}
+            disabled={!selectedFile || busy === 'extract'}
+            style={{ minWidth: '180px', padding: '0.8rem 1.4rem' }}
+          >
+            {busy === 'extract' ? 'Extracting Text…' : 'Extract Document Text'}
+          </button>
+        </div>
+
+        <Field label="Document Title">
           <input
             className="adm-input"
             value={form.title}
             onChange={(e) => set('title', e.target.value)}
+            placeholder="Document title (Auto-generated from file name upon upload)"
             maxLength={200}
           />
         </Field>
 
-        <Field label="Category" hint="Used to group content and to filter retrieval.">
+        <Field label="Knowledge Category" hint="Determines how the RAG chatbot classifies and retrieves this information.">
           <select
             className="adm-select"
             value={form.category}
@@ -275,65 +314,44 @@ export default function KnowledgeEditor() {
         </Field>
 
         <Field
-          label="Source URL"
-          hint="Optional. Shown as the answer's source when the assistant cites this document."
+          label="Source URL (Optional)"
+          hint="Cites this page link when the RAG chatbot answers visitors."
         >
           <input
             className="adm-input"
             value={form.source_url}
             onChange={(e) => set('source_url', e.target.value)}
-            placeholder="/contact#c-reach"
+            placeholder="/practice/civil-litigation"
           />
         </Field>
 
-        <div style={{ marginBottom: '1.25rem' }}>
-          <label className="adm-label">Upload File (PDF/DOCX/TXT) to Extract Text</label>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-            <input 
-              type="file" 
-              className="adm-input" 
-              style={{ flex: 1, padding: '0.35rem 0.5rem' }}
-              onChange={handleFileSelect}
-              accept=".pdf,.docx,.txt"
-              ref={fileInputRef}
-            />
-            <button 
-              className="adm-btn" 
-              onClick={handleExtract}
-              disabled={!selectedFile || busy === 'extract'}
-            >
-              {busy === 'extract' ? 'Extracting…' : 'Extract'}
-            </button>
-          </div>
-        </div>
-
         <Field
-          label="Content"
-          hint="Plain prose. Long documents are split into chunks automatically, each carrying the title."
+          label="Extracted Document Content"
+          hint="Content extracted from your document file. Ready for indexing into the RAG vector store."
         >
           <textarea
             className="adm-textarea"
+            style={{ minHeight: '280px', fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', lineHeight: '1.6' }}
             value={form.content}
             onChange={(e) => set('content', e.target.value)}
+            placeholder="Upload a document file above to extract and view its text content here…"
           />
         </Field>
 
-        <div className="adm-row">
+        <div className="adm-row" style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--adm-line-soft)' }}>
           <button className="adm-btn" onClick={save} disabled={!canSave}>
-            {busy === 'save' ? 'Saving…' : 'Save draft'}
+            {busy === 'save' ? 'Saving…' : 'Save Draft'}
           </button>
 
           {!isNew && (
             <>
               <button
                 className="adm-btn is-primary"
-                onClick={() => act('publish', 'Published.')}
-                // Publishing a stale version is the confusing failure this
-                // prevents: save first, then publish what you just wrote.
+                onClick={() => act('publish', 'Published & Indexed for RAG Chatbot.')}
                 disabled={!!busy || dirty}
-                title={dirty ? 'Save your changes first' : undefined}
+                title={dirty ? 'Save changes first before publishing' : undefined}
               >
-                {busy === 'publish' ? 'Publishing…' : 'Publish'}
+                {busy === 'publish' ? 'Publishing to RAG…' : 'Publish to RAG Chatbot'}
               </button>
 
               {doc?.status === 'published' && (
@@ -343,31 +361,36 @@ export default function KnowledgeEditor() {
                     onClick={() => act('reindex', 'Re-indexed.')}
                     disabled={!!busy}
                   >
-                    {busy === 'reindex' ? 'Re-indexing…' : 'Re-index'}
+                    {busy === 'reindex' ? 'Re-indexing…' : 'Re-index Vectors'}
                   </button>
                   <button
                     className="adm-btn"
-                    onClick={() => act('unpublish', 'Unpublished. It is no longer retrievable.')}
+                    onClick={() => act('unpublish', 'Unpublished. Vectors removed from RAG.')}
                     disabled={!!busy}
                   >
-                    Unpublish
+                    {busy === 'unpublish' ? 'Unpublishing…' : 'Unpublish'}
                   </button>
                 </>
               )}
 
               <span className="adm-spacer" />
+
               <ConfirmButton
-                className="adm-btn is-danger"
-                confirmLabel="Really delete?"
+                className="adm-btn"
+                style={{ color: 'var(--adm-danger)', borderColor: 'rgba(248, 113, 113, 0.3)' }}
                 onConfirm={remove}
                 disabled={!!busy}
               >
-                Delete
+                {busy === 'delete' ? 'Deleting…' : 'Delete Document'}
               </ConfirmButton>
             </>
           )}
         </div>
       </div>
+
+
+
+
 
       {versions.length > 0 && (
         <div className="adm-card" style={{ marginTop: '1.25rem' }}>
@@ -399,8 +422,9 @@ export default function KnowledgeEditor() {
                     <td>
                       v{version.version}
                       {version.version === doc?.published_version && (
-                        <> <span className="adm-pill is-published">live</span></>
+                        <span className="adm-pill is-published" style={{ marginLeft: '0.4rem' }}>live</span>
                       )}
+
                     </td>
                     <td className="adm-cell-muted">{version.title}</td>
                     <td className="adm-cell-muted">{version.excerpt.slice(0, 70)}…</td>

@@ -91,11 +91,14 @@
 }
 .c-reach__link-group a {
   font-family: var(--font-serif);
-  font-size: 1.4rem;
+  font-size: clamp(1.05rem, 4.5vw, 1.4rem);
   color: var(--white);
   text-decoration: none;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   transition: color 0.3s ease;
 }
+
 .c-reach__link-group a:hover {
   color: var(--gold);
 }

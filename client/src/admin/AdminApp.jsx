@@ -11,9 +11,12 @@
 // before any of that mounts, which is also what guarantees the admin panel
 // cannot interfere with the site's GSAP/ScrollTrigger setup.
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import './Admin.css';
+import SlaLogo from '../components/ui/SlaLogo.jsx';
+import Icon from '../components/ui/Icon.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
 import { AdminAuthProvider, useAdminAuth } from './lib/useAdminAuth.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -25,29 +28,58 @@ import Versions from './pages/Versions.jsx';
 
 function Shell({ children }) {
   const { user, signOut } = useAdminAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="adm-shell">
-      <aside className="adm-sidebar">
+      <header className="adm-mobile-header">
+        <SlaLogo size="sm" />
+        <button
+          className="adm-mobile-toggle"
+          onClick={() => setMobileOpen(o => !o)}
+          aria-label="Toggle Navigation"
+        >
+          <Icon name={mobileOpen ? "close" : "menu"} />
+        </button>
+      </header>
+
+      <aside className={`adm-sidebar ${mobileOpen ? 'is-mobile-open' : ''}`}>
         <div className="adm-brand">
-          SLA Advocates
-          <span>Admin</span>
+          <SlaLogo size="sm" />
+          <span className="adm-brand-tag">Admin Console</span>
         </div>
 
-        <nav className="adm-nav">
-          {/* `end` on the dashboard link only, so /admin/knowledge/3 still
-              marks Knowledge base as current rather than nothing at all. */}
-          <NavLink to="/admin" end>Dashboard</NavLink>
-          <NavLink to="/admin/knowledge">Knowledge base</NavLink>
-          {/* Diagnostics, grouped after the day-to-day screens: these are read
-              when something looks wrong, not on every visit. */}
-          <NavLink to="/admin/system">System</NavLink>
+        <nav className="adm-nav" onClick={() => setMobileOpen(false)}>
+          <NavLink to="/admin" end>
+            <Icon name="grid" />
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/admin/knowledge">
+            <Icon name="book" />
+            <span>Knowledge Base</span>
+          </NavLink>
+          <NavLink to="/admin/system">
+            <Icon name="sparkles" />
+            <span>System Health</span>
+          </NavLink>
+          <a href="/" target="_blank" rel="noopener noreferrer" className="adm-nav-link-out">
+            <Icon name="home" />
+            <span>View Website</span>
+          </a>
         </nav>
 
         <div className="adm-sidebar-foot">
-          <strong>{user?.username}</strong>
-          <button className="adm-btn is-small" style={{ marginTop: '0.5rem' }} onClick={signOut}>
-            Sign out
+          <div className="adm-user-badge">
+            <div className="adm-user-avatar">
+              {user?.username?.charAt(0)?.toUpperCase() || 'A'}
+            </div>
+            <div className="adm-user-info">
+              <strong>{user?.username || 'Administrator'}</strong>
+              <span className="adm-user-status"><i /> Active Session</span>
+            </div>
+          </div>
+          <button className="adm-btn is-small is-ghost" onClick={signOut}>
+            Sign Out
           </button>
         </div>
       </aside>
@@ -56,6 +88,7 @@ function Shell({ children }) {
     </div>
   );
 }
+
 
 /**
  * The panel's routes.

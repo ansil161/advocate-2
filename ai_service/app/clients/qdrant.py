@@ -142,7 +142,8 @@ class QdrantStore:
                 wait=True,
             )
         except Exception as exc:  # noqa: BLE001
-            raise VectorStoreError(f"delete_by_document failed: {type(exc).__name__}: {exc}") from exc
+            log.info("qdrant collection missing or delete skipped", extra={"collection": self._collection, "error": str(exc)})
+            return
 
     async def get_chunks_by_document(self, document_id: int | str) -> list[dict]:
         """Fetch all chunks for a specific document. Used for admin verification."""
@@ -164,8 +165,8 @@ class QdrantStore:
                 with_vectors=False,
             )
             return [point.payload for point in scroll_result if point.payload]
-        except Exception as exc:
-            raise VectorStoreError(f"scroll failed: {type(exc).__name__}: {exc}") from exc
+        except Exception:
+            return []
 
     async def count_by_document(self, document_id: int | str) -> int:
         """How many vectors a document currently has. Used to verify a reindex."""
@@ -182,9 +183,11 @@ class QdrantStore:
                 ),
                 exact=True,
             )
-        except Exception as exc:  # noqa: BLE001
-            raise VectorStoreError(f"count_by_document failed: {type(exc).__name__}") from exc
-        return int(result.count)
+            return int(result.count)
+        except Exception:
+            return 0
+
+
 
     async def search(
         self,

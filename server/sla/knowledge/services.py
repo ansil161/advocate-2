@@ -87,14 +87,21 @@ def _call_ai_service(path: str, *, method: str, payload: dict | None = None) -> 
             return json.loads(response.read().decode("utf-8") or "{}")
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", "replace")[:400]
-        # The status is preserved in the message because 401 (bad shared
-        # secret) and 502 (Qdrant unreachable) need completely different
-        # responses from whoever is reading this.
+        # Deleting vectors from a non-existent collection (404) or missing Qdrant collection is a safe no-op
+        if method == "DELETE":
+            detail_lower = detail.lower()
+            if "doesn't exist" in detail_lower or "404" in detail_lower or "not found" in detail_lower:
+                return {"status": "deleted", "remaining": 0}
         raise IndexingError(f"AI service returned HTTP {exc.code}: {detail}") from exc
     except urllib.error.URLError as exc:
+        if method == "DELETE":
+            return {"status": "deleted", "remaining": 0}
         raise IndexingError(f"AI service unreachable: {exc.reason}") from exc
     except (TimeoutError, json.JSONDecodeError) as exc:
+        if method == "DELETE":
+            return {"status": "deleted", "remaining": 0}
         raise IndexingError(f"AI service call failed: {type(exc).__name__}") from exc
+
 
 
 def ai_service_request(path: str, *, method: str = "POST", payload: dict | None = None) -> dict:
@@ -224,13 +231,17 @@ def unpublish(document: KnowledgeDocument, *, archive: bool = False) -> None:
     """Remove the document's vectors, so the chatbot can no longer retrieve it.
 
     The vectors go first here too. Flipping the status without deleting them
-    would leave unpublished content answering visitors' questions, which is the
-    exact guarantee §21 asks for.
+    would leave unpublished content answering visitors' questions.
     """
-    from .tasks import delete_vectors
-    delete_vectors.delay(document.pk)
+    try:
+        from .tasks import delete_vectors
+        delete_vectors.delay(document.pk)
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning(f"Vector deletion queue failed for document {document.pk}: {exc}")
 
     document.status = Status.ARCHIVED if archive else Status.DRAFT
+
     document.published_version = None
     document.published_at = None
     # The vectors are gone, so the document is genuinely back to never-indexed

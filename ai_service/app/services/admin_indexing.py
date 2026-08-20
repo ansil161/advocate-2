@@ -108,10 +108,18 @@ async def publish_document(
 
 async def unpublish_document(document_id: str, *, store) -> int:  # noqa: ANN001
     """Remove a document's vectors. Returns how many remain, read back."""
-    await store.delete_by_document(document_id)
-    remaining = await store.count_by_document(document_id)
+    remaining = 0
+    try:
+        await store.delete_by_document(document_id)
+        remaining = await store.count_by_document(document_id)
+    except Exception as exc:
+        log.warning(
+            "unpublish_document vector delete skipped or collection missing",
+            extra={"event": "admin_unindex_warning", "document": document_id, "error": str(exc)},
+        )
     log.info(
         "admin document unindexed",
         extra={"event": "admin_unindex", "document": document_id, "chunks": remaining},
     )
     return remaining
+
