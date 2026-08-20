@@ -8,6 +8,7 @@ import Icon, { PHILOSOPHY_ICONS } from '../../components/ui/Icon.jsx';
 import Reveal from '../../components/ui/Reveal.jsx';
 import SplitText from '../../components/ui/SplitText.jsx';
 import AdvocateCard from './AdvocateCard.jsx';
+import AdvocateModal from './AdvocateModal.jsx';
 import StackSection from '../../components/ui/StackSection.jsx';
 import TeamArrival from './sections/TeamArrival.jsx';
 import CounselStatement from './sections/CounselStatement.jsx';
@@ -23,7 +24,7 @@ export default function TeamPage() {
   useHashScroll();
 
   const [activeFilter, setActiveFilter] = useState('all');
-  const [openSlug, setOpenSlug] = useState(null);
+  const [selectedAdvocate, setSelectedAdvocate] = useState(null);
   const returnRef = useRef(null);
 
   const { scrollYProgress: returnProgress } = useScroll({
@@ -32,9 +33,10 @@ export default function TeamPage() {
   });
   const returnScale = useTransform(returnProgress, [0, 0.5, 1], [0.96, 1, 0.96]);
 
-  const toggleCard = useCallback(slug => {
-    setOpenSlug(cur => (cur === slug ? null : slug));
+  const handleSelectAdvocate = useCallback(advocate => {
+    setSelectedAdvocate(advocate);
   }, []);
+
 
   const filteredTeam = useMemo(() => {
     if (activeFilter === 'partners') return team.filter(t => t.featured);
@@ -78,31 +80,65 @@ export default function TeamPage() {
                   className={`t-filter-btn ${activeFilter === 'partners' ? 'is-active' : ''}`}
                   onClick={() => setActiveFilter('partners')}
                 >
-                  Leadership
+                  Leadership (2)
                 </button>
                 <button
                   type="button"
                   className={`t-filter-btn ${activeFilter === 'associates' ? 'is-active' : ''}`}
                   onClick={() => setActiveFilter('associates')}
                 >
-                  Associates
+                  Associates (9)
                 </button>
               </div>
             </div>
 
-            <div className="t-bench__grid">
-              {filteredTeam.map((a, i) => (
-                <AdvocateCard
-                  advocate={a}
-                  delay={(i % 3) * 0.05}
-                  key={a.slug}
-                  open={openSlug === a.slug}
-                  onToggle={toggleCard}
-                />
-              ))}
-            </div>
+            {/* SECTION 1: 2 TEAM MEMBERS IN A ROW (LEADERSHIP) */}
+            {(activeFilter === 'all' || activeFilter === 'partners') && (
+              <div className="t-bench__featured-row">
+                {team.filter(t => t.featured).map((a, i) => (
+                  <AdvocateCard
+                    key={a.slug}
+                    advocate={a}
+                    isHero={true}
+                    delay={i * 0.08}
+                    onToggle={handleSelectAdvocate}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* SECTION 2: 2 TEAM MEMBERS IN A ROW (ASSOCIATES & ADVOCATES) */}
+            {(activeFilter === 'all' || activeFilter === 'associates') && (
+              <>
+                {activeFilter === 'all' && (
+                  <div className="t-bench__subhead">
+                    <span className="t-bench__subhead-title">Advocates & Associates</span>
+                    <span className="t-bench__subhead-line" />
+                  </div>
+                )}
+                <div className="t-bench__grid-row">
+                  {team.filter(t => !t.featured).map((a, i) => (
+                    <AdvocateCard
+                      key={a.slug}
+                      advocate={a}
+                      isHero={true}
+                      delay={(i % 2) * 0.08}
+                      onToggle={handleSelectAdvocate}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </StackSection>
+
+        {/* ADVOCATE FULL PROFILE POPUP MODAL */}
+        <AdvocateModal
+          advocate={selectedAdvocate}
+          onClose={() => setSelectedAdvocate(null)}
+        />
+
+
 
 
         <StackSection id="t-standard" className="t-panel t-panel--dark" depth={2} dim={0.4}>
