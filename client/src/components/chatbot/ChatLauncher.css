@@ -31,42 +31,38 @@
 
 .chat-launcher {
   position: fixed;
-  right: var(--chat-gap);
-  bottom: calc(var(--chat-gap) + env(safe-area-inset-bottom, 0px));
+  right: clamp(1rem, 2vw, 1.5rem);
+  bottom: clamp(1rem, 2vw, 1.5rem);
   z-index: var(--chat-z);
 
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  height: var(--chat-launcher-h);
+  gap: 0.55rem;
+  padding: 0.45rem 1rem;
+  height: 38px;
 
-  /* Premium dark glassmorphism */
-  background: rgba(15, 15, 20, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Premium dark glassmorphism - subtle & non-intrusive */
+  background: rgba(15, 15, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: #f9fafb;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
 
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.64rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.3s ease;
+              opacity 0.3s ease;
   
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-              0 0 15px rgba(99, 102, 241, 0.2);
-              
-  animation: launcherPulse 3s infinite ease-in-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  opacity: 0.9;
 }
+
 
 @keyframes launcherPulse {
   0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 15px rgba(99, 102, 241, 0.1); }

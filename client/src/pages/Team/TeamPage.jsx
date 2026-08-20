@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Layout from '../../components/shell/Layout.jsx';
@@ -20,13 +20,9 @@ import cultureImg from '../../assets/img/bench-corridor.webp';
 import './Team.css';
 
 export default function TeamPage() {
-  // Every advocate card carries `id={slug}`, which is what /team#<slug> from the
-  // home page and from each practice page's lead-counsel link points at.
   useHashScroll();
 
-  const featured = team.filter(t => t.featured);
-  const rest = team.filter(t => !t.featured);
-
+  const [activeFilter, setActiveFilter] = useState('all');
   const [openSlug, setOpenSlug] = useState(null);
   const returnRef = useRef(null);
 
@@ -34,11 +30,18 @@ export default function TeamPage() {
     target: returnRef,
     offset: ['start end', 'end start'],
   });
-  const returnScale = useTransform(returnProgress, [0, 0.5, 1], [0.94, 1, 0.94]);
+  const returnScale = useTransform(returnProgress, [0, 0.5, 1], [0.96, 1, 0.96]);
 
   const toggleCard = useCallback(slug => {
     setOpenSlug(cur => (cur === slug ? null : slug));
   }, []);
+
+  const filteredTeam = useMemo(() => {
+    if (activeFilter === 'partners') return team.filter(t => t.featured);
+    if (activeFilter === 'associates') return team.filter(t => !t.featured);
+    return team;
+  }, [activeFilter]);
+
 
   return (
     <Layout navTheme="dark">
@@ -50,15 +53,48 @@ export default function TeamPage() {
       <div className="t-stackRoot">
         <TeamArrival />
 
-        <StackSection id="t-founders" className="t-panel t-panel--dark" depth={1}>
-          <div className="container">
-            <span className="chapter-label"><Icon name="scale" /> <b>The Founders</b></span>
-            <div className="t-founders__grid">
-              {featured.map((a, i) => (
+        {/* UNIFIED BENCH SECTION FOR ALL 11 ADVOCATES */}
+        <StackSection id="t-bench" className="t-panel t-panel--black" depth={1}>
+          <div className="container t-bench">
+            <div className="t-bench__head">
+              <div className="t-bench__head-left">
+                <span className="t-section-badge">Our Advocates</span>
+                <h2 className="t-section-title">
+                  <SplitText text="The Bench of Eleven Advocates" />
+                </h2>
+              </div>
+
+              {/* Modern Filter Pill Tabs */}
+              <div className="t-filter-tabs">
+                <button
+                  type="button"
+                  className={`t-filter-btn ${activeFilter === 'all' ? 'is-active' : ''}`}
+                  onClick={() => setActiveFilter('all')}
+                >
+                  All Advocates ({team.length})
+                </button>
+                <button
+                  type="button"
+                  className={`t-filter-btn ${activeFilter === 'partners' ? 'is-active' : ''}`}
+                  onClick={() => setActiveFilter('partners')}
+                >
+                  Leadership
+                </button>
+                <button
+                  type="button"
+                  className={`t-filter-btn ${activeFilter === 'associates' ? 'is-active' : ''}`}
+                  onClick={() => setActiveFilter('associates')}
+                >
+                  Associates
+                </button>
+              </div>
+            </div>
+
+            <div className="t-bench__grid">
+              {filteredTeam.map((a, i) => (
                 <AdvocateCard
                   advocate={a}
-                  large
-                  align={i % 2 === 0 ? 'left' : 'right'}
+                  delay={(i % 3) * 0.05}
                   key={a.slug}
                   open={openSlug === a.slug}
                   onToggle={toggleCard}
@@ -68,25 +104,6 @@ export default function TeamPage() {
           </div>
         </StackSection>
 
-        <StackSection id="t-bench" className="t-panel t-panel--cream" depth={2}>
-          <div className="container t-bench">
-            <div className="t-bench__head">
-              <span className="eyebrow eyebrow--num">Eleven Advocates</span>
-              <h2 className="h2"><SplitText text="Who you will actually be sitting across from." /></h2>
-            </div>
-            <div className="t-bench__grid">
-              {rest.map((a, i) => (
-                <AdvocateCard
-                  advocate={a}
-                  delay={(i % 3) * 0.06}
-                  key={a.slug}
-                  open={openSlug === a.slug}
-                  onToggle={toggleCard}
-                />
-              ))}
-            </div>
-          </div>
-        </StackSection>
 
         <StackSection id="t-standard" className="t-panel t-panel--dark" depth={2} dim={0.4}>
           <CounselStatement />
@@ -114,8 +131,6 @@ export default function TeamPage() {
           </div>
         </StackSection>
 
-        {/* Not pinned: this panel owns an inner position:sticky track, and a
-            sticky ancestor would become its containing block and break it. */}
         <StackSection id="t-expertise" className="t-panel t-panel--black t-expertise" depth={4} pin={false}>
           <div className="container t-expertise__head">
             <span className="eyebrow eyebrow--light"><SplitText text="Expertise Map" /></span>
@@ -141,3 +156,4 @@ export default function TeamPage() {
     </Layout>
   );
 }
+

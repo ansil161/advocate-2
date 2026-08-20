@@ -10,8 +10,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function ExpertiseScroller({ items }) {
   const rootRef = useRef(null);
   
-  // Show only 6 areas
-  const displayedItems = items.slice(0, 6);
+  // Show all practice areas in the grid
+  const displayedItems = items;
   // Split items into two columns for the parallax effect
   const leftCol = displayedItems.filter((_, i) => i % 2 === 0);
   const rightCol = displayedItems.filter((_, i) => i % 2 !== 0);
@@ -23,7 +23,7 @@ export default function ExpertiseScroller({ items }) {
       mm.add('(min-width: 861px) and (prefers-reduced-motion: no-preference)', () => {
         // Right column moves up faster than left column as you scroll down
         gsap.to('.t-bento__col--right', {
-          yPercent: -15,
+          yPercent: -10,
           ease: 'none',
           scrollTrigger: {
             trigger: rootRef.current,
@@ -34,7 +34,7 @@ export default function ExpertiseScroller({ items }) {
         });
         
         gsap.to('.t-bento__col--left', {
-          yPercent: -3,
+          yPercent: -2,
           ease: 'none',
           scrollTrigger: {
             trigger: rootRef.current,
@@ -102,10 +102,12 @@ export default function ExpertiseScroller({ items }) {
       </div>
       
       <div className="container t-bento__action">
-        <Link to="/practice" className="btn btn--gold btn--outline">
-          View All Practice Areas →
+        <Link to="/practice" className="t-bento__cta-btn">
+          <span>Explore All 12 Practice Domains & Credentials</span>
+          <span className="btn-arrow" aria-hidden="true">→</span>
         </Link>
       </div>
     </div>
   );
 }
+

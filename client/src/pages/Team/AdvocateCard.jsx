@@ -7,7 +7,7 @@ const EASE = [0.16, 1, 0.3, 1];
 export default function AdvocateCard({
   advocate,
   large = false,
-  align = 'left', // 'left' | 'right' - only applies when large=true
+  align = 'left',
   delay = 0,
   open,
   onToggle,
@@ -22,77 +22,75 @@ export default function AdvocateCard({
     setHeight(open ? innerRef.current.scrollHeight : 0);
   }, [open]);
 
-  // FULL-WIDTH EDITORIAL SPREAD FOR FOUNDERS
+  // EDITORIAL HERO CARD FOR FOUNDERS / SENIOR ADVOCATES
   if (large) {
     return (
       <motion.div
-        className={`adv-card--editorial adv-card--editorial-${align} ${open ? 'is-open' : ''}`}
+        className={`adv-card--executive ${open ? 'is-open' : ''}`}
         id={a.slug}
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 35 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.85, delay, ease: EASE }}
+        transition={{ duration: 0.8, delay, ease: EASE }}
       >
-        {/* Background Monogram */}
-        <div className="adv-card--editorial__bg" aria-hidden="true">
-          <span>{a.initials}</span>
-        </div>
+        <div className="adv-card--executive__glow" aria-hidden="true" />
 
-        <div className="adv-card--editorial__content">
-          <div className="adv-card--editorial__photo-wrap">
-            {photo ? (
-              <img className="adv-card--editorial__img" src={photo} alt={a.name} loading="lazy" />
-            ) : (
-              <span className="adv-card--editorial__initials">{a.initials}</span>
-            )}
-            <div className="adv-card--editorial__photo-grain" />
+        <div className="adv-card--executive__header-row">
+          <div className="adv-card--executive__portrait-wrap">
+            <div className="adv-card--executive__portrait-ring">
+              {photo ? (
+                <img className="adv-card--executive__img" src={photo} alt={a.name} loading="lazy" />
+              ) : (
+                <span className="adv-card--executive__initials">{a.initials}</span>
+              )}
+            </div>
+            <span className="adv-card__badge-exp">{a.exp}</span>
           </div>
 
-          <div className="adv-card--editorial__text">
-            <span className="adv-card__exp-badge">{a.exp}</span>
-            <h3 className="adv-card__name">{a.name}</h3>
-            <p className="adv-card__role">{a.role}</p>
-            <p className="adv-card__brief">{a.bio}</p>
+          <div className="adv-card--executive__title-block">
+            <span className="adv-card__tag">Senior Advocate & Leadership</span>
+            <h3 className="adv-card__title">{a.name}</h3>
+            <p className="adv-card__subtitle">{a.role}</p>
+          </div>
+        </div>
 
-            <dl className="adv-card__creds">
-              <div>
-                <dt>Qualification</dt>
-                <dd>{a.qualification}</dd>
-              </div>
-              <div>
-                <dt>Enrollment</dt>
-                <dd>{a.enrollment}</dd>
-              </div>
-              <div>
-                <dt>Case Record</dt>
-                <dd>{a.cases}</dd>
-              </div>
-            </dl>
+        <div className="adv-card--executive__body">
+          <p className="adv-card__bio-text">{a.bio}</p>
 
-            <button
-              type="button"
-              className={`adv-card__toggle ${open ? 'is-open' : ''}`}
-              onClick={() => onToggle?.(a.slug)}
-              aria-expanded={!!open}
-              aria-controls={`${a.slug}-details`}
-            >
-              <span className="adv-card__toggle-label">
-                {open ? 'Close profile' : 'Full profile'}
-              </span>
-              <span className="adv-card__toggle-icon" aria-hidden="true">
-                <span className="adv-card__toggle-line" />
-                <span className="adv-card__toggle-line adv-card__toggle-line--v" />
-              </span>
-            </button>
-            
-            <div
-              id={`${a.slug}-details`}
-              className={`adv-card__details ${open ? 'is-open' : ''}`}
-              style={{ height }}
-            >
-              <div className="adv-card__details-inner" ref={innerRef}>
-                <p className="adv-card__long-bio">{a.longBio}</p>
-              </div>
+          <div className="adv-card__stats-row">
+            <div className="adv-card__stat-pill">
+              <span className="stat-label">Qualification</span>
+              <span className="stat-val">{a.qualification}</span>
+            </div>
+            <div className="adv-card__stat-pill">
+              <span className="stat-label">Enrollment</span>
+              <span className="stat-val">{a.enrollment}</span>
+            </div>
+            <div className="adv-card__stat-pill">
+              <span className="stat-label">Track Record</span>
+              <span className="stat-val">{a.cases}</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={`adv-card__action-btn ${open ? 'is-open' : ''}`}
+            onClick={() => onToggle?.(a.slug)}
+            aria-expanded={!!open}
+            aria-controls={`${a.slug}-details`}
+          >
+            <span>{open ? 'Collapse Profile' : 'Explore Full Profile'}</span>
+            <span className="btn-arrow" aria-hidden="true">→</span>
+          </button>
+
+          <div
+            id={`${a.slug}-details`}
+            className={`adv-card__drawer ${open ? 'is-open' : ''}`}
+            style={{ height }}
+          >
+            <div className="adv-card__drawer-inner" ref={innerRef}>
+              <div className="adv-card__divider" />
+              <p className="adv-card__extended-bio">{a.longBio}</p>
             </div>
           </div>
         </div>
@@ -100,74 +98,73 @@ export default function AdvocateCard({
     );
   }
 
-  // STANDARD CARD FOR ASSOCIATES
+
+  // MODERN GRID CARD FOR ADVOCATES
   return (
     <motion.div
-      className={`adv-card ${open ? 'is-open' : ''}`}
+      className={`adv-card--modern ${open ? 'is-open' : ''}`}
       id={a.slug}
-      initial={{ opacity: 0, y: 34 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.85, delay, ease: EASE }}
+      transition={{ duration: 0.7, delay, ease: EASE }}
     >
-      <div className="adv-card__photo">
-        <div className="adv-card__photo-inner">
+      <div className="adv-card--modern__media">
+        <div className="adv-card--modern__frame">
           {photo ? (
-            <img className="adv-card__img" src={photo} alt={a.name} loading="lazy" />
+            <img className="adv-card--modern__img" src={photo} alt={a.name} loading="lazy" />
           ) : (
-            <span className="adv-card__initials">{a.initials}</span>
+            <span className="adv-card--modern__initials">{a.initials}</span>
           )}
-          <div className="adv-card__photo-grain" />
-          <div className="adv-card__photo-vignette" />
-          <div className="adv-card__photo-outline" />
-          <motion.div
-            className="adv-card__curtain"
-            initial={{ scaleY: 1 }}
-            whileInView={{ scaleY: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.95, delay: delay + 0.12, ease: EASE }}
-          />
+          <div className="adv-card--modern__scrim" />
         </div>
-        <span className="adv-card__exp-badge">{a.exp}</span>
+        <span className="adv-card__badge-exp">{a.exp}</span>
       </div>
 
-      <div className="adv-card__body">
-        <h3 className="adv-card__name">{a.name}</h3>
-        <p className="adv-card__role">{a.role}</p>
-        <p className="adv-card__brief">{a.bio}</p>
+      <div className="adv-card--modern__body">
+        <div className="adv-card--modern__head">
+          <h3 className="adv-card__title">{a.name}</h3>
+          <p className="adv-card__subtitle">{a.role}</p>
+        </div>
+        <p className="adv-card__bio-text">{a.bio}</p>
 
         <button
           type="button"
-          className={`adv-card__toggle ${open ? 'is-open' : ''}`}
+          className={`adv-card__action-btn adv-card__action-btn--sm ${open ? 'is-open' : ''}`}
           onClick={() => onToggle?.(a.slug)}
           aria-expanded={!!open}
           aria-controls={`${a.slug}-details`}
         >
-          <span className="adv-card__toggle-label">
-            {open ? 'Close profile' : 'Full profile'}
-          </span>
-          <span className="adv-card__toggle-icon" aria-hidden="true">
-            <span className="adv-card__toggle-line" />
-            <span className="adv-card__toggle-line adv-card__toggle-line--v" />
-          </span>
+          <span>{open ? 'Hide Profile' : 'View Profile'}</span>
+          <span className="btn-arrow" aria-hidden="true">→</span>
         </button>
       </div>
 
       <div
         id={`${a.slug}-details`}
-        className={`adv-card__details ${open ? 'is-open' : ''}`}
+        className={`adv-card__drawer ${open ? 'is-open' : ''}`}
         style={{ height }}
       >
-        <div className="adv-card__details-inner" ref={innerRef}>
-          <p className="adv-card__long-bio">{a.longBio}</p>
-          <div className="adv-card__meta-grid">
-            <div><span>Qualification</span>{a.qualification}</div>
-            <div><span>Enrollment</span>{a.enrollment}</div>
-            <div><span>Experience</span>{a.exp}</div>
-            <div><span>Case Record</span>{a.cases}</div>
+        <div className="adv-card__drawer-inner" ref={innerRef}>
+          <div className="adv-card__divider" />
+          <p className="adv-card__extended-bio">{a.longBio}</p>
+          <div className="adv-card__credentials-grid">
+            <div className="cred-item">
+              <span className="cred-lbl">Qualification</span>
+              <span className="cred-val">{a.qualification}</span>
+            </div>
+            <div className="cred-item">
+              <span className="cred-lbl">Enrollment</span>
+              <span className="cred-val">{a.enrollment}</span>
+            </div>
+            <div className="cred-item">
+              <span className="cred-lbl">Cases</span>
+              <span className="cred-val">{a.cases}</span>
+            </div>
           </div>
         </div>
       </div>
     </motion.div>
   );
 }
+

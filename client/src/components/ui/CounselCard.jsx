@@ -11,7 +11,7 @@ import { useState } from 'react';
 // README.md). When one is missing — or fails to load — the card falls back to
 // the monogram composition, which is a design in its own right rather than a
 // hole where a photo should be.
-export default function CounselCard({ advocate, photoSide = 'right', className = '', children }) {
+export default function CounselCard({ advocate, photoSide = 'right', showBio = false, className = '', children }) {
   const [photoOk, setPhotoOk] = useState(true);
   const showPhoto = Boolean(advocate.photo) && photoOk;
 
@@ -27,12 +27,14 @@ export default function CounselCard({ advocate, photoSide = 'right', className =
       </div>
 
       <span className="counsel__pin" aria-hidden="true" />
+      <span className="counsel__ring" aria-hidden="true" />
+
 
       <div className="counsel__body">
         <span className="counsel__exp">{advocate.exp}</span>
         <h3 className="counsel__name">{advocate.name}</h3>
         <p className="counsel__role">{advocate.role}</p>
-        <p className="counsel__bio">{advocate.bio}</p>
+        {showBio && advocate.bio && <p className="counsel__bio">{advocate.bio}</p>}
         <div className="counsel__meta">
           <span>{advocate.qualification}</span>
           <span>{advocate.cases}</span>
@@ -54,3 +56,4 @@ export default function CounselCard({ advocate, photoSide = 'right', className =
     </article>
   );
 }
+
