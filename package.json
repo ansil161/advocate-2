@@ -1,0 +1,10 @@
+{
+  "name": "advocate-2",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "build": "cd client && npm install && npm run build",
+    "preview": "npm --prefix client run preview"
+  }
+}
