@@ -454,45 +454,10 @@ class DashboardView(View):
         )
 
 
-@method_decorator(admin_required, name="dispatch")
-class SystemStatusView(View):
-    """Live health of everything the assistant depends on.
-
-    Each upstream is reported independently and a failure to reach one is
-    reported as that component being unreachable rather than as the whole
-    endpoint failing — a status page that goes down with the thing it monitors
-    is not a status page.
-
-    Nothing here can carry a credential: the AI service's own /health and
-    /internal/metrics return names and states only, never configuration values.
-    """
-
-    def get(self, request):
-        components: dict = {}
-
-        try:
-            components["ai_service"] = ai_service_request("/api/health", method="GET")
-        except IndexingError as exc:
-            components["ai_service"] = {"status": "unreachable", "detail": str(exc)[:300]}
-
-        try:
-            components["metrics"] = ai_service_request("/internal/metrics", method="GET")
-        except IndexingError as exc:
-            components["metrics"] = {"error": str(exc)[:300]}
-
-        # Probed, not assumed. Both of these are optional, and the difference
-        # between "configured" and "actually answering" is the whole point: a
-        # broker URL pointing at a dead Redis would otherwise let every dispatch
-        # succeed silently while nothing was ever indexed.
-        components["redis"] = _redis_status()
-        components["queue"] = _queue_status()
-        components["database"] = {"status": "ok", "engine": "postgresql"}
-        return JsonResponse(components)
-
-
 @method_decorator(csrf_protect, name="dispatch")
 @method_decorator(admin_required, name="dispatch")
 class BulkReindexView(View):
+
     """Reindex every published document in the background."""
 
     def post(self, request):

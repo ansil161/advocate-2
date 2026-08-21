@@ -7,8 +7,9 @@
 // room rather than discovering from a visitor.
 
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Alert, Empty, StatusPill, formatDate } from '../components/Primitives.jsx';
-import { fetchDashboard } from '../lib/adminApi.js';
+import { fetchDashboard, listEnquiries } from '../lib/adminApi.js';
 
 function Stat({ label, value, warn }) {
   return (
@@ -21,12 +22,18 @@ function Stat({ label, value, warn }) {
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
+  const [enquiryCounts, setEnquiryCounts] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
-    fetchDashboard()
-      .then((body) => !cancelled && setData(body))
+    Promise.all([fetchDashboard(), listEnquiries({ page: 1 }).catch(() => null)])
+      .then(([body, enquiriesRes]) => {
+        if (!cancelled) {
+          setData(body);
+          if (enquiriesRes?.counts) setEnquiryCounts(enquiriesRes.counts);
+        }
+      })
       .catch((err) => !cancelled && setError(err.message));
     return () => {
       cancelled = true;
@@ -36,7 +43,7 @@ export default function Dashboard() {
   if (error) return <Alert kind="error">{error}</Alert>;
   if (!data) return <Empty>Loading…</Empty>;
 
-  const { documents, jobs, recent_jobs: recent } = data;
+  const { documents, recent_jobs: recent } = data;
   // Published-but-not-indexed is the inconsistency worth flagging.
   const drift = documents.published - documents.indexed;
 
@@ -45,7 +52,7 @@ export default function Dashboard() {
       <div className="adm-head">
         <div>
           <h1 className="adm-title">Dashboard</h1>
-          <p className="adm-sub">Knowledge base and indexing status</p>
+          <p className="adm-sub">Overview of client enquiries, knowledge base, and indexing status</p>
         </div>
       </div>
 
@@ -60,8 +67,22 @@ export default function Dashboard() {
         <Stat label="Documents" value={documents.total} />
         <Stat label="Published" value={documents.published} />
         <Stat label="Indexed" value={documents.indexed} warn={drift > 0} />
-        <Stat label="Drafts" value={documents.draft} />
+        <Stat label="Total Enquiries" value={enquiryCounts?.total ?? '—'} />
+        <Stat label="New Enquiries" value={enquiryCounts?.new ?? '—'} warn={Boolean(enquiryCounts?.new > 0)} />
       </div>
+
+      {enquiryCounts?.new > 0 && (
+        <div className="adm-card" style={{ marginBottom: '1.5rem', borderLeft: '4px solid #3b82f6', background: 'rgba(59, 130, 246, 0.05)' }}>
+          <div className="adm-card-pad" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <strong>{enquiryCounts.new} new client {enquiryCounts.new === 1 ? 'enquiry' : 'enquiries'} waiting</strong>
+              <div style={{ fontSize: '0.85rem', color: 'var(--adm-muted)' }}>Visitors submitted consultation requests that need review.</div>
+            </div>
+            <Link to="/admin/enquiries" className="adm-btn is-primary is-small">View Enquiries</Link>
+          </div>
+        </div>
+      )}
+
 
 
       <div className="adm-card">

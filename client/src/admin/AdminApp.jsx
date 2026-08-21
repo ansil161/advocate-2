@@ -20,10 +20,10 @@ import Icon from '../components/ui/Icon.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
 import { AdminAuthProvider, useAdminAuth } from './lib/useAdminAuth.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Enquiries from './pages/Enquiries.jsx';
 import KnowledgeEditor from './pages/KnowledgeEditor.jsx';
 import KnowledgeList from './pages/KnowledgeList.jsx';
 import Login from './pages/Login.jsx';
-import System from './pages/System.jsx';
 import Versions from './pages/Versions.jsx';
 
 function Shell({ children }) {
@@ -54,13 +54,13 @@ function Shell({ children }) {
             <Icon name="grid" />
             <span>Dashboard</span>
           </NavLink>
+          <NavLink to="/admin/enquiries">
+            <Icon name="conversation" />
+            <span>Enquiries</span>
+          </NavLink>
           <NavLink to="/admin/knowledge">
             <Icon name="book" />
             <span>Knowledge Base</span>
-          </NavLink>
-          <NavLink to="/admin/system">
-            <Icon name="sparkles" />
-            <span>System Health</span>
           </NavLink>
           <a href="/" target="_blank" rel="noopener noreferrer" className="adm-nav-link-out">
             <Icon name="home" />
@@ -138,13 +138,15 @@ function GuardedRoutes() {
       */}
       <Routes>
         <Route index element={<Dashboard />} />
+        <Route path="enquiries" element={<Enquiries />} />
         <Route path="knowledge" element={<KnowledgeList />} />
+
         {/* Declared before :id so "new" is never parsed as a document id. */}
         <Route path="knowledge/new" element={<KnowledgeEditor />} />
         <Route path="knowledge/:id" element={<KnowledgeEditor />} />
         <Route path="knowledge/:id/versions" element={<Versions />} />
-        <Route path="system" element={<System />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
+
       </Routes>
     </Shell>
   );

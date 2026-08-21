@@ -188,9 +188,6 @@ export function listJobs(status = '') {
   return request(`/api/admin/jobs/${status ? `?status=${encodeURIComponent(status)}` : ''}`);
 }
 
-export function fetchSystemStatus() {
-  return request('/api/admin/system/');
-}
 
 // ── diagnostics ──────────────────────────────────────────────────────────────
 //
@@ -213,3 +210,27 @@ export function fetchEvaluationCases() {
 export function runEvaluation(mode = 'retrieval', category = '') {
   return request('/api/admin/evaluation/', { method: 'POST', body: { mode, category } });
 }
+
+// ── enquiries ─────────────────────────────────────────────────────────────────
+
+export function listEnquiries({ status = '', q = '', page = 1 } = {}) {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (q) params.set('q', q);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return request(`/api/admin/enquiries/${query ? `?${query}` : ''}`);
+}
+
+export function getEnquiry(id) {
+  return request(`/api/admin/enquiries/${id}/`);
+}
+
+export function updateEnquiry(id, data) {
+  return request(`/api/admin/enquiries/${id}/`, { method: 'PATCH', body: data });
+}
+
+export function deleteEnquiry(id) {
+  return request(`/api/admin/enquiries/${id}/`, { method: 'DELETE' });
+}
+

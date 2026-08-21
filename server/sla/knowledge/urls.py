@@ -7,6 +7,7 @@ prefix by source address without knowing anything about individual views.
 
 from django.urls import path
 
+from account.views import AdminEnquiryListView, AdminEnquiryDetailView
 from .views import (
     BulkReindexView,
     DashboardView,
@@ -17,13 +18,13 @@ from .views import (
     DocumentListView,
     DocumentVersionsView,
     JobListView,
-    SystemStatusView,
 )
 
 urlpatterns = [
     path("dashboard/", DashboardView.as_view(), name="admin-dashboard"),
-    path("system/", SystemStatusView.as_view(), name="admin-system"),
     path("jobs/", JobListView.as_view(), name="admin-jobs"),
+    path("enquiries/", AdminEnquiryListView.as_view(), name="admin-enquiry-list"),
+    path("enquiries/<int:pk>/", AdminEnquiryDetailView.as_view(), name="admin-enquiry-detail"),
     # Declared before the <int:pk> routes so "reindex-all" is never parsed as a
     # document id.
     path("knowledge/reindex-all/", BulkReindexView.as_view(), name="admin-knowledge-reindex-all"),
@@ -37,3 +38,4 @@ urlpatterns = [
     # should be able to do.
     path("knowledge/<int:pk>/<str:action>/", DocumentActionView.as_view(), name="admin-knowledge-action"),
 ]
+

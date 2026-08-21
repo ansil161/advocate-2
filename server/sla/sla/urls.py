@@ -19,7 +19,8 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/", include('account.urls')),
     # Administrative surface, separable at the edge from the public API.
     path("api/admin/", include('knowledge.urls')),
+    path("api/", include('account.urls')),
 ]
+

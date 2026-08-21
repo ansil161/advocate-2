@@ -10,6 +10,20 @@
   border: 1px solid var(--line-light); border-radius: var(--radius); resize: vertical;
   transition: border-color 0.3s var(--ease);
 }
+.cform select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23d3b17f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+.cform option {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
 .cform input:focus, .cform select:focus, .cform textarea:focus { outline: none; border-color: var(--gold); }
 .cform__submit { width: 100%; }
 .cform__head { margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--line-light); }
@@ -37,26 +51,38 @@
 .cform__submit[disabled] { opacity: 0.55; pointer-events: none; }
 
 .cform__done {
-  position: absolute; inset: 0; z-index: 3;
-  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
-  gap: 0.85rem; padding: clamp(2rem, 4vw, 2.75rem); text-align: left;
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between;
+  gap: 1.25rem; padding: clamp(1.75rem, 3.5vw, 2.5rem); text-align: left;
+  border-radius: inherit; overflow-y: auto;
 }
-.cform__done-label { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.cform__done-badge-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.cform__done-icon {
+  width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+.cform__done-icon svg { width: 20px; height: 20px; }
+.cform__done-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
 .cform__done-label:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
-.cform__done-text { font-size: 0.9rem; line-height: 1.6; max-width: 44ch; }
-.cform__done-text--fine { font-size: 0.8rem; }
-.cform__done-text a { border-bottom: 1px solid transparent; transition: border-color 0.3s var(--ease); }
-.cform__done-text a[href^='tel:'] { white-space: nowrap; }
-.cform__again {
-  position: relative; margin-top: 0.6rem; padding: 0; font-size: 0.82rem; font-weight: 500;
-  letter-spacing: 0.02em; background: none; border: 0;
+.cform__done-title { font-family: var(--font-serif); font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 500; line-height: 1.25; margin: 0; }
+.cform__done-desc { font-size: 0.88rem; line-height: 1.6; max-width: 48ch; margin: 0; }
+
+.cform__done-ticket {
+  width: 100%; border-radius: 10px; padding: 0.9rem 1.15rem;
+  display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;
 }
-.cform__again::after {
-  content: ''; position: absolute; left: 0; bottom: -4px; width: 100%; height: 1px;
-  background: var(--gold); transform: scaleX(0.3); transform-origin: left;
-  transition: transform 0.4s var(--ease);
-}
-.cform__again:hover::after { transform: scaleX(1); }
+.cform__ticket-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.35rem; }
+.cform__ticket-row:not(:last-child) { border-bottom: 1px dashed rgba(255, 255, 255, 0.1); }
+.cform__ticket-key { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.65; }
+.cform__ticket-val { font-weight: 600; }
+.cform__ticket-status { display: flex; align-items: center; gap: 0.4rem; color: #10b981; font-weight: 600; font-size: 0.8rem; }
+.cform__status-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+.cform__done-footer { width: 100%; display: flex; flex-direction: column; gap: 0.75rem; align-items: center; margin-top: 0.25rem; }
+.cform__again-btn { width: 100%; }
+.cform__phone-call { font-size: 0.82rem; text-decoration: none; opacity: 0.8; transition: opacity 0.2s; }
+.cform__phone-call:hover { opacity: 1; text-decoration: underline; }
 
 /* — light: on cream page sections — */
 .cform--light { --err: #9a2f26; position: relative; background: var(--cream-soft); border: 1px solid var(--line-light); padding: clamp(2rem, 4vw, 2.75rem); }
@@ -68,10 +94,13 @@
 .cform--light .cform__alt a:hover { border-bottom-color: var(--ink); }
 .cform--light .cform__done { background: var(--cream-soft); }
 .cform--light .cform__done-label { color: var(--gold); }
-.cform--light .cform__done-text { color: var(--muted-light); }
-.cform--light .cform__done-text a { color: var(--ink); border-bottom-color: var(--line-light); }
-.cform--light .cform__done-text a:hover { border-bottom-color: var(--ink); }
-.cform--light .cform__again { color: var(--ink); }
+.cform--light .cform__done-title { color: var(--ink); }
+.cform--light .cform__done-desc { color: var(--muted-light); }
+.cform--light .cform__done-ticket { background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(0, 0, 0, 0.08); }
+.cform--light .cform__ticket-row:not(:last-child) { border-bottom-color: rgba(0, 0, 0, 0.08); }
+.cform--light .cform__ticket-key { color: var(--muted-light); }
+.cform--light .cform__ticket-val { color: var(--ink); }
+.cform--light select option { background-color: #fcfbfa; color: #121316; }
 
 /* — dark: inside the CTA bands — PREMIUM REDESIGN — */
 .cform--dark {
@@ -104,6 +133,12 @@
   color: var(--white); color-scheme: dark;
   transition: all 0.3s var(--ease);
 }
+.cform--dark select option {
+  background-color: #16171a;
+  color: #ffffff;
+  padding: 8px 12px;
+}
+
 .cform--dark input:focus, .cform--dark select:focus, .cform--dark textarea:focus {
   background: rgba(255, 255, 255, 0.06);
   border-color: var(--gold-soft);
@@ -114,13 +149,14 @@
 .cform--dark .cform__alt a { color: var(--gold-soft); }
 .cform--dark .cform__alt a:hover { border-bottom-color: var(--gold-soft); color: var(--white); }
 /* Sits below the gold hairline so the card keeps its edge while resolved. */
-.cform--dark .cform__done { top: 2px; background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(12px); border-radius: inherit; }
+.cform--dark .cform__done { top: 2px; background: rgba(12, 13, 16, 0.94); backdrop-filter: blur(16px); border-radius: inherit; }
 .cform--dark .cform__done-label { color: var(--gold-soft); }
-.cform--dark .cform__done-text { color: rgba(255,255,255,0.8); }
-.cform--dark .cform__done-text a { color: var(--gold-soft); border-bottom-color: rgba(255, 255, 255, 0.2); }
-.cform--dark .cform__done-text a:hover { border-bottom-color: var(--gold-soft); color: var(--white); }
-.cform--dark .cform__again { color: var(--white); }
-.cform--dark .cform__again::after { background: var(--gold-soft); }
+.cform--dark .cform__done-title { color: var(--white); }
+.cform--dark .cform__done-desc { color: rgba(255,255,255,0.8); }
+.cform--dark .cform__done-ticket { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); }
+.cform--dark .cform__ticket-key { color: rgba(255, 255, 255, 0.5); }
+.cform--dark .cform__ticket-val { color: var(--white); }
+.cform--dark .cform__phone-call { color: var(--gold-soft); }
 
 @media (max-width: 720px) {
   .cform__row { grid-template-columns: 1fr; }
@@ -133,3 +169,4 @@
   .cform input, .cform select, .cform textarea, .cform__alt a,
   .cform__done-text a, .cform__again::after { transition: none; }
 }
+

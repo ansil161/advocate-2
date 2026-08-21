@@ -25,12 +25,23 @@ const SEND_FAILED =
 // front of it, so nothing here can confirm the firm received anything — the only
 // failure this can observe is the handoff itself refusing to open. Should a real
 // endpoint ever be added, this is the single function that has to change.
-function deliverEnquiry(form) {
-  const subject = encodeURIComponent(`Consultation request — ${form.matter}`);
-  const body = encodeURIComponent(
-    `Name: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nMatter type: ${form.matter}\n\n${form.message}`
-  );
-  window.location.href = `mailto:${consult.email}?subject=${subject}&body=${body}`;
+const BASE_URL = (import.meta.env.VITE_ADMIN_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+
+async function deliverEnquiry(form) {
+  const res = await fetch(`${BASE_URL}/api/enquiries/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(form),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to submit enquiry');
+  }
+
+  return await res.json();
 }
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -42,7 +53,7 @@ export default function ContactForm({
   variant = 'light',
   heading,
   note,
-  submitLabel = 'Send via Email',
+  submitLabel = 'Submit Enquiry',
   defaultMatter,
   className = '',
 }) {
@@ -106,12 +117,10 @@ export default function ContactForm({
     setStatus('sending');
     try {
       const trimmed = Object.fromEntries(FIELDS.map(f => [f, form[f].trim()]));
-      deliverEnquiry(trimmed);
-      // A short settle before the panel swaps in: it gives the mail client a
-      // moment to come forward rather than appearing over a changed page.
-      await wait(450);
+      await deliverEnquiry(trimmed);
       setStatus('sent');
-    } catch {
+    } catch (err) {
+      console.error('Submission failed:', err);
       setStatus('failed');
     } finally {
       sending.current = false;
@@ -210,7 +219,7 @@ export default function ContactForm({
             disabled={busy}
             aria-busy={busy || undefined}
           >
-            <span>{busy ? 'Sending…' : submitLabel}</span>
+            <span>{busy ? 'Submitting…' : submitLabel}</span>
           </button>
         </div>
 
@@ -222,40 +231,64 @@ export default function ContactForm({
       {/* Live region stays mounted so the status change is announced rather
           than read as a new element appearing. */}
       <p className="cform__live" aria-live="polite">
-        {busy ? 'Sending your enquiry.' : ''}
-        {sent ? 'Your enquiry is ready to send from your email app.' : ''}
+        {busy ? 'Submitting your enquiry.' : ''}
+        {sent ? 'Your enquiry has been received successfully.' : ''}
       </p>
 
       <AnimatePresence>
         {sent && (
-          // pointerEvents drops on the way out so the fading panel never sits
-          // over a form the visitor has already been sent back to.
           <motion.div
             className="cform__done"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, pointerEvents: 'none', transition: { duration: 0.3 } }}
-            transition={{ duration: 0.6, ease: EASE }}
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.25 } }}
+            transition={{ duration: 0.5, ease: EASE }}
           >
-            {/* Focused on arrival so keyboard and screen-reader users land on
-                the outcome instead of being left on a button that vanished. */}
-            <span className="cform__done-label" ref={doneRef} tabIndex={-1}>Enquiry Prepared</span>
-            <span className="cform__heading">One last step</span>
-            <p className="cform__done-text">
-              Your email app has opened with the enquiry addressed to{' '}
-              <a href={`mailto:${consult.email}`}>{consult.email}</a> — press send there and the
-              firm will review it and come back to you shortly.
+            <div className="cform__done-badge-wrap">
+              <div className="cform__done-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <span className="cform__done-label" ref={doneRef} tabIndex={-1}>Enquiry Confirmed</span>
+            </div>
+
+            <h3 className="cform__done-title">Thank You, {form.name ? form.name.split(' ')[0] : 'Client'}</h3>
+            
+            <p className="cform__done-desc">
+              Your consultation request has been stored in our system and sent directly to our legal team. We will review your details and contact you shortly.
             </p>
-            <p className="cform__done-text cform__done-text--fine">
-              Nothing opened? Write to us at that address, or call{' '}
-              <a href={`tel:${consult.phoneHref}`}>{consult.phone}</a>.
-            </p>
-            <button type="button" className="cform__again" onClick={reset}>
-              Send another enquiry
-            </button>
+
+            <div className="cform__done-ticket">
+              <div className="cform__ticket-row">
+                <span className="cform__ticket-key">Matter Type</span>
+                <span className="cform__ticket-val">{form.matter}</span>
+              </div>
+              <div className="cform__ticket-row">
+                <span className="cform__ticket-key">Client Email</span>
+                <span className="cform__ticket-val">{form.email}</span>
+              </div>
+              <div className="cform__ticket-row">
+                <span className="cform__ticket-key">Status</span>
+                <span className="cform__ticket-status">
+                  <i className="cform__status-dot" /> Received & Queued
+                </span>
+              </div>
+            </div>
+
+            <div className="cform__done-footer">
+              <button type="button" className="btn btn--solid magnetic cform__again-btn" onClick={reset}>
+                <span>Send Another Enquiry</span>
+              </button>
+              <a href={`tel:${consult.phoneHref}`} className="cform__phone-call">
+                Or Call Us Directly: {consult.phone}
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </form>
   );
 }
+
+
