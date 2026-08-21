@@ -1,9 +1,12 @@
 import json
+from functools import wraps
+from django.conf import settings
 from django.http import JsonResponse
 from django.views import View
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
+from .jwt_utils import generate_jwt_token, get_user_from_jwt
 
 User = get_user_model()
 
@@ -12,41 +15,64 @@ class GetCSRFToken(View):
     def get(self, request, *args, **kwargs):
         return JsonResponse({'success': 'CSRF cookie set'})
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(View):
     def post(self, request, *args, **kwargs):
+
         try:
-            data = json.loads(request.body)
+            data = json.loads(request.body or '{}')
             username = data.get('username')
             password = data.get('password')
             
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                login(request, user)
-                return JsonResponse({'success': 'Logged in successfully'}, status=200)
+                token = generate_jwt_token(user)
+                response = JsonResponse({
+                    'success': 'Logged in successfully',
+                    'user': {
+                        'id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                        'is_staff': user.is_staff
+                    }
+                }, status=200)
+
+                # Store JWT in HttpOnly Cookie
+                response.set_cookie(
+                    key='access_token',
+                    value=token,
+                    httponly=True,
+                    samesite='Lax',
+                    secure=not settings.DEBUG,
+                    max_age=24 * 3600
+                )
+                return response
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=401)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(View):
     def post(self, request, *args, **kwargs):
-        logout(request)
-        return JsonResponse({'success': 'Logged out successfully'}, status=200)
+
+        response = JsonResponse({'success': 'Logged out successfully'}, status=200)
+        response.delete_cookie('access_token')
+        return response
 
 class UserView(View):
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            user = User.objects.prefetch_related('groups').get(id=request.user.id)
+        user = get_user_from_jwt(request) or (request.user if request.user.is_authenticated else None)
+        if user:
             groups = [group.name for group in user.groups.all()]
-            
             return JsonResponse({
                 'is_authenticated': True,
                 'user': {
                     'id': user.id,
                     'username': user.username,
                     'email': user.email,
-                    'bio': user.bio,
-                    'phone_number': user.phone_number,
+                    'bio': getattr(user, 'bio', ''),
+                    'phone_number': getattr(user, 'phone_number', ''),
                     'groups': groups
                 }
             }, status=200)
@@ -54,7 +80,6 @@ class UserView(View):
             return JsonResponse({'is_authenticated': False, 'error': 'Not logged in'}, status=401)
 
 
-from functools import wraps
 from django.db.models import Q, Count
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -63,13 +88,15 @@ from .models import Enquiry
 def admin_required(view):
     @wraps(view)
     def wrapper(request, *args, **kwargs):
-        user = request.user
-        if not user.is_authenticated:
+        user = get_user_from_jwt(request) or (request.user if request.user.is_authenticated else None)
+        if not user:
             return JsonResponse({"error": "Authentication required"}, status=401)
         if not user.is_staff:
             return JsonResponse({"error": "Administrator access required"}, status=403)
+        request.user = user
         return view(request, *args, **kwargs)
     return wrapper
+
 
 
 def _get_client_ip(request):

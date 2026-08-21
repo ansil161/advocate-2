@@ -54,23 +54,26 @@ MAX_CONTENT_CHARS = 100_000
 PAGE_SIZE = 25
 
 
+from account.jwt_utils import get_user_from_jwt
+
 def admin_required(view):
     """Authenticated *and* staff. Both, on every request.
 
-    Returns 403 rather than redirecting to a login page: this is an API, and a
-    302 to HTML would surface in the SPA as an unparseable success.
+    Supports both JWT HttpOnly Cookies and Django Sessions.
     """
 
     @functools.wraps(view)
     def wrapper(request, *args, **kwargs):
-        user = request.user
-        if not user.is_authenticated:
+        user = get_user_from_jwt(request) or (request.user if request.user.is_authenticated else None)
+        if not user:
             return JsonResponse({"error": "authentication required"}, status=401)
         if not user.is_staff:
             return JsonResponse({"error": "administrator access required"}, status=403)
+        request.user = user
         return view(request, *args, **kwargs)
 
     return wrapper
+
 
 
 def _body(request) -> dict:
